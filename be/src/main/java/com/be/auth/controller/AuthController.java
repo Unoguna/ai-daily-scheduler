@@ -20,7 +20,7 @@ public class AuthController {
     public SocialAuthDtos.LoginResponse kakaoLogin(
             @Valid @RequestBody SocialAuthDtos.KakaoLoginRequest request
     ) {
-        return socialAuthService.loginWithKakao(request.getCode());
+        return socialAuthService.loginWithKakao(request.code());
     }
 
     @PostMapping("/refresh")
