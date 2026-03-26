@@ -1,10 +1,7 @@
 package com.be.auth.service;
 
 import com.be.auth.domain.RefreshToken;
-import com.be.auth.dto.AuthDtos;
-import com.be.auth.dto.KakaoTokenResponse;
-import com.be.auth.dto.KakaoUserInfo;
-import com.be.auth.dto.SocialAuthDtos;
+import com.be.auth.dto.*;
 import com.be.auth.jwt.JwtTokenProvider;
 import com.be.auth.repository.RefreshTokenRepository;
 import com.be.user.domain.AuthProvider;
@@ -24,7 +21,7 @@ public class SocialAuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoApiClient kakaoApiClient;
 
-    public SocialAuthDtos.LoginResponse loginWithKakao(String code) {
+    public LoginResponse loginWithKakao(String code) {
 
         KakaoTokenResponse tokenResponse = kakaoApiClient.getToken(code);
         KakaoUserInfo userInfo = kakaoApiClient.getUserInfo(tokenResponse.getAccessToken());
@@ -54,7 +51,7 @@ public class SocialAuthService {
 
         saveOrUpdateRefreshToken(user.getId(), refreshToken);
 
-        return new SocialAuthDtos.LoginResponse(
+        return new LoginResponse(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
@@ -72,8 +69,8 @@ public class SocialAuthService {
                 );
     }
 
-    public AuthDtos.TokenResponse refresh(AuthDtos.RefreshRequest request) {
-        String refreshToken = request.getRefreshToken();
+    public TokenResponse refresh(RefreshRequest request) {
+        String refreshToken = request.refreshToken();
 
         if (!jwtTokenProvider.validateToken(refreshToken)) {
             throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
@@ -90,7 +87,7 @@ public class SocialAuthService {
 
         saved.updateToken(newRefreshToken);
 
-        return new AuthDtos.TokenResponse(newAccessToken, newRefreshToken);
+        return new TokenResponse(newAccessToken, newRefreshToken);
     }
 
     public void logout(Long userId) {
@@ -98,11 +95,11 @@ public class SocialAuthService {
     }
 
     @Transactional(readOnly = true)
-    public AuthDtos.AuthResponse getMe(Long userId) {
+    public AuthResponse getMe(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        return new AuthDtos.AuthResponse(
+        return new AuthResponse(
                 user.getId(),
                 user.getName(),
                 user.getEmail()

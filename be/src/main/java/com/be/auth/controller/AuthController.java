@@ -1,7 +1,6 @@
 package com.be.auth.controller;
 
-import com.be.auth.dto.AuthDtos;
-import com.be.auth.dto.SocialAuthDtos;
+import com.be.auth.dto.*;
 import com.be.auth.service.SocialAuthService;
 import com.be.global.security.UserPrincipal;
 import jakarta.validation.Valid;
@@ -17,25 +16,25 @@ public class AuthController {
     private final SocialAuthService socialAuthService;
 
     @PostMapping("/kakao")
-    public SocialAuthDtos.LoginResponse kakaoLogin(
-            @Valid @RequestBody SocialAuthDtos.KakaoLoginRequest request
+    public LoginResponse kakaoLogin(
+            @Valid @RequestBody KakaoLoginRequest request
     ) {
         return socialAuthService.loginWithKakao(request.code());
     }
 
     @PostMapping("/refresh")
-    public AuthDtos.TokenResponse refresh(@Valid @RequestBody AuthDtos.RefreshRequest request) {
+    public TokenResponse refresh(@Valid @RequestBody RefreshRequest request) {
         return socialAuthService.refresh(request);
     }
 
     @PostMapping("/logout")
-    public AuthDtos.MessageResponse logout(@AuthenticationPrincipal UserPrincipal principal) {
+    public MessageResponse logout(@AuthenticationPrincipal UserPrincipal principal) {
         socialAuthService.logout(principal.getUserId());
-        return new AuthDtos.MessageResponse("로그아웃 되었습니다.");
+        return new MessageResponse("로그아웃 되었습니다.");
     }
 
     @GetMapping("/me")
-    public AuthDtos.AuthResponse me(@AuthenticationPrincipal UserPrincipal principal) {
+    public AuthResponse me(@AuthenticationPrincipal UserPrincipal principal) {
         return socialAuthService.getMe(principal.getUserId());
     }
 }
