@@ -1,4 +1,4 @@
-package com.be.auth.dto;
+package com.be.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 

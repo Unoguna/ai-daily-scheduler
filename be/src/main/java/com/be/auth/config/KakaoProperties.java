@@ -1,4 +1,4 @@
-package com.be.auth.dto;
+package com.be.auth.config;
 
 import lombok.Getter;
 import lombok.Setter;

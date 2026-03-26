@@ -1,6 +1,6 @@
 package com.be.global.config;
 
-import com.be.auth.dto.KakaoProperties;
+import com.be.auth.config.KakaoProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

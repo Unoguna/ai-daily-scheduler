@@ -1,7 +1,12 @@
 package com.be.auth.service;
 
 import com.be.auth.domain.RefreshToken;
-import com.be.auth.dto.*;
+import com.be.auth.dto.kakao.KakaoTokenResponse;
+import com.be.auth.dto.kakao.KakaoUserInfo;
+import com.be.auth.dto.request.RefreshRequest;
+import com.be.auth.dto.response.AuthResponse;
+import com.be.auth.dto.response.LoginResponse;
+import com.be.auth.dto.response.TokenResponse;
 import com.be.auth.jwt.JwtTokenProvider;
 import com.be.auth.repository.RefreshTokenRepository;
 import com.be.user.domain.AuthProvider;
@@ -24,12 +29,12 @@ public class SocialAuthService {
     public LoginResponse loginWithKakao(String code) {
 
         KakaoTokenResponse tokenResponse = kakaoApiClient.getToken(code);
-        KakaoUserInfo userInfo = kakaoApiClient.getUserInfo(tokenResponse.getAccessToken());
+        KakaoUserInfo userInfo = kakaoApiClient.getUserInfo(tokenResponse.accessToken());
 
-        String providerId = userInfo.getId();
-        String email = userInfo.getEmail();
-        String name = userInfo.getNickname();
-        String profileImageUrl = userInfo.getProfileImageUrl();
+        String providerId = userInfo.id();
+        String email = userInfo.email();
+        String name = userInfo.nickname();
+        String profileImageUrl = userInfo.profileImageUrl();
 
         boolean[] isNew = {false};
 

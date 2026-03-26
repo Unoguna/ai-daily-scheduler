@@ -1,4 +1,4 @@
-package com.be.auth.dto;
+package com.be.auth.dto.response;
 
 public record TokenResponse(
         String accessToken,

@@ -1,8 +1,9 @@
 package com.be.auth.service;
 
-import com.be.auth.dto.KakaoProperties;
-import com.be.auth.dto.KakaoTokenResponse;
-import com.be.auth.dto.KakaoUserInfo;
+import com.be.auth.config.KakaoProperties;
+import com.be.auth.dto.kakao.KakaoTokenResponse;
+import com.be.auth.dto.kakao.KakaoUserInfo;
+import com.be.auth.dto.kakao.KakaoUserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -33,7 +34,7 @@ public class KakaoApiClient {
                 .bodyToMono(KakaoTokenResponse.class)
                 .block();
 
-        if (response == null || response.getAccessToken() == null) {
+        if (response == null || response.accessToken() == null) {
             throw new IllegalArgumentException("카카오 액세스 토큰 발급에 실패했습니다.");
         }
 
@@ -41,12 +42,12 @@ public class KakaoApiClient {
     }
 
     public KakaoUserInfo getUserInfo(String kakaoAccessToken) {
-        KakaoUserInfo.KakaoUserResponse response = webClient.get()
+        KakaoUserResponse response = webClient.get()
                 .uri(kakaoProperties.getUserInfoUri())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + kakaoAccessToken)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=utf-8")
                 .retrieve()
-                .bodyToMono(KakaoUserInfo.KakaoUserResponse.class)
+                .bodyToMono(KakaoUserResponse.class)
                 .block();
 
         if (response == null) {
@@ -55,7 +56,7 @@ public class KakaoApiClient {
 
         KakaoUserInfo userInfo = response.toUserInfo();
 
-        if (userInfo.getId() == null) {
+        if (userInfo.id() == null) {
             throw new IllegalArgumentException("카카오 사용자 식별값이 없습니다.");
         }
 
