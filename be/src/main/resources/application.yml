@@ -16,3 +16,9 @@ jwt:
   secret: your-very-long-secret-key-your-very-long-secret-key
   access-token-expiration-ms: 3600000       # 1??
   refresh-token-expiration-ms: 1209600000   # 14?
+
+kakao:
+  client-id: YOUR_KAKAO_REST_API_KEY
+  redirect-uri: http://localhost:3000/login/kakao/callback
+  token-uri: https://kauth.kakao.com/oauth/token
+  user-info-uri: https://kapi.kakao.com/v2/user/me

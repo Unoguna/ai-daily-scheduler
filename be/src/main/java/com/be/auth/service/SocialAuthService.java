@@ -2,6 +2,8 @@ package com.be.auth.service;
 
 import com.be.auth.domain.RefreshToken;
 import com.be.auth.dto.AuthDtos;
+import com.be.auth.dto.KakaoTokenResponse;
+import com.be.auth.dto.KakaoUserInfo;
 import com.be.auth.dto.SocialAuthDtos;
 import com.be.auth.jwt.JwtTokenProvider;
 import com.be.auth.repository.RefreshTokenRepository;
@@ -106,4 +108,4 @@ public class SocialAuthService {
                 user.getEmail()
         );
     }
-}}
+}
