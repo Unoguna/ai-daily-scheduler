@@ -13,12 +13,12 @@ spring:
       enabled: true
 
 jwt:
-  secret: your-very-long-secret-key-your-very-long-secret-key
-  access-token-expiration-ms: 3600000       # 1??
-  refresh-token-expiration-ms: 1209600000   # 14?
+  secret: 7Fh3Kp9zQ2xL8vR6mN1cW4yT0uD5sAqJ8eZ3rB7nV2kX6pH1fG9tY4mC8uE2aL5
+  access-token-expiration-ms: 3600000
+  refresh-token-expiration-ms: 1209600000
 
 kakao:
-  client-id: YOUR_KAKAO_REST_API_KEY
+  client-id: ${JWT_SECRET}
   redirect-uri: http://localhost:3000/login/kakao/callback
   token-uri: https://kauth.kakao.com/oauth/token
   user-info-uri: https://kapi.kakao.com/v2/user/me
