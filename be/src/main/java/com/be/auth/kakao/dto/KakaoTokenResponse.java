@@ -1,4 +1,4 @@
-package com.be.auth.dto.kakao;
+package com.be.auth.kakao.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

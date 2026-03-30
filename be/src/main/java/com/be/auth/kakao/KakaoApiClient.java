@@ -1,9 +1,9 @@
 package com.be.auth.kakao;
 
 import com.be.auth.config.KakaoProperties;
-import com.be.auth.dto.kakao.KakaoTokenResponse;
-import com.be.auth.dto.kakao.KakaoUserInfo;
-import com.be.auth.dto.kakao.KakaoUserResponse;
+import com.be.auth.kakao.dto.KakaoTokenResponse;
+import com.be.auth.kakao.dto.KakaoUserInfo;
+import com.be.auth.kakao.dto.KakaoUserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

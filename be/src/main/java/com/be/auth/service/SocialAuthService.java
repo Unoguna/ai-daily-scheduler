@@ -1,8 +1,8 @@
 package com.be.auth.service;
 
 import com.be.auth.domain.RefreshToken;
-import com.be.auth.dto.kakao.KakaoTokenResponse;
-import com.be.auth.dto.kakao.KakaoUserInfo;
+import com.be.auth.kakao.dto.KakaoTokenResponse;
+import com.be.auth.kakao.dto.KakaoUserInfo;
 import com.be.auth.dto.request.RefreshRequest;
 import com.be.auth.dto.response.AuthResponse;
 import com.be.auth.dto.response.LoginResponse;
