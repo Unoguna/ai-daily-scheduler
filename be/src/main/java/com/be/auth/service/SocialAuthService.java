@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -37,18 +39,24 @@ public class SocialAuthService {
         String name = userInfo.nickname();
         String profileImageUrl = userInfo.profileImageUrl();
 
-        boolean[] isNew = {false};
 
-        User user = userRepository
-                .findByProviderAndProviderId(AuthProvider.KAKAO, providerId)
-                .orElseGet(() -> {
-                    isNew[0] = true;
-                    return userRepository.save(
-                            User.create(AuthProvider.KAKAO, providerId, email, name, profileImageUrl)
-                    );
-                });
+        Optional<User> optionalUser = userRepository
+                .findByProviderAndProviderId(AuthProvider.KAKAO, providerId);
 
-        if (!isNew[0]) {
+        User user;
+        boolean isNew;
+
+        if(optionalUser.isPresent()) {
+            user = optionalUser.get();
+            isNew = false;
+        } else {
+            isNew = true;
+            user = userRepository.save(
+                    User.create(AuthProvider.KAKAO, providerId, email, name, profileImageUrl)
+            );
+        }
+
+        if (!isNew) {
             user.updateProfile(email, name, profileImageUrl);
         }
 
@@ -63,7 +71,7 @@ public class SocialAuthService {
                 user.getEmail(),
                 accessToken,
                 refreshToken,
-                isNew[0]
+                isNew
         );
     }
 

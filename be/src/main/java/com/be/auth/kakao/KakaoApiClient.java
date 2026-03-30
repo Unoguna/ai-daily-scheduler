@@ -20,6 +20,9 @@ public class KakaoApiClient {
     private final KakaoProperties kakaoProperties;
 
     public KakaoTokenResponse getToken(String code) {
+        // 카카오 api는 .contentType(MediaType.APPLICATION_FORM_URLENCODED)로 리스폰스를 보내야하는데
+        // MultiValueMap이 아니라 그냥 Map으로 하면 .bodyValue(formData)에서 카카오 api에서 원하는 형태가 아니라 일반적인
+        // JSON으로 변환되어 에러가 생긴다. 그래서 Map이 아닌 MultiValueMap으로 받아야 한다.
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("grant_type", "authorization_code");
         formData.add("client_id", kakaoProperties.getClientId());
