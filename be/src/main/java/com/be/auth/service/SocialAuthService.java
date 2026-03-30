@@ -8,6 +8,7 @@ import com.be.auth.dto.response.AuthResponse;
 import com.be.auth.dto.response.LoginResponse;
 import com.be.auth.dto.response.TokenResponse;
 import com.be.auth.jwt.JwtTokenProvider;
+import com.be.auth.kakao.KakaoApiClient;
 import com.be.auth.repository.RefreshTokenRepository;
 import com.be.user.domain.AuthProvider;
 import com.be.user.domain.User;

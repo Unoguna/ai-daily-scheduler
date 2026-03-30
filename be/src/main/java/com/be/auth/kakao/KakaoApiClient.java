@@ -1,4 +1,4 @@
-package com.be.auth.service;
+package com.be.auth.kakao;
 
 import com.be.auth.config.KakaoProperties;
 import com.be.auth.dto.kakao.KakaoTokenResponse;
