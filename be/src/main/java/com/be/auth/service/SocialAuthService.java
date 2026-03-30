@@ -34,7 +34,7 @@ public class SocialAuthService {
         KakaoTokenResponse tokenResponse = kakaoApiClient.getToken(code);
         KakaoUserInfo userInfo = kakaoApiClient.getUserInfo(tokenResponse.accessToken());
 
-        String providerId = userInfo.id();
+        String providerId = userInfo.id();  //kakao 고유 유저아이디
         String email = userInfo.email();
         String name = userInfo.nickname();
         String profileImageUrl = userInfo.profileImageUrl();

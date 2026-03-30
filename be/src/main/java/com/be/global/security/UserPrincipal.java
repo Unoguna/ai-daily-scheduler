@@ -6,6 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.List;
 
+//Spring Security가 이해할 수 있는 로그인 사용자 객체
 @Getter
 public class UserPrincipal extends AbstractAuthenticationToken {
 
