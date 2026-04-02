@@ -31,6 +31,7 @@ public class SocialAuthService {
 
     public LoginResponse loginWithKakao(String code) {
 
+
         KakaoTokenResponse tokenResponse = kakaoApiClient.getToken(code);
         KakaoUserInfo userInfo = kakaoApiClient.getUserInfo(tokenResponse.accessToken());
 
