@@ -26,6 +26,7 @@ public class KakaoApiClient {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("grant_type", "authorization_code");
         formData.add("client_id", kakaoProperties.getClientId());
+        formData.add("client_secret", kakaoProperties.getClientSecret());
         formData.add("redirect_uri", kakaoProperties.getRedirectUri());
         formData.add("code", code);
 
@@ -34,6 +35,11 @@ public class KakaoApiClient {
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .bodyValue(formData)
                 .retrieve()
+                .onStatus(
+                        status -> status.isError(),
+                        clientResponse -> clientResponse.bodyToMono(String.class)
+                                .map(body -> new RuntimeException("카카오 토큰 요청 실패: " + body))
+                )
                 .bodyToMono(KakaoTokenResponse.class)
                 .block();
 
