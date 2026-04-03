@@ -1,5 +1,6 @@
 package com.be.auth.controller;
 
+import com.be.auth.dto.request.GoogleLoginRequest;
 import com.be.auth.dto.request.KakaoLoginRequest;
 import com.be.auth.dto.request.RefreshRequest;
 import com.be.auth.dto.response.AuthResponse;
@@ -33,9 +34,12 @@ public class AuthController {
         return socialAuthService.loginWithKakao(request.code());
     }
 
-    @GetMapping("/api/v1/auth/google/callback")
-    public LoginResponse googleCallback(@RequestParam String code) {
-        return socialAuthService.loginWithGoogle(code);
+    @Operation(summary = "구글 로그인", description = "인가 코드로 로그인 처리")
+    @PostMapping("/google")
+    public LoginResponse googleLogin(
+            @Valid @RequestBody GoogleLoginRequest request
+    ) {
+        return socialAuthService.loginWithGoogle(request.code());
     }
 
     @Operation(summary = "토큰 재발급", description = "refresh token으로 access token 재발급")
