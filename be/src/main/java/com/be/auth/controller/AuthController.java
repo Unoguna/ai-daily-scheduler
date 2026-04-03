@@ -6,8 +6,10 @@ import com.be.auth.dto.response.AuthResponse;
 import com.be.auth.dto.response.LoginResponse;
 import com.be.auth.dto.response.MessageResponse;
 import com.be.auth.dto.response.TokenResponse;
+import com.be.auth.google.dto.GoogleLoginUserInfo;
 import com.be.auth.service.SocialAuthService;
 import com.be.global.security.UserPrincipal;
+import com.be.user.domain.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,6 +31,11 @@ public class AuthController {
             @Valid @RequestBody KakaoLoginRequest request
     ) {
         return socialAuthService.loginWithKakao(request.code());
+    }
+
+    @GetMapping("/api/v1/auth/google/callback")
+    public LoginResponse googleCallback(@RequestParam String code) {
+        return socialAuthService.loginWithGoogle(code);
     }
 
     @Operation(summary = "토큰 재발급", description = "refresh token으로 access token 재발급")

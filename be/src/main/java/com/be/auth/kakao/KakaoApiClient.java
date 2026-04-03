@@ -25,13 +25,13 @@ public class KakaoApiClient {
         // JSON으로 변환되어 에러가 생긴다. 그래서 Map이 아닌 MultiValueMap으로 받아야 한다.
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("grant_type", "authorization_code");
-        formData.add("client_id", kakaoProperties.getClientId());
-        formData.add("client_secret", kakaoProperties.getClientSecret());
-        formData.add("redirect_uri", kakaoProperties.getRedirectUri());
+        formData.add("client_id", kakaoProperties.clientId());
+        formData.add("client_secret", kakaoProperties.clientSecret());
+        formData.add("redirect_uri", kakaoProperties.redirectUri());
         formData.add("code", code);
 
         KakaoTokenResponse response = webClient.post()
-                .uri(kakaoProperties.getTokenUri())
+                .uri(kakaoProperties.tokenUri())
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .bodyValue(formData)
                 .retrieve()
@@ -52,7 +52,7 @@ public class KakaoApiClient {
 
     public KakaoUserInfo getUserInfo(String kakaoAccessToken) {
         KakaoUserResponse response = webClient.get()
-                .uri(kakaoProperties.getUserInfoUri())
+                .uri(kakaoProperties.userInfoUri())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + kakaoAccessToken)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=utf-8")
                 .retrieve()

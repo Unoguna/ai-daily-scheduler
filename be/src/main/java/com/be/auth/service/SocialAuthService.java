@@ -1,6 +1,8 @@
 package com.be.auth.service;
 
 import com.be.auth.domain.RefreshToken;
+import com.be.auth.google.GoogleApiClient;
+import com.be.auth.google.dto.GoogleLoginUserInfo;
 import com.be.auth.kakao.dto.KakaoTokenResponse;
 import com.be.auth.kakao.dto.KakaoUserInfo;
 import com.be.auth.dto.request.RefreshRequest;
@@ -28,10 +30,9 @@ public class SocialAuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoApiClient kakaoApiClient;
+    private final GoogleApiClient googleApiClient;
 
     public LoginResponse loginWithKakao(String code) {
-
-
         KakaoTokenResponse tokenResponse = kakaoApiClient.getToken(code);
         KakaoUserInfo userInfo = kakaoApiClient.getUserInfo(tokenResponse.accessToken());
 
@@ -54,6 +55,49 @@ public class SocialAuthService {
             isNew = true;
             user = userRepository.save(
                     User.create(AuthProvider.KAKAO, providerId, email, name, profileImageUrl)
+            );
+        }
+
+        if (!isNew) {
+            user.updateProfile(email, name, profileImageUrl);
+        }
+
+        String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getName());
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getId());
+
+        saveOrUpdateRefreshToken(user.getId(), refreshToken);
+
+        return new LoginResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                accessToken,
+                refreshToken,
+                isNew
+        );
+    }
+
+    public LoginResponse loginWithGoogle(String code) {
+        GoogleLoginUserInfo userInfo = googleApiClient.getUserInfo(code);
+
+        String providerId = userInfo.id();
+        String email = userInfo.email();
+        String name = userInfo.name();
+        String profileImageUrl = userInfo.profileImageUrl();
+
+        Optional<User> optionalUser = userRepository
+                .findByProviderAndProviderId(AuthProvider.GOOGLE, providerId);
+
+        User user;
+        boolean isNew;
+
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+            isNew = false;
+        } else {
+            isNew = true;
+            user = userRepository.save(
+                    User.create(AuthProvider.GOOGLE, providerId, email, name, profileImageUrl)
             );
         }
 
