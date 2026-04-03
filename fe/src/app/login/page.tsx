@@ -1,4 +1,5 @@
 import KakaoLoginButton from "@/components/KakaoLoginButton";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 export default function LoginPage() {
   return (
@@ -10,6 +11,12 @@ export default function LoginPage() {
         </p>
 
         <KakaoLoginButton />
+
+        <p className="mb-4 text-sm text-gray-600">
+          구글 소셜 로그인 테스트 페이지
+        </p>
+
+        <GoogleLoginButton />
       </div>
     </main>
   );
