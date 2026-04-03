@@ -1,8 +1,8 @@
 package com.be.auth.google;
 
 import com.be.auth.config.GoogleProperties;
-import com.be.auth.google.dto.GoogleLoginUserInfo;
 import com.be.auth.google.dto.GoogleUserInfo;
+import com.be.auth.google.dto.GoogleUserResponse;
 import com.be.auth.google.dto.GoogleTokenResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -18,19 +18,7 @@ public class GoogleApiClient {
     private final WebClient webClient;
     private final GoogleProperties googleProperties;
 
-    public GoogleLoginUserInfo getUserInfo(String code) {
-        GoogleTokenResponse tokenResponse = getAccessToken(code);
-        GoogleUserInfo userInfo = getGoogleUserInfo(tokenResponse.accessToken());
-
-        return new GoogleLoginUserInfo(
-                userInfo.id(),
-                userInfo.email(),
-                userInfo.name(),
-                userInfo.profileImageUrl()
-        );
-    }
-
-    private GoogleTokenResponse getAccessToken(String code) {
+    public GoogleTokenResponse getToken(String code) {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("code", code);
         formData.add("client_id", googleProperties.clientId());
@@ -47,12 +35,25 @@ public class GoogleApiClient {
                 .block();
     }
 
-    private GoogleUserInfo getGoogleUserInfo(String accessToken) {
-        return webClient.get()
+    public GoogleUserInfo getUserInfo(String googleAccessToken) {
+        GoogleUserResponse response = webClient.get()
                 .uri(googleProperties.userInfoUri())
-                .headers(headers -> headers.setBearerAuth(accessToken))
+                .headers(headers -> headers.setBearerAuth(googleAccessToken))
                 .retrieve()
-                .bodyToMono(GoogleUserInfo.class)
+                .bodyToMono(GoogleUserResponse.class)
                 .block();
+
+        if (response == null) {
+            throw new IllegalArgumentException("구글 사용자 정보 조회에 실패했습니다.");
+        }
+
+        GoogleUserInfo userInfo = response.toUserInfo();
+
+        if (userInfo.id() == null) {
+            throw new IllegalArgumentException("구글 사용자 식별값이 없습니다.");
+        }
+
+        return userInfo;
+
     }
 }

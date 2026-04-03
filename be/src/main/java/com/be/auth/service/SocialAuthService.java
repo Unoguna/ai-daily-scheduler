@@ -2,7 +2,8 @@ package com.be.auth.service;
 
 import com.be.auth.domain.RefreshToken;
 import com.be.auth.google.GoogleApiClient;
-import com.be.auth.google.dto.GoogleLoginUserInfo;
+import com.be.auth.google.dto.GoogleUserInfo;
+import com.be.auth.google.dto.GoogleTokenResponse;
 import com.be.auth.kakao.dto.KakaoTokenResponse;
 import com.be.auth.kakao.dto.KakaoUserInfo;
 import com.be.auth.dto.request.RefreshRequest;
@@ -78,7 +79,8 @@ public class SocialAuthService {
     }
 
     public LoginResponse loginWithGoogle(String code) {
-        GoogleLoginUserInfo userInfo = googleApiClient.getUserInfo(code);
+        GoogleTokenResponse tokenResponse = googleApiClient.getToken(code);
+        GoogleUserInfo userInfo = googleApiClient.getUserInfo(tokenResponse.accessToken());
 
         String providerId = userInfo.id();
         String email = userInfo.email();
