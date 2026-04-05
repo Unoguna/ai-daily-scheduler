@@ -18,29 +18,32 @@ public class CommonResponse<T> {
     @Schema(description = "응답 메시지", example = "요청 성공")
     private final String message;
 
+    private final String code;
+
     @Schema(description = "에러 상세 정보")
     private final Map<String, String> errors;
 
-    private CommonResponse(boolean success, T data, String message, Map<String, String> errors) {
+    private CommonResponse(boolean success, T data, String message, String code, Map<String, String> errors) {
         this.success = success;
         this.data = data;
         this.message = message;
+        this.code = code;
         this.errors = errors;
     }
 
     public static <T> CommonResponse<T> success(T data) {
-        return new CommonResponse<>(true, data, "요청 성공", null);
+        return new CommonResponse<>(true, data, "요청 성공", null, null);
     }
 
     public static <T> CommonResponse<T> success(T data, String message) {
-        return new CommonResponse<>(true, data, message, null);
+        return new CommonResponse<>(true, data, message, null, null);
     }
 
-    public static <T> CommonResponse<T> fail(String message) {
-        return new CommonResponse<>(false, null, message, null);
+    public static <T> CommonResponse<T> fail(String code, String message) {
+        return new CommonResponse<>(false, null, message, code, null);
     }
 
-    public static <T> CommonResponse<T> validationFail(Map<String, String> errors) {
-        return new CommonResponse<>(false, null, "유효성 검사 실패", errors);
+    public static <T> CommonResponse<T> validationFail(String code, String message, Map<String, String> errors) {
+        return new CommonResponse<>(false, null, message, code, errors);
     }
 }
