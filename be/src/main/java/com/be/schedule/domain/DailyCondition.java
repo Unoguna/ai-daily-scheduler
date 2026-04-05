@@ -1,0 +1,84 @@
+package com.be.schedule.domain;
+
+import com.be.user.domain.User;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        name = "daily_conditions",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_daily_condition_user_date", columnNames = {"user_id", "condition_date"})
+        }
+)
+public class DailyCondition {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(name = "condition_date", nullable = false)
+    private LocalDate date;
+
+    @Column(nullable = false)
+    private Integer fatigueLevel; // 1~5
+
+    @Column(nullable = false)
+    private Integer focusLevel;   // 1~5
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private EmotionState emotionState;
+
+    @Column(length = 300)
+    private String memo;
+
+    @Builder
+    private DailyCondition(User user, LocalDate date, Integer fatigueLevel, Integer focusLevel, EmotionState emotionState, String memo) {
+        validateRange(fatigueLevel, "fatigueLevel");
+        validateRange(focusLevel, "focusLevel");
+        this.user = user;
+        this.date = date;
+        this.fatigueLevel = fatigueLevel;
+        this.focusLevel = focusLevel;
+        this.emotionState = emotionState;
+        this.memo = memo;
+    }
+
+    public static DailyCondition create(User user, LocalDate date, Integer fatigueLevel, Integer focusLevel, EmotionState emotionState, String memo) {
+        return DailyCondition.builder()
+                .user(user)
+                .date(date)
+                .fatigueLevel(fatigueLevel)
+                .focusLevel(focusLevel)
+                .emotionState(emotionState)
+                .memo(memo)
+                .build();
+    }
+
+    public void update(Integer fatigueLevel, Integer focusLevel, EmotionState emotionState, String memo) {
+        validateRange(fatigueLevel, "fatigueLevel");
+        validateRange(focusLevel, "focusLevel");
+        this.fatigueLevel = fatigueLevel;
+        this.focusLevel = focusLevel;
+        this.emotionState = emotionState;
+        this.memo = memo;
+    }
+
+    private void validateRange(Integer value, String fieldName) {
+        if (value == null || value < 1 || value > 5) {
+            throw new IllegalArgumentException(fieldName + " 값은 1~5 범위여야 합니다.");
+        }
+    }
+}

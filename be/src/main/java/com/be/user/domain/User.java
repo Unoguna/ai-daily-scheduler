@@ -1,9 +1,12 @@
 package com.be.user.domain;
 
+import com.be.schedule.domain.SchedulingProfile;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "users")
@@ -31,6 +34,18 @@ public class User {
     @Column(length = 300)
     private String profileImageUrl;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private SchedulingProfile schedulingProfile;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<Goal> goals = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<FixedSchedule> fixedSchedules = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<DailyCondition> dailyConditions = new ArrayList<>();
+
     private User(AuthProvider provider, String providerId, String email, String name, String profileImageUrl) {
         this.provider = provider;
         this.providerId = providerId;
@@ -47,6 +62,10 @@ public class User {
             String profileImageUrl
     ) {
         return new User(provider, providerId, email, name, profileImageUrl);
+    }
+
+    public void assignSchedulingProfile(SchedulingProfile schedulingProfile) {
+        this.schedulingProfile = schedulingProfile;
     }
 
     public void updateProfile(String email, String name, String profileImageUrl) {
