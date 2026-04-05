@@ -3,7 +3,6 @@ package com.be.schedule.domain;
 import com.be.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -45,7 +44,6 @@ public class SchedulingProfile {
     @Column(nullable = false)
     private Integer breakMinutes;
 
-    @Builder
     private SchedulingProfile(
             User user,
             LocalTime preferredStartTime,
@@ -76,19 +74,16 @@ public class SchedulingProfile {
             Integer preferredSessionMinutes,
             Integer breakMinutes
     ) {
-        SchedulingProfile profile = SchedulingProfile.builder()
-                .user(user)
-                .preferredStartTime(preferredStartTime)
-                .preferredEndTime(preferredEndTime)
-                .wakeUpTime(wakeUpTime)
-                .sleepTime(sleepTime)
-                .energyPattern(energyPattern)
-                .preferredSessionMinutes(preferredSessionMinutes)
-                .breakMinutes(breakMinutes)
-                .build();
-
-        user.assignSchedulingProfile(profile);
-        return profile;
+        return new SchedulingProfile(
+                user,
+                preferredStartTime,
+                preferredEndTime,
+                wakeUpTime,
+                sleepTime,
+                energyPattern,
+                preferredSessionMinutes,
+                breakMinutes
+        );
     }
 
     public void updateProfile(

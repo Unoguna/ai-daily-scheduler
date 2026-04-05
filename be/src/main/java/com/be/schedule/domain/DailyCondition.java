@@ -3,7 +3,6 @@ package com.be.schedule.domain;
 import com.be.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -44,10 +43,17 @@ public class DailyCondition {
     @Column(length = 300)
     private String memo;
 
-    @Builder
-    private DailyCondition(User user, LocalDate date, Integer fatigueLevel, Integer focusLevel, EmotionState emotionState, String memo) {
+    private DailyCondition(
+            User user,
+            LocalDate date,
+            Integer fatigueLevel,
+            Integer focusLevel,
+            EmotionState emotionState,
+            String memo
+    ) {
         validateRange(fatigueLevel, "fatigueLevel");
         validateRange(focusLevel, "focusLevel");
+
         this.user = user;
         this.date = date;
         this.fatigueLevel = fatigueLevel;
@@ -56,20 +62,28 @@ public class DailyCondition {
         this.memo = memo;
     }
 
-    public static DailyCondition create(User user, LocalDate date, Integer fatigueLevel, Integer focusLevel, EmotionState emotionState, String memo) {
-        return DailyCondition.builder()
-                .user(user)
-                .date(date)
-                .fatigueLevel(fatigueLevel)
-                .focusLevel(focusLevel)
-                .emotionState(emotionState)
-                .memo(memo)
-                .build();
+    public static DailyCondition create(
+            User user,
+            LocalDate date,
+            Integer fatigueLevel,
+            Integer focusLevel,
+            EmotionState emotionState,
+            String memo
+    ) {
+        return new DailyCondition(
+                user,
+                date,
+                fatigueLevel,
+                focusLevel,
+                emotionState,
+                memo
+        );
     }
 
     public void update(Integer fatigueLevel, Integer focusLevel, EmotionState emotionState, String memo) {
         validateRange(fatigueLevel, "fatigueLevel");
         validateRange(focusLevel, "focusLevel");
+
         this.fatigueLevel = fatigueLevel;
         this.focusLevel = focusLevel;
         this.emotionState = emotionState;

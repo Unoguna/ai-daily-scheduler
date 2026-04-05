@@ -3,7 +3,6 @@ package com.be.schedule.domain;
 import com.be.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -39,7 +38,6 @@ public class Goal {
 
     private LocalDate targetDate;
 
-    @Builder
     private Goal(User user, String title, String description, GoalPriority priority, GoalStatus status, LocalDate targetDate) {
         this.user = user;
         this.title = title;
@@ -50,14 +48,14 @@ public class Goal {
     }
 
     public static Goal create(User user, String title, String description, GoalPriority priority, LocalDate targetDate) {
-        return Goal.builder()
-                .user(user)
-                .title(title)
-                .description(description)
-                .priority(priority)
-                .status(GoalStatus.ACTIVE)
-                .targetDate(targetDate)
-                .build();
+        return new Goal(
+                user,
+                title,
+                description,
+                priority,
+                GoalStatus.ACTIVE,
+                targetDate
+        );
     }
 
     public void update(String title, String description, GoalPriority priority, LocalDate targetDate) {

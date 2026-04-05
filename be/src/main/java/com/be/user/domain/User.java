@@ -1,5 +1,8 @@
 package com.be.user.domain;
 
+import com.be.schedule.domain.DailyCondition;
+import com.be.schedule.domain.FixedSchedule;
+import com.be.schedule.domain.Goal;
 import com.be.schedule.domain.SchedulingProfile;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -7,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")

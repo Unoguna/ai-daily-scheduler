@@ -1,6 +1,6 @@
 package com.be.schedule.domain;
 
-import com.example.scheduler.domain.user.entity.User;
+import com.be.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -44,7 +44,6 @@ public class FixedSchedule {
     @Column(nullable = false)
     private boolean mandatory;
 
-    @Builder
     private FixedSchedule(
             User user,
             DayOfWeek dayOfWeek,
@@ -73,15 +72,15 @@ public class FixedSchedule {
             LocalTime endTime,
             boolean mandatory
     ) {
-        return FixedSchedule.builder()
-                .user(user)
-                .dayOfWeek(dayOfWeek)
-                .title(title)
-                .category(category)
-                .startTime(startTime)
-                .endTime(endTime)
-                .mandatory(mandatory)
-                .build();
+        return new FixedSchedule(
+                user,
+                dayOfWeek,
+                title,
+                category,
+                startTime,
+                endTime,
+                mandatory
+        );
     }
 
     public void update(
