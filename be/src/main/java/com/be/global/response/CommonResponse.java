@@ -17,6 +17,8 @@ public class CommonResponse<T> {
 
     @Schema(description = "응답 메시지", example = "요청 성공")
     private final String message;
+
+    @Schema(description = "에러 상세 정보")
     private final Map<String, String> errors;
 
     private CommonResponse(boolean success, T data, String message, Map<String, String> errors) {
