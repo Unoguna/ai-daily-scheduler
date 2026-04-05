@@ -1,7 +1,6 @@
 package com.be.global.exception;
 
 import com.be.global.response.CommonResponse;
-import com.be.global.exception.ErrorCode;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
