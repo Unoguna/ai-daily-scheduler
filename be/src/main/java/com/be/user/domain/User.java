@@ -15,22 +15,43 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
-    private String username;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AuthProvider provider;   // KAKAO, GOOGLE
 
-    @Column(nullable = false)
-    private String passwordHash;
+    @Column(nullable = false, length = 100)
+    private String providerId;       // 카카오 회원 고유 id
+
+    @Column(length = 100)
+    private String email;
 
     @Column(nullable = false, length = 50)
     private String name;
 
-    private User(String username, String passwordHash, String name) {
-        this.username = username;
-        this.passwordHash = passwordHash;
+    @Column(length = 300)
+    private String profileImageUrl;
+
+    private User(AuthProvider provider, String providerId, String email, String name, String profileImageUrl) {
+        this.provider = provider;
+        this.providerId = providerId;
+        this.email = email;
         this.name = name;
+        this.profileImageUrl = profileImageUrl;
     }
 
-    public static User create(String username, String passwordHash, String name) {
-        return new User(username, passwordHash, name);
+    public static User create(
+            AuthProvider provider,
+            String providerId,
+            String email,
+            String name,
+            String profileImageUrl
+    ) {
+        return new User(provider, providerId, email, name, profileImageUrl);
+    }
+
+    public void updateProfile(String email, String name, String profileImageUrl) {
+        this.email = email;
+        this.name = name;
+        this.profileImageUrl = profileImageUrl;
     }
 }
