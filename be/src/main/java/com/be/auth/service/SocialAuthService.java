@@ -13,6 +13,8 @@ import com.be.auth.dto.response.TokenResponse;
 import com.be.auth.jwt.JwtTokenProvider;
 import com.be.auth.kakao.KakaoApiClient;
 import com.be.auth.repository.RefreshTokenRepository;
+import com.be.global.exception.BusinessException;
+import com.be.global.exception.ErrorCode;
 import com.be.user.domain.AuthProvider;
 import com.be.user.domain.User;
 import com.be.user.repository.UserRepository;
@@ -134,14 +136,14 @@ public class SocialAuthService {
         String refreshToken = request.refreshToken();
 
         if (!jwtTokenProvider.validateToken(refreshToken)) {
-            throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
+            throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         RefreshToken saved = refreshTokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new IllegalArgumentException("토큰이 존재하지 않습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
 
         User user = userRepository.findById(saved.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         String newAccessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getName());
         String newRefreshToken = jwtTokenProvider.createRefreshToken(user.getId());
@@ -158,7 +160,7 @@ public class SocialAuthService {
     @Transactional(readOnly = true)
     public AuthResponse getMe(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         return new AuthResponse(
                 user.getId(),
