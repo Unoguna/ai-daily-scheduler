@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface SchedulingProfileRepository extends JpaRepository<SchedulingProfile, Long> {
     Optional<SchedulingProfile> findByUserId(Long userId);
+    boolean existsByUserId(Long userId);
 }

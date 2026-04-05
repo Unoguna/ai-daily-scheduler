@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface DailyConditionRepository extends JpaRepository<DailyCondition, Long> {
     Optional<DailyCondition> findByUserIdAndDate(Long userId, LocalDate date);
+    boolean existsByUserIdAndDate(Long userId, LocalDate date);
 }
