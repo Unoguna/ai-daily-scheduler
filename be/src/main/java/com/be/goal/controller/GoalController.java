@@ -1,6 +1,7 @@
 package com.be.goal.controller;
 
 import com.be.global.response.CommonResponse;
+import com.be.global.response.IdResponse;
 import com.be.global.security.UserPrincipal;
 import com.be.goal.service.GoalService;
 import com.be.goal.dto.GoalCreateRequest;
@@ -22,12 +23,12 @@ public class GoalController {
     @Operation(summary = "목표 생성", description = "로그인 사용자의 목표를 생성합니다.")
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Long> createGoal(
+    public CommonResponse<IdResponse> createGoal(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody GoalCreateRequest request
     ) {
         Long userId = userPrincipal.getUserId();
-        Long data_id = goalService.createGoal(userId, request);
-        return CommonResponse.success(data_id);
+        Long id = goalService.createGoal(userId, request);
+        return CommonResponse.success(new IdResponse(id));
     }
 }

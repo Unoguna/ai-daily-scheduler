@@ -1,6 +1,7 @@
 package com.be.daily_condition.controller;
 
 import com.be.global.response.CommonResponse;
+import com.be.global.response.IdResponse;
 import com.be.global.security.UserPrincipal;
 import com.be.daily_condition.dto.DailyConditionCreateRequest;
 import com.be.daily_condition.service.DailyConditionService;
@@ -23,12 +24,12 @@ public class DailyConditionController {
     @Operation(summary = "일일 상태 생성", description = "로그인 사용자의 하루 상태 정보를 생성합니다.")
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Long> createDailyCondition(
+    public CommonResponse<IdResponse> createDailyCondition(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @Valid @RequestBody DailyConditionCreateRequest request
     ) {
         Long userId = userPrincipal.getUserId();
-        Long data_id = dailyConditionService.createDailyCondition(userId, request);
-        return CommonResponse.success(data_id);
+        Long id = dailyConditionService.createDailyCondition(userId, request);
+        return CommonResponse.success(new IdResponse(id));
     }
 }
