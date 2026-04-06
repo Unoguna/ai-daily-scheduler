@@ -38,17 +38,8 @@ public class User {
     @Column(length = 300)
     private String profileImageUrl;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private SchedulingProfile schedulingProfile;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<Goal> goals = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<FixedSchedule> fixedSchedules = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<DailyCondition> dailyConditions = new ArrayList<>();
 
     private User(AuthProvider provider, String providerId, String email, String name, String profileImageUrl) {
         this.provider = provider;

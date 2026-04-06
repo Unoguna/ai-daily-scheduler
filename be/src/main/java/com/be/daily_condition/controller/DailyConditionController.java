@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Daily Condition API", description = "당일 컨디션 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/daily-condition")
+@RequestMapping("/api/v1/daily-conditions")
 public class DailyConditionController {
 
     private final DailyConditionService dailyConditionService;
