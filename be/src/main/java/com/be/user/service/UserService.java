@@ -5,7 +5,6 @@ import com.be.global.exception.ErrorCode;
 import com.be.user.domain.User;
 import com.be.user.dto.*;
 import com.be.user.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,12 +32,14 @@ public class UserService {
         return UpdateProfileImageResponse.of(user.getId(), user.getProfileImageUrl());
     }
 
+    @Transactional(readOnly = true)
     public UserMeResponse getMyInfo(Long userId) {
         User user = getUser(userId);
 
         return UserMeResponse.from(user);
     }
 
+    //private이라 프록시가 가로채지 못해서 트랜잭션 대상이 아님
     private User getUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
