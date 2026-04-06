@@ -1,5 +1,7 @@
 package com.be.daily_condition.domain;
 
+import com.be.global.exception.BusinessException;
+import com.be.global.exception.ErrorCode;
 import com.be.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -51,8 +53,8 @@ public class DailyCondition {
             EmotionState emotionState,
             String memo
     ) {
-        validateRange(fatigueLevel, "fatigueLevel");
-        validateRange(focusLevel, "focusLevel");
+        validateRange(fatigueLevel, ErrorCode.INVALID_FATIGUE_LEVEL);
+        validateRange(focusLevel, ErrorCode.INVALID_FOCUS_LEVEL);
 
         this.user = user;
         this.date = date;
@@ -81,8 +83,8 @@ public class DailyCondition {
     }
 
     public void update(Integer fatigueLevel, Integer focusLevel, EmotionState emotionState, String memo) {
-        validateRange(fatigueLevel, "fatigueLevel");
-        validateRange(focusLevel, "focusLevel");
+        validateRange(fatigueLevel, ErrorCode.INVALID_FATIGUE_LEVEL);
+        validateRange(focusLevel, ErrorCode.INVALID_FOCUS_LEVEL);
 
         this.fatigueLevel = fatigueLevel;
         this.focusLevel = focusLevel;
@@ -90,9 +92,9 @@ public class DailyCondition {
         this.memo = memo;
     }
 
-    private void validateRange(Integer value, String fieldName) {
+    private void validateRange(Integer value, ErrorCode errorCode) {
         if (value == null || value < 1 || value > 5) {
-            throw new IllegalArgumentException(fieldName + " 값은 1~5 범위여야 합니다.");
+            throw new BusinessException(errorCode);
         }
     }
 }

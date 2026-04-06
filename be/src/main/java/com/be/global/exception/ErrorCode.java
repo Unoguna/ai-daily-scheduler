@@ -18,7 +18,12 @@ public enum ErrorCode {
 
     //Auth
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "A001", "유효하지 않은 리프레시 토큰입니다."),
-    REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "A002", "리프레시 토큰이 존재하지 않습니다.");
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "A002", "리프레시 토큰이 존재하지 않습니다."),
+
+    //DailyCondition
+    INVALID_FATIGUE_LEVEL(HttpStatus.BAD_REQUEST, "DC_001", "피로도는 1~5 범위여야 합니다."),
+    INVALID_FOCUS_LEVEL(HttpStatus.BAD_REQUEST, "DC_002", "집중도는 1~5 범위여야 합니다.");
+
 
     private final HttpStatus status;
     private final String code;
