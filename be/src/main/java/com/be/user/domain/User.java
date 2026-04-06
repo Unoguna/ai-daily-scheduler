@@ -1,6 +1,8 @@
 package com.be.user.domain;
 
 import com.be.daily_condition.domain.DailyCondition;
+import com.be.global.exception.BusinessException;
+import com.be.global.exception.ErrorCode;
 import com.be.schedule.domain.FixedSchedule;
 import com.be.goal.domain.Goal;
 import com.be.schedule.domain.SchedulingProfile;
@@ -71,7 +73,7 @@ public class User {
 
     public void updateName(String name) {
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("이름은 비어 있을 수 없습니다.");
+            throw new BusinessException(ErrorCode.INVALID_USER_NAME);
         }
         this.name = name;
     }

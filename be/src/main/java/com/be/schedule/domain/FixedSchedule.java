@@ -1,5 +1,7 @@
 package com.be.schedule.domain;
 
+import com.be.global.exception.BusinessException;
+import com.be.global.exception.ErrorCode;
 import com.be.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -101,8 +103,8 @@ public class FixedSchedule {
     }
 
     private void validateTime(LocalTime startTime, LocalTime endTime) {
-        if (!startTime.isBefore(endTime)) {
-            throw new IllegalArgumentException("고정 일정의 시작 시간은 종료 시간보다 빨라야 합니다.");
+        if (startTime == null || endTime == null || !startTime.isBefore(endTime)) {
+            throw new BusinessException(ErrorCode.INVALID_TIME_RANGE);
         }
     }
 }
