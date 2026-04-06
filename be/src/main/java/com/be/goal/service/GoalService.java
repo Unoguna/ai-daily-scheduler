@@ -7,7 +7,7 @@ import com.be.goal.dto.GoalCreateRequest;
 import com.be.goal.repository.GoalRepository;
 import com.be.user.domain.User;
 import com.be.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

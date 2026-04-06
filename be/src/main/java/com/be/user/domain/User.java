@@ -68,4 +68,11 @@ public class User {
         this.name = name;
         this.profileImageUrl = profileImageUrl;
     }
+
+    public void updateName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("이름은 비어 있을 수 없습니다.");
+        }
+        this.name = name;
+    }
 }
