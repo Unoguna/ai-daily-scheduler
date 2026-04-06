@@ -2,18 +2,14 @@ package com.be.user.controller;
 
 import com.be.global.response.CommonResponse;
 import com.be.global.security.UserPrincipal;
-import com.be.user.dto.UpdateUserNameRequest;
-import com.be.user.dto.UpdateUserNameResponse;
+import com.be.user.dto.*;
 import com.be.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "User API", description = "유저 관련 API")
 @RestController
@@ -31,6 +27,26 @@ public class UserController {
     ) {
         Long userId = userPrincipal.getUserId();
         UpdateUserNameResponse response = userService.updateMyName(userId, request);
+        return CommonResponse.success(response);
+    }
+
+    @Operation(summary = "내 프로필 사진 수정", description = "로그인한 사용자의 프로필 사진 URL을 수정합니다.")
+    @PatchMapping("/me/profile-image")
+    public CommonResponse<UpdateProfileImageResponse> updateMyProfileImage(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @Valid @RequestBody UpdateProfileImageRequest request
+    ) {
+        Long userId = userPrincipal.getUserId();
+        UpdateProfileImageResponse response = userService.updateMyProfileImage(userId, request);
+        return CommonResponse.success(response);
+    }
+
+    @Operation(summary = "내 정보 조회", description = "로그인한 사용자의 정보를 조회합니다.")
+    @GetMapping("/me")
+    public CommonResponse<UserMeResponse> getMyInfo(
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        UserMeResponse response = userService.getMyInfo(userPrincipal.getUserId());
         return CommonResponse.success(response);
     }
 }

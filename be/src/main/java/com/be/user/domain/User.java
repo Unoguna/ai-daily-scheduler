@@ -75,4 +75,11 @@ public class User {
         }
         this.name = name;
     }
+
+    public void updateProfileImage(String profileImageUrl) {
+        if (profileImageUrl == null || profileImageUrl.isBlank()) {
+            throw new IllegalArgumentException("프로필 이미지 URL은 비어 있을 수 없습니다.");
+        }
+        this.profileImageUrl = profileImageUrl;
+    }
 }
