@@ -1,4 +1,4 @@
-package com.be.schedule.domain;
+package com.be.daily_condition.domain;
 
 public enum EmotionState {
     VERY_BAD,

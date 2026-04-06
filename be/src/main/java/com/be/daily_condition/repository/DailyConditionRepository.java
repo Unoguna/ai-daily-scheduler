@@ -1,6 +1,6 @@
-package com.be.schedule.repository;
+package com.be.daily_condition.repository;
 
-import com.be.schedule.domain.DailyCondition;
+import com.be.daily_condition.domain.DailyCondition;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;

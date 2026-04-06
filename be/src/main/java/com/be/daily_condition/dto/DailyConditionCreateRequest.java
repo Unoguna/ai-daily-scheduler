@@ -1,6 +1,6 @@
-package com.be.schedule.dto;
+package com.be.daily_condition.dto;
 
-import com.be.schedule.domain.EmotionState;
+import com.be.daily_condition.domain.EmotionState;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

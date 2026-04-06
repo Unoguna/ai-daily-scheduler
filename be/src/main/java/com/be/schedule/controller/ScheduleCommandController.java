@@ -2,7 +2,6 @@ package com.be.schedule.controller;
 
 import com.be.global.response.CommonResponse;
 import com.be.global.security.UserPrincipal;
-import com.be.schedule.dto.DailyConditionCreateRequest;
 import com.be.schedule.dto.FixedScheduleCreateRequest;
 import com.be.schedule.dto.SchedulingProfileCreateRequest;
 import com.be.schedule.service.ScheduleCommandService;
@@ -46,15 +45,5 @@ public class ScheduleCommandController {
         return CommonResponse.success(data_id);
     }
 
-    @Operation(summary = "일일 상태 생성", description = "로그인 사용자의 하루 상태 정보를 생성합니다.")
-    @PostMapping("/daily-conditions")
-    @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Long> createDailyCondition(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @Valid @RequestBody DailyConditionCreateRequest request
-    ) {
-        Long userId = userPrincipal.getUserId();
-        Long data_id = scheduleCommandService.createDailyCondition(userId, request);
-        return CommonResponse.success(data_id);
-    }
+
 }

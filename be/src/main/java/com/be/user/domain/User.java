@@ -1,6 +1,6 @@
 package com.be.user.domain;
 
-import com.be.schedule.domain.DailyCondition;
+import com.be.daily_condition.domain.DailyCondition;
 import com.be.schedule.domain.FixedSchedule;
 import com.be.goal.domain.Goal;
 import com.be.schedule.domain.SchedulingProfile;

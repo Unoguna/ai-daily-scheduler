@@ -1,4 +1,4 @@
-package com.be.schedule.domain;
+package com.be.daily_condition.domain;
 
 import com.be.user.domain.User;
 import jakarta.persistence.*;

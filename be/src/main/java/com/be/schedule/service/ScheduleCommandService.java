@@ -2,15 +2,11 @@ package com.be.schedule.service;
 
 import com.be.global.exception.BusinessException;
 import com.be.global.exception.ErrorCode;
-import com.be.schedule.domain.DailyCondition;
 import com.be.schedule.domain.FixedSchedule;
 import com.be.schedule.domain.SchedulingProfile;
-import com.be.schedule.dto.DailyConditionCreateRequest;
 import com.be.schedule.dto.FixedScheduleCreateRequest;
 import com.be.schedule.dto.SchedulingProfileCreateRequest;
-import com.be.schedule.repository.DailyConditionRepository;
 import com.be.schedule.repository.FixedScheduleRepository;
-import com.be.schedule.repository.GoalRepository;
 import com.be.schedule.repository.SchedulingProfileRepository;
 import com.be.user.domain.User;
 import com.be.user.repository.UserRepository;
@@ -25,9 +21,7 @@ public class ScheduleCommandService {
 
     private final UserRepository userRepository;
     private final SchedulingProfileRepository schedulingProfileRepository;
-    private final GoalRepository goalRepository;
     private final FixedScheduleRepository fixedScheduleRepository;
-    private final DailyConditionRepository dailyConditionRepository;
 
     public Long createSchedulingProfile(Long userId, SchedulingProfileCreateRequest request) {
         User user = getUser(userId);
@@ -68,24 +62,7 @@ public class ScheduleCommandService {
         return fixedScheduleRepository.save(fixedSchedule).getId();
     }
 
-    public Long createDailyCondition(Long userId, DailyConditionCreateRequest request) {
-        User user = getUser(userId);
 
-        if (dailyConditionRepository.existsByUserIdAndDate(userId, request.date())) {
-            throw new BusinessException(ErrorCode.DAILY_CONDITION_ALREADY_EXISTS);
-        }
-
-        DailyCondition dailyCondition = DailyCondition.create(
-                user,
-                request.date(),
-                request.fatigueLevel(),
-                request.focusLevel(),
-                request.emotionState(),
-                request.memo()
-        );
-
-        return dailyConditionRepository.save(dailyCondition).getId();
-    }
 
     private User getUser(Long userId) {
         return userRepository.findById(userId)
