@@ -1,4 +1,4 @@
-package com.be.schedule.domain;
+package com.be.goal.domain;
 
 public enum GoalStatus {
     ACTIVE,

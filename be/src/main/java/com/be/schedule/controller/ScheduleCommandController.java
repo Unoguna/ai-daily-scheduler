@@ -4,7 +4,6 @@ import com.be.global.response.CommonResponse;
 import com.be.global.security.UserPrincipal;
 import com.be.schedule.dto.DailyConditionCreateRequest;
 import com.be.schedule.dto.FixedScheduleCreateRequest;
-import com.be.schedule.dto.GoalCreateRequest;
 import com.be.schedule.dto.SchedulingProfileCreateRequest;
 import com.be.schedule.service.ScheduleCommandService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Schedule Command API", description = "스케줄 관련 생성 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/schedules")
 public class ScheduleCommandController {
 
     private final ScheduleCommandService scheduleCommandService;
@@ -32,18 +31,6 @@ public class ScheduleCommandController {
     ) {
         Long userId = userPrincipal.getUserId();
         Long data_id = scheduleCommandService.createSchedulingProfile(userId, request);
-        return CommonResponse.success(data_id);
-    }
-
-    @Operation(summary = "목표 생성", description = "로그인 사용자의 목표를 생성합니다.")
-    @PostMapping("/goals")
-    @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Long> createGoal(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @Valid @RequestBody GoalCreateRequest request
-    ) {
-        Long userId = userPrincipal.getUserId();
-        Long data_id = scheduleCommandService.createGoal(userId, request);
         return CommonResponse.success(data_id);
     }
 

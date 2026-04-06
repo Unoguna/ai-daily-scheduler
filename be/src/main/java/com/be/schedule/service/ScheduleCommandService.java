@@ -4,11 +4,9 @@ import com.be.global.exception.BusinessException;
 import com.be.global.exception.ErrorCode;
 import com.be.schedule.domain.DailyCondition;
 import com.be.schedule.domain.FixedSchedule;
-import com.be.schedule.domain.Goal;
 import com.be.schedule.domain.SchedulingProfile;
 import com.be.schedule.dto.DailyConditionCreateRequest;
 import com.be.schedule.dto.FixedScheduleCreateRequest;
-import com.be.schedule.dto.GoalCreateRequest;
 import com.be.schedule.dto.SchedulingProfileCreateRequest;
 import com.be.schedule.repository.DailyConditionRepository;
 import com.be.schedule.repository.FixedScheduleRepository;
@@ -52,19 +50,7 @@ public class ScheduleCommandService {
         return schedulingProfileRepository.save(profile).getId();
     }
 
-    public Long createGoal(Long userId, GoalCreateRequest request) {
-        User user = getUser(userId);
 
-        Goal goal = Goal.create(
-                user,
-                request.title(),
-                request.description(),
-                request.priority(),
-                request.targetDate()
-        );
-
-        return goalRepository.save(goal).getId();
-    }
 
     public Long createFixedSchedule(Long userId, FixedScheduleCreateRequest request) {
         User user = getUser(userId);

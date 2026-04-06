@@ -1,4 +1,4 @@
-package com.be.schedule.domain;
+package com.be.goal.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

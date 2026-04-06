@@ -2,7 +2,7 @@ package com.be.user.domain;
 
 import com.be.schedule.domain.DailyCondition;
 import com.be.schedule.domain.FixedSchedule;
-import com.be.schedule.domain.Goal;
+import com.be.goal.domain.Goal;
 import com.be.schedule.domain.SchedulingProfile;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

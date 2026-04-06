@@ -1,6 +1,6 @@
-package com.be.schedule.repository;
+package com.be.goal.repository;
 
-import com.be.schedule.domain.Goal;
+import com.be.goal.domain.Goal;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

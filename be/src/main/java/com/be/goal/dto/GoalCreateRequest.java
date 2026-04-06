@@ -1,6 +1,6 @@
-package com.be.schedule.dto;
+package com.be.goal.dto;
 
-import com.be.schedule.domain.GoalPriority;
+import com.be.goal.domain.GoalPriority;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
