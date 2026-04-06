@@ -1,11 +1,13 @@
 package com.be.daily_condition.controller;
 
+import com.be.daily_condition.dto.DailyConditionResponse;
 import com.be.global.response.CommonResponse;
 import com.be.global.response.IdResponse;
 import com.be.global.security.UserPrincipal;
 import com.be.daily_condition.dto.DailyConditionCreateRequest;
 import com.be.daily_condition.service.DailyConditionService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +33,14 @@ public class DailyConditionController {
         Long userId = userPrincipal.getUserId();
         Long id = dailyConditionService.createDailyCondition(userId, request);
         return CommonResponse.success(new IdResponse(id));
+    }
+
+    @Operation(summary = "당일 컨디션 조회", description = "로그인한 사용자의 오늘 컨디션을 조회합니다.")
+    @GetMapping("")
+    public CommonResponse<DailyConditionResponse> getTodayCondition(
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        DailyConditionResponse response = dailyConditionService.getTodayCondition(userPrincipal.getUserId());
+        return CommonResponse.success(response);
     }
 }

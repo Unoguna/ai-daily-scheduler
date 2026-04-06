@@ -1,5 +1,6 @@
 package com.be.daily_condition.service;
 
+import com.be.daily_condition.dto.DailyConditionResponse;
 import com.be.global.exception.BusinessException;
 import com.be.global.exception.ErrorCode;
 import com.be.daily_condition.domain.DailyCondition;
@@ -10,6 +11,8 @@ import com.be.user.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +39,17 @@ public class DailyConditionService {
         );
 
         return dailyConditionRepository.save(dailyCondition).getId();
+    }
+
+    @Transactional(readOnly = true)
+    public DailyConditionResponse getTodayCondition(Long userId) {
+        LocalDate today = LocalDate.now();
+
+        DailyCondition dailyCondition = dailyConditionRepository
+                .findByUserIdAndDate(userId, today)
+                .orElseThrow(() -> new BusinessException(ErrorCode.DAILY_CONDITION_NOT_FOUND));
+
+        return DailyConditionResponse.from(dailyCondition);
     }
 
     private User getUser(Long userId) {

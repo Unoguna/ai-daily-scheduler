@@ -23,6 +23,7 @@ public enum ErrorCode {
     INVALID_FATIGUE_LEVEL(HttpStatus.BAD_REQUEST, "DC001", "피로도는 1~5 범위여야 합니다."),
     INVALID_FOCUS_LEVEL(HttpStatus.BAD_REQUEST, "DC002", "집중도는 1~5 범위여야 합니다."),
     DAILY_CONDITION_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "DC003", "해당 날짜의 상태 정보가 이미 존재합니다."),
+    DAILY_CONDITION_NOT_FOUND(HttpStatus.NOT_FOUND, "DC004", "오늘의 컨디션 정보가 존재하지 않습니다."),
 
     //Schedule
     INVALID_TIME_RANGE(HttpStatus.BAD_REQUEST, "S001", "시작 시간은 종료 시간보다 빨라야 합니다."),
