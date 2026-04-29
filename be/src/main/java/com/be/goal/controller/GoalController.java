@@ -3,8 +3,9 @@ package com.be.goal.controller;
 import com.be.global.response.CommonResponse;
 import com.be.global.response.IdResponse;
 import com.be.global.security.UserPrincipal;
-import com.be.goal.service.GoalService;
 import com.be.goal.dto.GoalCreateRequest;
+import com.be.goal.dto.GoalResponse;
+import com.be.goal.service.GoalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,6 +20,17 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/goals")
 public class GoalController {
     private final GoalService goalService;
+
+
+
+    @Operation(summary = "목표 다건 조회", description = "로그인 사용자의 목표 목록을 조회합니다.")
+    @GetMapping("")
+    public CommonResponse<java.util.List<GoalResponse>> getGoals(
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        Long userId = userPrincipal.getUserId();
+        return CommonResponse.success(goalService.getGoals(userId));
+    }
 
     @Operation(summary = "목표 생성", description = "로그인 사용자의 목표를 생성합니다.")
     @PostMapping("")
