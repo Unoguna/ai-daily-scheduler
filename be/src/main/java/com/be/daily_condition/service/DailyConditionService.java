@@ -19,8 +19,8 @@ import java.time.LocalDate;
 @Transactional
 public class DailyConditionService {
 
-    UserRepository userRepository;
-    DailyConditionRepository dailyConditionRepository;
+    private final UserRepository userRepository;
+    private final DailyConditionRepository dailyConditionRepository;
 
     public Long createDailyCondition(Long userId, DailyConditionCreateRequest request) {
         User user = getUser(userId);
@@ -42,11 +42,11 @@ public class DailyConditionService {
     }
 
     @Transactional(readOnly = true)
-    public DailyConditionResponse getTodayCondition(Long userId) {
-        LocalDate today = LocalDate.now();
+    public DailyConditionResponse getDailyCondition(Long userId, LocalDate date) {
+        LocalDate conditionDate = date == null ? LocalDate.now() : date;
 
         DailyCondition dailyCondition = dailyConditionRepository
-                .findByUserIdAndDate(userId, today)
+                .findByUserIdAndDate(userId, conditionDate)
                 .orElseThrow(() -> new BusinessException(ErrorCode.DAILY_CONDITION_NOT_FOUND));
 
         return DailyConditionResponse.from(dailyCondition);

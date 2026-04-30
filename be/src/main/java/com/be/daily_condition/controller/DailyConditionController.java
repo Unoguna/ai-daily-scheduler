@@ -11,9 +11,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @Tag(name = "Daily Condition API", description = "당일 컨디션 관련 API")
 @RestController
@@ -37,10 +40,11 @@ public class DailyConditionController {
 
     @Operation(summary = "당일 컨디션 조회", description = "로그인한 사용자의 오늘 컨디션을 조회합니다.")
     @GetMapping("")
-    public CommonResponse<DailyConditionResponse> getTodayCondition(
-            @AuthenticationPrincipal UserPrincipal userPrincipal
+    public CommonResponse<DailyConditionResponse> getDailyCondition(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        DailyConditionResponse response = dailyConditionService.getTodayCondition(userPrincipal.getUserId());
+        DailyConditionResponse response = dailyConditionService.getDailyCondition(userPrincipal.getUserId(), date);
         return CommonResponse.success(response);
     }
 }
