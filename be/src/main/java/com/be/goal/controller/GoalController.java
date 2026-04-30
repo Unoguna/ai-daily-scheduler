@@ -43,4 +43,14 @@ public class GoalController {
         List<GoalResponse> response = goalService.getGoals(userPrincipal.getUserId());
         return CommonResponse.success(response);
     }
+
+    @Operation(summary = "목표 단건 조회", description = "로그인 사용자의 목표를 단건 조회합니다.")
+    @GetMapping("/{goalId}")
+    public CommonResponse<GoalResponse> getGoal(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long goalId
+    ) {
+        GoalResponse response = goalService.getGoal(userPrincipal.getUserId(), goalId);
+        return CommonResponse.success(response);
+    }
 }
