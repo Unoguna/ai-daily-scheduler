@@ -6,6 +6,7 @@ import com.be.schedule.domain.FixedSchedule;
 import com.be.schedule.domain.SchedulingProfile;
 import com.be.schedule.dto.FixedScheduleCreateRequest;
 import com.be.schedule.dto.FixedScheduleResponse;
+import com.be.schedule.dto.FixedScheduleUpdateRequest;
 import com.be.schedule.dto.SchedulingProfileCreateRequest;
 import com.be.schedule.repository.FixedScheduleRepository;
 import com.be.schedule.repository.SchedulingProfileRepository;
@@ -77,6 +78,24 @@ public class ScheduleCommandService {
         return fixedSchedules.stream()
                 .map(FixedScheduleResponse::from)
                 .toList();
+    }
+
+    public FixedScheduleResponse updateFixedSchedule(Long userId, Long scheduleId, FixedScheduleUpdateRequest request) {
+        getUser(userId);
+
+        FixedSchedule fixedSchedule = fixedScheduleRepository.findByIdAndUserId(scheduleId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+
+        fixedSchedule.update(
+                request.dayOfWeek(),
+                request.title(),
+                request.category(),
+                request.startTime(),
+                request.endTime(),
+                request.mandatory()
+        );
+
+        return FixedScheduleResponse.from(fixedSchedule);
     }
 
 
