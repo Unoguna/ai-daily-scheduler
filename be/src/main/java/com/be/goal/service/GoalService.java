@@ -54,6 +54,15 @@ public class GoalService {
         return GoalResponse.from(goal);
     }
 
+    public void deleteGoal(Long userId, Long goalId) {
+        getUser(userId);
+
+        Goal goal = goalRepository.findByIdAndUserId(goalId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+
+        goalRepository.delete(goal);
+    }
+
     private User getUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));

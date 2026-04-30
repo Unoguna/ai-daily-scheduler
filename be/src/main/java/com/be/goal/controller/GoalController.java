@@ -53,4 +53,14 @@ public class GoalController {
         GoalResponse response = goalService.getGoal(userPrincipal.getUserId(), goalId);
         return CommonResponse.success(response);
     }
+
+    @Operation(summary = "Goal delete", description = "Delete a goal for the logged-in user.")
+    @DeleteMapping("/{goalId}")
+    public CommonResponse<Void> deleteGoal(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long goalId
+    ) {
+        goalService.deleteGoal(userPrincipal.getUserId(), goalId);
+        return CommonResponse.success(null);
+    }
 }
