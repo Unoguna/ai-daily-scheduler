@@ -5,6 +5,7 @@ import com.be.global.exception.ErrorCode;
 import com.be.goal.domain.Goal;
 import com.be.goal.dto.GoalCreateRequest;
 import com.be.goal.dto.GoalResponse;
+import com.be.goal.dto.GoalUpdateRequest;
 import com.be.goal.repository.GoalRepository;
 import com.be.user.domain.User;
 import com.be.user.repository.UserRepository;
@@ -50,6 +51,22 @@ public class GoalService {
 
         Goal goal = goalRepository.findByIdAndUserId(goalId, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+
+        return GoalResponse.from(goal);
+    }
+
+    public GoalResponse updateGoal(Long userId, Long goalId, GoalUpdateRequest request) {
+        getUser(userId);
+
+        Goal goal = goalRepository.findByIdAndUserId(goalId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+
+        goal.update(
+                request.title(),
+                request.description(),
+                request.priority(),
+                request.targetDate()
+        );
 
         return GoalResponse.from(goal);
     }

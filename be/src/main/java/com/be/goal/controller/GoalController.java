@@ -4,6 +4,7 @@ import com.be.global.response.CommonResponse;
 import com.be.global.response.IdResponse;
 import com.be.global.security.UserPrincipal;
 import com.be.goal.dto.GoalResponse;
+import com.be.goal.dto.GoalUpdateRequest;
 import com.be.goal.service.GoalService;
 import com.be.goal.dto.GoalCreateRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,7 +55,19 @@ public class GoalController {
         return CommonResponse.success(response);
     }
 
-    @Operation(summary = "Goal delete", description = "Delete a goal for the logged-in user.")
+
+    @Operation(summary = "목표 수정", description = "로그인 사용자의 목표를 수정합니다.")
+    @PutMapping("/{goalId}")
+    public CommonResponse<GoalResponse> updateGoal(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long goalId,
+            @Valid @RequestBody GoalUpdateRequest request
+    ) {
+        GoalResponse response = goalService.updateGoal(userPrincipal.getUserId(), goalId, request);
+        return CommonResponse.success(response);
+    }
+
+    @Operation(summary = "목표 삭제", description = "로그인 사용자의 목표를 삭제합니다.")
     @DeleteMapping("/{goalId}")
     public CommonResponse<Void> deleteGoal(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
