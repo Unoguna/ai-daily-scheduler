@@ -35,7 +35,7 @@ public class GoalController {
         return CommonResponse.success(new IdResponse(id));
     }
 
-    @Operation(summary = "Goal list", description = "Get goals for the logged-in user.")
+    @Operation(summary = "목표 다건조회", description = "로그인 사용자의 목표를 다건 조회합니다.")
     @GetMapping("")
     public CommonResponse<List<GoalResponse>> getGoals(
             @AuthenticationPrincipal UserPrincipal userPrincipal
