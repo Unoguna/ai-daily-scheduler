@@ -5,6 +5,7 @@ import com.be.global.exception.ErrorCode;
 import com.be.schedule.domain.FixedSchedule;
 import com.be.schedule.domain.SchedulingProfile;
 import com.be.schedule.dto.FixedScheduleCreateRequest;
+import com.be.schedule.dto.FixedScheduleResponse;
 import com.be.schedule.dto.SchedulingProfileCreateRequest;
 import com.be.schedule.repository.FixedScheduleRepository;
 import com.be.schedule.repository.SchedulingProfileRepository;
@@ -13,6 +14,9 @@ import com.be.user.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.DayOfWeek;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -62,6 +66,18 @@ public class ScheduleCommandService {
         return fixedScheduleRepository.save(fixedSchedule).getId();
     }
 
+    @Transactional(readOnly = true)
+    public List<FixedScheduleResponse> getFixedSchedules(Long userId, DayOfWeek dayOfWeek) {
+        getUser(userId);
+
+        List<FixedSchedule> fixedSchedules = dayOfWeek == null
+                ? fixedScheduleRepository.findByUserId(userId)
+                : fixedScheduleRepository.findByUserIdAndDayOfWeek(userId, dayOfWeek);
+
+        return fixedSchedules.stream()
+                .map(FixedScheduleResponse::from)
+                .toList();
+    }
 
 
     private User getUser(Long userId) {
