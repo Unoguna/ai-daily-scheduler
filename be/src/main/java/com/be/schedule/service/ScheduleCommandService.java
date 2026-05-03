@@ -80,6 +80,16 @@ public class ScheduleCommandService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public FixedScheduleResponse getFixedSchedule(Long userId, Long scheduleId) {
+        getUser(userId);
+
+        FixedSchedule fixedSchedule = fixedScheduleRepository.findByIdAndUserId(scheduleId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+
+        return FixedScheduleResponse.from(fixedSchedule);
+    }
+
     public FixedScheduleResponse updateFixedSchedule(Long userId, Long scheduleId, FixedScheduleUpdateRequest request) {
         getUser(userId);
 
