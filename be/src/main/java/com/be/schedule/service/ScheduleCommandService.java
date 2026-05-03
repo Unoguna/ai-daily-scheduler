@@ -108,6 +108,15 @@ public class ScheduleCommandService {
         return FixedScheduleResponse.from(fixedSchedule);
     }
 
+    public void deleteFixedSchedule(Long userId, Long scheduleId) {
+        getUser(userId);
+
+        FixedSchedule fixedSchedule = fixedScheduleRepository.findByIdAndUserId(scheduleId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+
+        fixedScheduleRepository.delete(fixedSchedule);
+    }
+
 
     private User getUser(Long userId) {
         return userRepository.findById(userId)
