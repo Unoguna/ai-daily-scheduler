@@ -9,9 +9,9 @@ import com.be.goal.domain.GoalPriority;
 import com.be.goal.domain.GoalStatus;
 import com.be.goal.repository.GoalRepository;
 import com.be.schedule.domain.FixedSchedule;
+import com.be.schedule.domain.ScheduleItemType;
 import com.be.schedule.domain.SchedulingProfile;
 import com.be.schedule.dto.GeneratedScheduleItemResponse;
-import com.be.schedule.dto.GeneratedScheduleItemType;
 import com.be.schedule.dto.ScheduleGenerationResponse;
 import com.be.schedule.repository.FixedScheduleRepository;
 import com.be.schedule.repository.SchedulingProfileRepository;
@@ -94,7 +94,7 @@ public class ScheduleGenerationService {
     private void addFixedScheduleItems(List<GeneratedScheduleItemResponse> items, List<FixedSchedule> fixedSchedules) {
         for (FixedSchedule fixedSchedule : fixedSchedules) {
             items.add(new GeneratedScheduleItemResponse(
-                    GeneratedScheduleItemType.FIXED_SCHEDULE,
+                    ScheduleItemType.FIXED_SCHEDULE,
                     fixedSchedule.getTitle(),
                     fixedSchedule.getStartTime(),
                     fixedSchedule.getEndTime(),
@@ -124,7 +124,7 @@ public class ScheduleGenerationService {
                 LocalTime workEnd = cursor.plusMinutes(sessionMinutes);
 
                 items.add(new GeneratedScheduleItemResponse(
-                        GeneratedScheduleItemType.GOAL_WORK,
+                        ScheduleItemType.GOAL_WORK,
                         goal.getTitle(),
                         cursor,
                         workEnd,
@@ -139,7 +139,7 @@ public class ScheduleGenerationService {
                 if (!cursor.plusMinutes(breakMinutes + sessionMinutes).isAfter(block.end())) {
                     LocalTime breakEnd = cursor.plusMinutes(breakMinutes);
                     items.add(new GeneratedScheduleItemResponse(
-                            GeneratedScheduleItemType.BREAK,
+                            ScheduleItemType.BREAK,
                             "Break",
                             cursor,
                             breakEnd,

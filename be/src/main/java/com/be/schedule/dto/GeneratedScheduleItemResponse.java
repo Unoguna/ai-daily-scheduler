@@ -1,9 +1,11 @@
 package com.be.schedule.dto;
 
+import com.be.schedule.domain.ScheduleItemType;
+
 import java.time.LocalTime;
 
 public record GeneratedScheduleItemResponse(
-        GeneratedScheduleItemType type,
+        ScheduleItemType type,
         String title,
         LocalTime startTime,
         LocalTime endTime,
