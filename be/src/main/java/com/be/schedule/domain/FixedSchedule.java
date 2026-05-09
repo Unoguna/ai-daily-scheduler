@@ -5,7 +5,6 @@ import com.be.global.exception.ErrorCode;
 import com.be.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
