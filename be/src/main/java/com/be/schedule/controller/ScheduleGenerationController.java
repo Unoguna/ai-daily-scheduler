@@ -24,7 +24,7 @@ public class ScheduleGenerationController {
 
     private final ScheduleGenerationService scheduleGenerationService;
 
-    @Operation(summary = "일정 생성", description = "컨디션과 목표등을 참고하여 하루 일정을 생성합니다.")
+    @Operation(summary = "일정 생성", description = "컨디션과 목표를 참고하여 하루 일정을 생성합니다.")
     @PostMapping("/generate")
     public CommonResponse<ScheduleGenerationResponse> generateSchedule(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
