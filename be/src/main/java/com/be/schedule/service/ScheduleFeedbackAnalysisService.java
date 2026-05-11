@@ -14,6 +14,7 @@ import java.time.LocalTime;
 @Service
 public class ScheduleFeedbackAnalysisService {
 
+    //ChatClient.Builder는 Spring AI에서 제공하는 LLM 대화 객체 생성기(Builder 패턴)
     private final ObjectProvider<ChatClient.Builder> chatClientBuilderProvider;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
