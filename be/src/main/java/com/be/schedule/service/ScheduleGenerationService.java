@@ -8,11 +8,13 @@ import com.be.goal.domain.Goal;
 import com.be.goal.domain.GoalPriority;
 import com.be.goal.domain.GoalStatus;
 import com.be.goal.repository.GoalRepository;
+import com.be.schedule.domain.DailyScheduleFeedback;
 import com.be.schedule.domain.FixedSchedule;
 import com.be.schedule.domain.ScheduleItemType;
 import com.be.schedule.domain.SchedulingProfile;
 import com.be.schedule.dto.GeneratedScheduleItemResponse;
 import com.be.schedule.dto.ScheduleGenerationResponse;
+import com.be.schedule.repository.DailyScheduleFeedbackRepository;
 import com.be.schedule.repository.FixedScheduleRepository;
 import com.be.schedule.repository.SchedulingProfileRepository;
 import com.be.user.repository.UserRepository;
@@ -37,6 +39,7 @@ public class ScheduleGenerationService {
     private final GoalRepository goalRepository;
     private final FixedScheduleRepository fixedScheduleRepository;
     private final SchedulingProfileRepository schedulingProfileRepository;
+    private final DailyScheduleFeedbackRepository dailyScheduleFeedbackRepository;
 
     public ScheduleGenerationResponse generateSchedule(Long userId, LocalDate date) {
         userRepository.findById(userId)
@@ -47,6 +50,10 @@ public class ScheduleGenerationService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.DAILY_CONDITION_NOT_FOUND));
         SchedulingProfile profile = schedulingProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        FeedbackAdjustment feedbackAdjustment = dailyScheduleFeedbackRepository
+                .findTopByUserIdAndDateLessThanEqualOrderByDateDesc(userId, scheduleDate.minusDays(1))
+                .map(FeedbackAdjustment::from)
+                .orElse(FeedbackAdjustment.none());
 
         LocalTime scheduleStart = max(profile.getWakeUpTime(), profile.getPreferredStartTime());
         LocalTime scheduleEnd = min(profile.getSleepTime(), profile.getPreferredEndTime());
@@ -65,8 +72,8 @@ public class ScheduleGenerationService {
                 .sorted(Comparator.comparingInt(GoalCandidate::score).reversed())
                 .toList();
 
-        int sessionMinutes = calculateSessionMinutes(profile, condition);
-        int breakMinutes = calculateBreakMinutes(profile, condition);
+        int sessionMinutes = calculateSessionMinutes(profile, condition, feedbackAdjustment);
+        int breakMinutes = calculateBreakMinutes(profile, condition, feedbackAdjustment);
 
         List<GeneratedScheduleItemResponse> items = new ArrayList<>();
         addFixedScheduleItems(items, fixedSchedules);
@@ -75,7 +82,8 @@ public class ScheduleGenerationService {
                 calculateAvailableBlocks(scheduleStart, scheduleEnd, fixedSchedules),
                 goalCandidates,
                 sessionMinutes,
-                breakMinutes
+                breakMinutes,
+                feedbackAdjustment
         );
 
         List<GeneratedScheduleItemResponse> sortedItems = items.stream()
@@ -110,7 +118,8 @@ public class ScheduleGenerationService {
             List<TimeBlock> availableBlocks,
             List<GoalCandidate> goalCandidates,
             int sessionMinutes,
-            int breakMinutes
+            int breakMinutes,
+            FeedbackAdjustment feedbackAdjustment
     ) {
         if (goalCandidates.isEmpty()) {
             return;
@@ -120,7 +129,7 @@ public class ScheduleGenerationService {
         for (TimeBlock block : availableBlocks) {
             LocalTime cursor = block.start();
             while (!cursor.plusMinutes(sessionMinutes).isAfter(block.end())) {
-                Goal goal = goalCandidates.get(goalIndex % goalCandidates.size()).goal();
+                Goal goal = selectGoal(goalCandidates, goalIndex, cursor, feedbackAdjustment).goal();
                 LocalTime workEnd = cursor.plusMinutes(sessionMinutes);
 
                 items.add(new GeneratedScheduleItemResponse(
@@ -153,6 +162,23 @@ public class ScheduleGenerationService {
                 }
             }
         }
+    }
+
+    private GoalCandidate selectGoal(
+            List<GoalCandidate> goalCandidates,
+            int goalIndex,
+            LocalTime cursor,
+            FeedbackAdjustment feedbackAdjustment
+    ) {
+        if (feedbackAdjustment.avoidHeavyTasksAfter() == null
+                || cursor.isBefore(feedbackAdjustment.avoidHeavyTasksAfter())) {
+            return goalCandidates.get(goalIndex % goalCandidates.size());
+        }
+
+        return goalCandidates.stream()
+                .filter(candidate -> candidate.goal().getPriority() != GoalPriority.HIGH)
+                .findFirst()
+                .orElse(goalCandidates.get(goalIndex % goalCandidates.size()));
     }
 
     private List<TimeBlock> calculateAvailableBlocks(
@@ -217,7 +243,11 @@ public class ScheduleGenerationService {
         return score;
     }
 
-    private int calculateSessionMinutes(SchedulingProfile profile, DailyCondition condition) {
+    private int calculateSessionMinutes(
+            SchedulingProfile profile,
+            DailyCondition condition,
+            FeedbackAdjustment feedbackAdjustment
+    ) {
         int sessionMinutes = profile.getPreferredSessionMinutes();
 
         if (condition.getFatigueLevel() >= 4 || condition.getFocusLevel() <= 2) {
@@ -226,17 +256,25 @@ public class ScheduleGenerationService {
             sessionMinutes = Math.max(sessionMinutes, 60);
         }
 
-        return Math.max(20, sessionMinutes);
+        sessionMinutes += feedbackAdjustment.sessionMinutesAdjustment();
+
+        return Math.max(20, Math.min(120, sessionMinutes));
     }
 
-    private int calculateBreakMinutes(SchedulingProfile profile, DailyCondition condition) {
+    private int calculateBreakMinutes(
+            SchedulingProfile profile,
+            DailyCondition condition,
+            FeedbackAdjustment feedbackAdjustment
+    ) {
         int breakMinutes = profile.getBreakMinutes();
 
         if (condition.getFatigueLevel() >= 4 || condition.getFocusLevel() <= 2) {
             breakMinutes += 5;
         }
 
-        return Math.max(5, breakMinutes);
+        breakMinutes += feedbackAdjustment.breakMinutesAdjustment();
+
+        return Math.max(5, Math.min(40, breakMinutes));
     }
 
     private LocalTime max(LocalTime first, LocalTime second) {
@@ -251,5 +289,25 @@ public class ScheduleGenerationService {
     }
 
     private record GoalCandidate(Goal goal, int score) {
+    }
+
+    private record FeedbackAdjustment(
+            int sessionMinutesAdjustment,
+            int breakMinutesAdjustment,
+            int afternoonFocusPenalty,
+            LocalTime avoidHeavyTasksAfter
+    ) {
+        static FeedbackAdjustment from(DailyScheduleFeedback feedback) {
+            return new FeedbackAdjustment(
+                    feedback.getSessionMinutesAdjustment(),
+                    feedback.getBreakMinutesAdjustment(),
+                    feedback.getAfternoonFocusPenalty(),
+                    feedback.getAvoidHeavyTasksAfter()
+            );
+        }
+
+        static FeedbackAdjustment none() {
+            return new FeedbackAdjustment(0, 0, 0, null);
+        }
     }
 }
