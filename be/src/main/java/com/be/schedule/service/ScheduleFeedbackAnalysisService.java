@@ -1,7 +1,12 @@
 package com.be.schedule.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.be.schedule.dto.ScheduleFeedbackAnalysis;
 import com.be.schedule.dto.ScheduleFeedbackRequest;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -9,7 +14,106 @@ import java.time.LocalTime;
 @Service
 public class ScheduleFeedbackAnalysisService {
 
+    private final ObjectProvider<ChatClient.Builder> chatClientBuilderProvider;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Value("${spring.ai.google.genai.api-key:}")
+    private String geminiApiKey;
+
+    public ScheduleFeedbackAnalysisService(ObjectProvider<ChatClient.Builder> chatClientBuilderProvider) {
+        this.chatClientBuilderProvider = chatClientBuilderProvider;
+    }
+
     public ScheduleFeedbackAnalysis analyze(ScheduleFeedbackRequest request) {
+        ScheduleFeedbackAnalysis fallbackAnalysis = analyzeWithRules(request);
+
+        if (geminiApiKey == null || geminiApiKey.isBlank() || "dummy".equals(geminiApiKey)) {
+            return fallbackAnalysis;
+        }
+
+        try {
+            ChatClient.Builder builder = chatClientBuilderProvider.getIfAvailable();
+            if (builder == null) {
+                return fallbackAnalysis;
+            }
+
+            String content = builder.build()
+                    .prompt()
+                    .system("""
+                            You analyze Korean daily schedule feedback and return only compact JSON.
+                            The JSON schema is:
+                            {
+                              "summary": "string",
+                              "sessionMinutesAdjustment": integer between -30 and 20,
+                              "breakMinutesAdjustment": integer between -5 and 15,
+                              "afternoonFocusPenalty": integer between 0 and 40,
+                              "avoidHeavyTasksAfter": "HH:mm" or null
+                            }
+                            Use negative session adjustment when the user says the day was too hard, tiring, or overloaded.
+                            Use positive break adjustment when the user needs more rest.
+                            Set afternoonFocusPenalty and avoidHeavyTasksAfter to 14:00 when afternoon focus was poor.
+                            """)
+                    .user("""
+                            date: %s
+                            satisfactionScore: %d
+                            rawFeedback: %s
+                            """.formatted(
+                            request.date(),
+                            request.satisfactionScore(),
+                            request.rawFeedback()
+                    ))
+                    .call()
+                    .content();
+
+            return parseAnalysis(content, fallbackAnalysis);
+        } catch (Exception e) {
+            return fallbackAnalysis;
+        }
+    }
+
+    private ScheduleFeedbackAnalysis parseAnalysis(String content, ScheduleFeedbackAnalysis fallbackAnalysis) throws Exception {
+        JsonNode root = objectMapper.readTree(content);
+
+        String summary = root.path("summary").asText(fallbackAnalysis.summary());
+        int sessionAdjustment = clamp(
+                root.path("sessionMinutesAdjustment").asInt(fallbackAnalysis.sessionMinutesAdjustment()),
+                -30,
+                20
+        );
+        int breakAdjustment = clamp(
+                root.path("breakMinutesAdjustment").asInt(fallbackAnalysis.breakMinutesAdjustment()),
+                -5,
+                15
+        );
+        int afternoonPenalty = clamp(
+                root.path("afternoonFocusPenalty").asInt(fallbackAnalysis.afternoonFocusPenalty()),
+                0,
+                40
+        );
+        LocalTime avoidHeavyTasksAfter = parseTimeOrNull(
+                root.path("avoidHeavyTasksAfter").isNull()
+                        ? null
+                        : root.path("avoidHeavyTasksAfter").asText(null)
+        );
+
+        return new ScheduleFeedbackAnalysis(
+                summary,
+                sessionAdjustment,
+                breakAdjustment,
+                afternoonPenalty,
+                avoidHeavyTasksAfter
+        );
+    }
+
+    private LocalTime parseTimeOrNull(String value) {
+        if (value == null || value.isBlank() || "null".equalsIgnoreCase(value)) {
+            return null;
+        }
+
+        return LocalTime.parse(value);
+    }
+
+    private ScheduleFeedbackAnalysis analyzeWithRules(ScheduleFeedbackRequest request) {
         String feedback = request.rawFeedback().toLowerCase();
 
         int sessionAdjustment = 0;

@@ -28,6 +28,7 @@ repositories {
 }
 
 dependencies {
+	implementation(platform("org.springframework.ai:spring-ai-bom:1.1.5"))
 	implementation("org.springframework.boot:spring-boot-h2console")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-security")
@@ -53,6 +54,7 @@ dependencies {
 
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+    implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
 }
 
 tasks.withType<Test> {
