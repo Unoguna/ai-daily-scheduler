@@ -55,6 +55,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
 }
 
 tasks.withType<Test> {
