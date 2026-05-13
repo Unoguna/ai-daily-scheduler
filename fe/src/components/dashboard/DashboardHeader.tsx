@@ -72,17 +72,28 @@ export function DateToolbar({
 }
 
 export function StatusMessage({
-  loading,
-  message,
+  toast,
 }: {
-  loading: boolean;
-  message: string;
+  toast: {
+    message: string;
+    type: "loading" | "success" | "error";
+  } | null;
 }) {
-  if (!message) return null;
+  if (!toast) return null;
+
+  const colorClass = {
+    loading: "border-[#c8cbbf] bg-white text-[#243528]",
+    success: "border-[#9fb49c] bg-[#f5fbf3] text-[#243528]",
+    error: "border-[#d6a2a2] bg-[#fff7f7] text-[#612b2b]",
+  }[toast.type];
 
   return (
-    <div className="rounded-md border border-[#c8cbbf] bg-white px-4 py-3 text-sm">
-      {loading ? "처리 중..." : message}
+    <div
+      role="status"
+      aria-live="polite"
+      className={`fixed bottom-5 right-5 z-50 max-w-[calc(100vw-40px)] rounded-md border px-4 py-3 text-sm font-semibold shadow-lg md:max-w-sm ${colorClass}`}
+    >
+      {toast.message}
     </div>
   );
 }

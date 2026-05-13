@@ -33,8 +33,10 @@ export default function Home() {
   const router = useRouter();
   const [token, setToken] = useState("");
   const [selectedDate, setSelectedDate] = useState(today());
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "loading" | "success" | "error";
+  } | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [fixedSchedules, setFixedSchedules] = useState<FixedSchedule[]>([]);
@@ -91,18 +93,26 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, selectedDate]);
 
+  useEffect(() => {
+    if (!toast || toast.type === "loading") return;
+
+    const timeoutId = window.setTimeout(() => {
+      setToast(null);
+    }, 3000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [toast]);
+
   const run = async (action: () => Promise<void>, successMessage: string) => {
-    setLoading(true);
-    setMessage("");
+    setToast({ message: "처리 중...", type: "loading" });
     try {
       await action();
-      setMessage(successMessage);
+      setToast({ message: successMessage, type: "success" });
     } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "요청에 실패했습니다.",
-      );
-    } finally {
-      setLoading(false);
+      setToast({
+        message: error instanceof Error ? error.message : "요청에 실패했습니다.",
+        type: "error",
+      });
     }
   };
 
@@ -288,7 +298,7 @@ export default function Home() {
           isAuthenticated={Boolean(user)}
           onLogout={logout}
         />
-        <StatusMessage loading={loading} message={message} />
+        <StatusMessage toast={toast} />
 
         <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
           <SidebarForms
