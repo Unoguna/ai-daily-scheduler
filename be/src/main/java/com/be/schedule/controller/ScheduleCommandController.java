@@ -3,6 +3,8 @@ package com.be.schedule.controller;
 import com.be.global.response.CommonResponse;
 import com.be.global.response.IdResponse;
 import com.be.global.security.UserPrincipal;
+import com.be.schedule.dto.FixedScheduleCreateRequest;
+import com.be.schedule.dto.FixedScheduleResponse;
 import com.be.schedule.dto.SchedulingProfileCreateRequest;
 import com.be.schedule.service.ScheduleCommandService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 
 @Tag(name = "Schedule Command API", description = "스케줄 관련 API")
 @RestController
@@ -33,6 +34,5 @@ public class ScheduleCommandController {
         Long id = scheduleCommandService.createSchedulingProfile(userId, request);
         return CommonResponse.success(new IdResponse(id));
     }
-
 
 }

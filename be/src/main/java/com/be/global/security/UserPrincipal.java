@@ -1,6 +1,7 @@
 package com.be.global.security;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -18,6 +19,12 @@ public class UserPrincipal extends AbstractAuthenticationToken {
         this.userId = userId;
         this.username = username;
         setAuthenticated(true);
+    }
+
+    @NotNull
+    @Override
+    public String getName() {
+        return username;
     }
 
     @Override

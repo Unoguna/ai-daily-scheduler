@@ -21,13 +21,13 @@ import java.util.List;
 @Tag(name = "Fixed Schedule API", description = "고정 일정 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/fixed-schedules")
+@RequestMapping("/api/v1/schedules/fixed-schedules")
 public class FixedScheduleController {
 
     private final ScheduleCommandService scheduleCommandService;
 
     @Operation(summary = "고정 일정 생성", description = "로그인 사용자의 고정 일정을 생성합니다.")
-    @PostMapping("/fixed-schedules")
+    @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<IdResponse> createFixedSchedule(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -39,7 +39,7 @@ public class FixedScheduleController {
     }
 
     @Operation(summary = "고정 일정 다건 조회", description = "로그인 사용자의 고정 일정을 다건 조회합니다.")
-    @GetMapping("/fixed-schedules")
+    @GetMapping("")
     public CommonResponse<List<FixedScheduleResponse>> getFixedSchedules(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(required = false) DayOfWeek dayOfWeek
