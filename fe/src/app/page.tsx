@@ -16,6 +16,7 @@ import {
 import { SidebarForms } from "@/components/dashboard/SidebarForms";
 import { request, today } from "@/lib/schedulerApi";
 import type {
+  AuthUser,
   ConfirmedSchedule,
   EmotionState,
   FixedScheduleForm,
@@ -25,6 +26,7 @@ import type {
   GoalPriority,
   ScheduleCategory,
   ScheduleItem,
+  SchedulingProfileForm,
 } from "@/types/scheduler";
 
 export default function Home() {
@@ -33,6 +35,7 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState(today());
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [fixedSchedules, setFixedSchedules] = useState<FixedSchedule[]>([]);
   const [generated, setGenerated] = useState<GeneratedSchedule | null>(null);
@@ -57,6 +60,15 @@ export default function Home() {
     startTime: "09:00:00",
     endTime: "10:00:00",
     mandatory: true,
+  });
+  const [profileForm, setProfileForm] = useState<SchedulingProfileForm>({
+    preferredStartTime: "09:00:00",
+    preferredEndTime: "22:00:00",
+    wakeUpTime: "07:30:00",
+    sleepTime: "23:30:00",
+    energyPattern: "MORNING_TYPE",
+    preferredSessionMinutes: 50,
+    breakMinutes: 10,
   });
   const [feedbackForm, setFeedbackForm] = useState({
     satisfactionScore: 3,
@@ -100,10 +112,12 @@ export default function Home() {
 
   const loadDashboard = async () => {
     await run(async () => {
-      const [goalList, fixedList] = await Promise.all([
+      const [me, goalList, fixedList] = await Promise.all([
+        request<AuthUser>("/api/v1/auth/me"),
         request<Goal[]>("/api/v1/goals"),
         request<FixedSchedule[]>("/api/v1/schedules/fixed-schedules"),
       ]);
+      setUser(me);
       setGoals(goalList);
       setFixedSchedules(fixedList);
 
@@ -116,11 +130,6 @@ export default function Home() {
         setConfirmed(null);
       }
     }, "데이터를 불러왔습니다.");
-  };
-
-  const saveToken = () => {
-    localStorage.setItem("accessToken", token);
-    void loadDashboard();
   };
 
   const createCondition = (event: FormEvent) => {
@@ -170,6 +179,16 @@ export default function Home() {
       );
       setFixedSchedules(fixedList);
     }, "고정 일정을 추가했습니다.");
+  };
+
+  const createSchedulingProfile = (event: FormEvent) => {
+    event.preventDefault();
+    void run(async () => {
+      await request<{ id: number }>("/api/v1/schedules/scheduling-profile", {
+        method: "POST",
+        body: JSON.stringify(profileForm),
+      });
+    }, "스케줄링 프로필을 저장했습니다.");
   };
 
   const generateSchedule = () => {
@@ -233,14 +252,13 @@ export default function Home() {
     <main className="min-h-screen bg-[#f6f7f2] text-[#20231f]">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-5 py-6">
         <DashboardHeader
-          token={token}
-          onTokenChange={setToken}
-          onSaveToken={saveToken}
+          userName={user?.name ?? null}
         />
         <DateToolbar
           selectedDate={selectedDate}
           onDateChange={setSelectedDate}
           onRefresh={() => void loadDashboard()}
+          isAuthenticated={Boolean(token)}
         />
         <StatusMessage loading={loading} message={message} />
 
@@ -249,12 +267,15 @@ export default function Home() {
             conditionForm={conditionForm}
             goalForm={goalForm}
             fixedForm={fixedForm}
+            profileForm={profileForm}
             setConditionForm={setConditionForm}
             setGoalForm={setGoalForm}
             setFixedForm={setFixedForm}
+            setProfileForm={setProfileForm}
             onCreateCondition={createCondition}
             onCreateGoal={createGoal}
             onCreateFixedSchedule={createFixedSchedule}
+            onCreateSchedulingProfile={createSchedulingProfile}
           />
 
           <section className="flex flex-col gap-6">

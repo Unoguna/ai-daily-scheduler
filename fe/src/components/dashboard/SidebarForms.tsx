@@ -15,31 +15,135 @@ import type {
   GoalForm,
   GoalPriority,
   ScheduleCategory,
+  SchedulingProfileForm,
+  EnergyPattern,
 } from "@/types/scheduler";
 
 export function SidebarForms({
   conditionForm,
   goalForm,
   fixedForm,
+  profileForm,
   setConditionForm,
   setGoalForm,
   setFixedForm,
+  setProfileForm,
   onCreateCondition,
   onCreateGoal,
   onCreateFixedSchedule,
+  onCreateSchedulingProfile,
 }: {
   conditionForm: ConditionForm;
   goalForm: GoalForm;
   fixedForm: FixedScheduleForm;
+  profileForm: SchedulingProfileForm;
   setConditionForm: Dispatch<SetStateAction<ConditionForm>>;
   setGoalForm: Dispatch<SetStateAction<GoalForm>>;
   setFixedForm: Dispatch<SetStateAction<FixedScheduleForm>>;
+  setProfileForm: Dispatch<SetStateAction<SchedulingProfileForm>>;
   onCreateCondition: (event: FormEvent) => void;
   onCreateGoal: (event: FormEvent) => void;
   onCreateFixedSchedule: (event: FormEvent) => void;
+  onCreateSchedulingProfile: (event: FormEvent) => void;
 }) {
   return (
     <aside className="flex flex-col gap-6">
+      <Panel title="스케줄링 프로필">
+        <form
+          onSubmit={onCreateSchedulingProfile}
+          className="flex flex-col gap-3"
+        >
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              label="활동 시작"
+              type="time"
+              value={profileForm.preferredStartTime.slice(0, 5)}
+              onChange={(value) =>
+                setProfileForm((form) => ({
+                  ...form,
+                  preferredStartTime: `${value}:00`,
+                }))
+              }
+            />
+            <Input
+              label="활동 종료"
+              type="time"
+              value={profileForm.preferredEndTime.slice(0, 5)}
+              onChange={(value) =>
+                setProfileForm((form) => ({
+                  ...form,
+                  preferredEndTime: `${value}:00`,
+                }))
+              }
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              label="기상"
+              type="time"
+              value={profileForm.wakeUpTime.slice(0, 5)}
+              onChange={(value) =>
+                setProfileForm((form) => ({
+                  ...form,
+                  wakeUpTime: `${value}:00`,
+                }))
+              }
+            />
+            <Input
+              label="취침"
+              type="time"
+              value={profileForm.sleepTime.slice(0, 5)}
+              onChange={(value) =>
+                setProfileForm((form) => ({
+                  ...form,
+                  sleepTime: `${value}:00`,
+                }))
+              }
+            />
+          </div>
+          <Select
+            label="에너지 패턴"
+            value={profileForm.energyPattern}
+            options={[
+              "MORNING_TYPE",
+              "AFTERNOON_TYPE",
+              "EVENING_TYPE",
+              "IRREGULAR",
+            ]}
+            onChange={(value) =>
+              setProfileForm((form) => ({
+                ...form,
+                energyPattern: value as EnergyPattern,
+              }))
+            }
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <MinuteField
+              label="집중 분"
+              min={10}
+              max={300}
+              value={profileForm.preferredSessionMinutes}
+              onChange={(value) =>
+                setProfileForm((form) => ({
+                  ...form,
+                  preferredSessionMinutes: value,
+                }))
+              }
+            />
+            <MinuteField
+              label="휴식 분"
+              min={0}
+              max={180}
+              value={profileForm.breakMinutes}
+              onChange={(value) =>
+                setProfileForm((form) => ({ ...form, breakMinutes: value }))
+              }
+            />
+          </div>
+          <SubmitButton label="프로필 저장" />
+        </form>
+      </Panel>
+
       <Panel title="당일 컨디션">
         <form onSubmit={onCreateCondition} className="flex flex-col gap-3">
           <NumberField
@@ -188,5 +292,33 @@ export function SidebarForms({
         </form>
       </Panel>
     </aside>
+  );
+}
+
+function MinuteField({
+  label,
+  value,
+  min,
+  max,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <label className="flex flex-col gap-1 text-sm font-semibold">
+      {label}
+      <input
+        type="number"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(event) => onChange(Number(event.target.value))}
+        className="rounded-md border border-[#c8cbbf] bg-white px-3 py-2 font-normal"
+      />
+    </label>
   );
 }

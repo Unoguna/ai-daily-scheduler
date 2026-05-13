@@ -1,11 +1,7 @@
 export function DashboardHeader({
-  token,
-  onTokenChange,
-  onSaveToken,
+  userName,
 }: {
-  token: string;
-  onTokenChange: (token: string) => void;
-  onSaveToken: () => void;
+  userName: string | null;
 }) {
   return (
     <header className="flex flex-col gap-4 border-b border-[#d7d9cf] pb-5 md:flex-row md:items-end md:justify-between">
@@ -13,24 +9,11 @@ export function DashboardHeader({
         <p className="text-sm font-semibold text-[#577060]">Haru Planner</p>
         <h1 className="text-3xl font-bold">하루 일정 코치</h1>
       </div>
-      <div className="flex flex-col gap-2 md:w-[520px]">
-        <label className="text-sm font-semibold">Access Token</label>
-        <div className="flex gap-2">
-          <input
-            value={token}
-            onChange={(event) => onTokenChange(event.target.value)}
-            className="min-w-0 flex-1 rounded-md border border-[#c8cbbf] bg-white px-3 py-2 text-sm"
-            placeholder="로그인 후 accessToken이 자동 저장됩니다."
-          />
-          <button
-            type="button"
-            onClick={onSaveToken}
-            className="rounded-md bg-[#243528] px-4 py-2 text-sm font-semibold text-white"
-          >
-            저장
-          </button>
+      {userName ? (
+        <div className="rounded-md border border-[#c8cbbf] bg-white px-4 py-2 text-sm font-semibold text-[#243528]">
+          {userName}님
         </div>
-      </div>
+      ) : null}
     </header>
   );
 }
@@ -39,10 +22,12 @@ export function DateToolbar({
   selectedDate,
   onDateChange,
   onRefresh,
+  isAuthenticated,
 }: {
   selectedDate: string;
   onDateChange: (date: string) => void;
   onRefresh: () => void;
+  isAuthenticated: boolean;
 }) {
   return (
     <section className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -63,12 +48,14 @@ export function DateToolbar({
         >
           새로고침
         </button>
-        <a
-          href="/login"
-          className="rounded-md border border-[#aeb4a5] px-4 py-2 text-sm font-semibold"
-        >
-          로그인
-        </a>
+        {isAuthenticated ? null : (
+          <a
+            href="/login"
+            className="rounded-md border border-[#aeb4a5] px-4 py-2 text-sm font-semibold"
+          >
+            로그인
+          </a>
+        )}
       </div>
     </section>
   );

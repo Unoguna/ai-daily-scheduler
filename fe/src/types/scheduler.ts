@@ -5,6 +5,12 @@ export type ApiResponse<T> = {
   code?: string;
 };
 
+export type AuthUser = {
+  userId: number;
+  name: string;
+  email: string;
+};
+
 export type GoalPriority = "LOW" | "MEDIUM" | "HIGH";
 export type GoalStatus = "ACTIVE" | "COMPLETED" | "INACTIVE";
 export type DayOfWeek =
@@ -25,6 +31,11 @@ export type ScheduleCategory =
   | "OTHER";
 export type ScheduleItemType = "FIXED_SCHEDULE" | "GOAL_WORK" | "BREAK";
 export type EmotionState = "VERY_BAD" | "BAD" | "NEUTRAL" | "GOOD" | "VERY_GOOD";
+export type EnergyPattern =
+  | "MORNING_TYPE"
+  | "AFTERNOON_TYPE"
+  | "EVENING_TYPE"
+  | "IRREGULAR";
 
 export type Goal = {
   goalId: number;
@@ -94,4 +105,14 @@ export type FixedScheduleForm = {
 export type FeedbackForm = {
   satisfactionScore: number;
   rawFeedback: string;
+};
+
+export type SchedulingProfileForm = {
+  preferredStartTime: string;
+  preferredEndTime: string;
+  wakeUpTime: string;
+  sleepTime: string;
+  energyPattern: EnergyPattern;
+  preferredSessionMinutes: number;
+  breakMinutes: number;
 };
