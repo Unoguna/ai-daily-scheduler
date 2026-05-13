@@ -82,12 +82,8 @@ export default function Home() {
 
   useEffect(() => {
     const savedToken = localStorage.getItem("accessToken") ?? "";
-    if (!savedToken) {
-      router.replace("/login");
-      return;
-    }
     setToken(savedToken);
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     if (!token) return;
@@ -110,10 +106,28 @@ export default function Home() {
     }
   };
 
+  const clearAuthState = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    setToken("");
+    setUser(null);
+    setGoals([]);
+    setFixedSchedules([]);
+    setGenerated(null);
+    setConfirmed(null);
+  };
+
   const loadDashboard = async () => {
     await run(async () => {
-      const [me, goalList, fixedList] = await Promise.all([
-        request<AuthUser>("/api/v1/auth/me"),
+      let me: AuthUser;
+      try {
+        me = await request<AuthUser>("/api/v1/auth/me");
+      } catch {
+        clearAuthState();
+        throw new Error("로그인이 필요합니다.");
+      }
+
+      const [goalList, fixedList] = await Promise.all([
         request<Goal[]>("/api/v1/goals"),
         request<FixedSchedule[]>("/api/v1/schedules/fixed-schedules"),
       ]);
@@ -130,6 +144,19 @@ export default function Home() {
         setConfirmed(null);
       }
     }, "데이터를 불러왔습니다.");
+  };
+
+  const logout = () => {
+    void run(async () => {
+      try {
+        await request<void>("/api/v1/auth/logout", { method: "POST" });
+      } catch {
+        // Local logout should still complete even if the server token expired.
+      } finally {
+        clearAuthState();
+        router.push("/login");
+      }
+    }, "로그아웃했습니다.");
   };
 
   const createCondition = (event: FormEvent) => {
@@ -258,7 +285,8 @@ export default function Home() {
           selectedDate={selectedDate}
           onDateChange={setSelectedDate}
           onRefresh={() => void loadDashboard()}
-          isAuthenticated={Boolean(token)}
+          isAuthenticated={Boolean(user)}
+          onLogout={logout}
         />
         <StatusMessage loading={loading} message={message} />
 

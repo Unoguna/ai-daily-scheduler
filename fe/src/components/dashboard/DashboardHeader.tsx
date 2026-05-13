@@ -23,11 +23,13 @@ export function DateToolbar({
   onDateChange,
   onRefresh,
   isAuthenticated,
+  onLogout,
 }: {
   selectedDate: string;
   onDateChange: (date: string) => void;
   onRefresh: () => void;
   isAuthenticated: boolean;
+  onLogout: () => void;
 }) {
   return (
     <section className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -48,7 +50,15 @@ export function DateToolbar({
         >
           새로고침
         </button>
-        {isAuthenticated ? null : (
+        {isAuthenticated ? (
+          <button
+            type="button"
+            onClick={onLogout}
+            className="rounded-md border border-[#aeb4a5] px-4 py-2 text-sm font-semibold"
+          >
+            로그아웃
+          </button>
+        ) : (
           <a
             href="/login"
             className="rounded-md border border-[#aeb4a5] px-4 py-2 text-sm font-semibold"
