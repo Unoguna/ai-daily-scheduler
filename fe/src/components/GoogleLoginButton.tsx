@@ -24,9 +24,12 @@ export default function GoogleLoginButton() {
     <button
       type="button"
       onClick={handleLogin}
-      className="rounded-lg bg-white px-4 py-2 font-semibold text-black border hover:bg-gray-50"
+      className="flex w-full items-center justify-center gap-3 rounded-md border border-[#c8cbbf] bg-white px-4 py-3 text-sm font-bold text-[#20231f] shadow-sm transition hover:bg-[#f6f7f2]"
     >
-      구글로 로그인
+      <span className="flex size-6 items-center justify-center rounded-full border border-[#d7d9cf] bg-white text-xs font-black text-[#4285f4]">
+        G
+      </span>
+      Google로 로그인
     </button>
   );
 }
