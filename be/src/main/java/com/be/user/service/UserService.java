@@ -8,6 +8,7 @@ import com.be.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ProfileImageStorageService profileImageStorageService;
 
     public UpdateUserNameResponse updateMyName(Long userId, UpdateUserNameRequest request) {
         User user = getUser(userId);
@@ -24,10 +26,11 @@ public class UserService {
         return UpdateUserNameResponse.of(user.getId(), user.getName());
     }
 
-    public UpdateProfileImageResponse updateMyProfileImage(Long userId, UpdateProfileImageRequest request) {
+    public UpdateProfileImageResponse updateMyProfileImage(Long userId, MultipartFile file) {
         User user = getUser(userId);
 
-        user.updateProfileImage(request.profileImageUrl());
+        String profileImageUrl = profileImageStorageService.store(file);
+        user.updateProfileImage(profileImageUrl);
 
         return UpdateProfileImageResponse.of(user.getId(), user.getProfileImageUrl());
     }

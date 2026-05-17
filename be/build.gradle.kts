@@ -56,6 +56,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
+    implementation("software.amazon.awssdk:s3:2.30.38")
 }
 
 tasks.withType<Test> {

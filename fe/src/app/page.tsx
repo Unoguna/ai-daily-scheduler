@@ -171,7 +171,7 @@ export default function Home() {
 
   const updateProfile = (profile: {
     name: string;
-    profileImageUrl: string;
+    profileImageFile: File | null;
   }) => {
     void run(async () => {
       if (!user) return;
@@ -189,16 +189,16 @@ export default function Home() {
         nextUser.name = response.name;
       }
 
-      if (
-        profile.profileImageUrl &&
-        profile.profileImageUrl !== (user.profileImageUrl ?? "")
-      ) {
+      if (profile.profileImageFile) {
+        const formData = new FormData();
+        formData.append("file", profile.profileImageFile);
+
         const response = await request<{
           userId: number;
           profileImageUrl: string;
         }>("/api/v1/users/me/profile-image", {
           method: "PATCH",
-          body: JSON.stringify({ profileImageUrl: profile.profileImageUrl }),
+          body: formData,
         });
         nextUser.profileImageUrl = response.profileImageUrl;
       }

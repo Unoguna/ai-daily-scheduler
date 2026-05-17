@@ -8,7 +8,7 @@ export function DashboardHeader({
   onUpdateProfile,
 }: {
   user: AuthUser | null;
-  onUpdateProfile: (profile: { name: string; profileImageUrl: string }) => void;
+  onUpdateProfile: (profile: { name: string; profileImageFile: File | null }) => void;
 }) {
   return (
     <header className="flex flex-col gap-4 border-b border-[#d7d9cf] pb-5 md:flex-row md:items-end md:justify-between">
@@ -28,13 +28,12 @@ function ProfileBadge({
   onUpdateProfile,
 }: {
   user: AuthUser;
-  onUpdateProfile: (profile: { name: string; profileImageUrl: string }) => void;
+  onUpdateProfile: (profile: { name: string; profileImageFile: File | null }) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState(user.name);
-  const [profileImageUrl, setProfileImageUrl] = useState(
-    user.profileImageUrl ?? "",
-  );
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const initial = user.name.trim().slice(0, 1).toUpperCase() || "?";
 
@@ -56,7 +55,7 @@ function ProfileBadge({
     event.preventDefault();
     onUpdateProfile({
       name: name.trim(),
-      profileImageUrl: profileImageUrl.trim(),
+      profileImageFile,
     });
     setIsOpen(false);
   };
@@ -64,9 +63,15 @@ function ProfileBadge({
   const toggleProfileMenu = () => {
     if (!isOpen) {
       setName(user.name);
-      setProfileImageUrl(user.profileImageUrl ?? "");
+      setProfileImageFile(null);
+      setPreviewUrl(null);
     }
     setIsOpen((open) => !open);
+  };
+
+  const changeProfileImage = (file: File | null) => {
+    setProfileImageFile(file);
+    setPreviewUrl(file ? URL.createObjectURL(file) : null);
   };
 
   return (
@@ -96,7 +101,7 @@ function ProfileBadge({
           <div className="mb-4 flex items-center gap-3">
             <Avatar
               name={user.name}
-              profileImageUrl={profileImageUrl || user.profileImageUrl}
+              profileImageUrl={previewUrl ?? user.profileImageUrl}
               initial={initial}
             />
             <div className="min-w-0">
@@ -120,12 +125,14 @@ function ProfileBadge({
             </label>
 
             <label className="flex flex-col gap-1 text-sm font-semibold">
-              프로필 이미지 URL
+              프로필 사진
               <input
-                value={profileImageUrl}
-                onChange={(event) => setProfileImageUrl(event.target.value)}
-                className="rounded-md border border-[#c8cbbf] bg-white px-3 py-2 font-normal"
-                placeholder="https://..."
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                onChange={(event) =>
+                  changeProfileImage(event.target.files?.[0] ?? null)
+                }
+                className="rounded-md border border-[#c8cbbf] bg-white px-3 py-2 font-normal file:mr-3 file:rounded-md file:border-0 file:bg-[#577060] file:px-3 file:py-1 file:text-sm file:font-semibold file:text-white"
               />
             </label>
 
@@ -160,17 +167,34 @@ function Avatar({
   profileImageUrl?: string | null;
   initial: string;
 }) {
-  return profileImageUrl ? (
+  const imageUrl = resolveImageUrl(profileImageUrl);
+
+  return imageUrl ? (
     <div
       aria-label={`${name} 프로필 사진`}
       className="size-10 shrink-0 rounded-full border border-[#d7d9cf] bg-cover bg-center"
-      style={{ backgroundImage: `url(${profileImageUrl})` }}
+      style={{ backgroundImage: `url(${imageUrl})` }}
     />
   ) : (
     <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#577060] text-sm font-bold text-white">
       {initial}
     </div>
   );
+}
+
+function resolveImageUrl(profileImageUrl?: string | null) {
+  if (!profileImageUrl) return null;
+  if (
+    profileImageUrl.startsWith("http://") ||
+    profileImageUrl.startsWith("https://") ||
+    profileImageUrl.startsWith("blob:")
+  ) {
+    return profileImageUrl;
+  }
+
+  const apiBaseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+  return `${apiBaseUrl}${profileImageUrl}`;
 }
 
 export function DateToolbar({
