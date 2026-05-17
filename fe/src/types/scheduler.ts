@@ -9,6 +9,8 @@ export type AuthUser = {
   userId: number;
   name: string;
   email: string;
+  profileImageUrl?: string | null;
+  provider?: "KAKAO" | "GOOGLE";
 };
 
 export type GoalPriority = "LOW" | "MEDIUM" | "HIGH";

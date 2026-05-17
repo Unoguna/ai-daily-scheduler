@@ -1,7 +1,9 @@
+import type { AuthUser } from "@/types/scheduler";
+
 export function DashboardHeader({
-  userName,
+  user,
 }: {
-  userName: string | null;
+  user: AuthUser | null;
 }) {
   return (
     <header className="flex flex-col gap-4 border-b border-[#d7d9cf] pb-5 md:flex-row md:items-end md:justify-between">
@@ -9,12 +11,34 @@ export function DashboardHeader({
         <p className="text-sm font-semibold text-[#577060]">Haru Planner</p>
         <h1 className="text-3xl font-bold">하루 일정 코치</h1>
       </div>
-      {userName ? (
-        <div className="rounded-md border border-[#c8cbbf] bg-white px-4 py-2 text-sm font-semibold text-[#243528]">
-          {userName}님
-        </div>
-      ) : null}
+      {user ? <ProfileBadge user={user} /> : null}
     </header>
+  );
+}
+
+function ProfileBadge({ user }: { user: AuthUser }) {
+  const initial = user.name.trim().slice(0, 1).toUpperCase() || "?";
+
+  return (
+    <div className="flex items-center gap-3 rounded-md border border-[#c8cbbf] bg-white px-3 py-2 shadow-sm">
+      {user.profileImageUrl ? (
+        <div
+          aria-label={`${user.name} 프로필 사진`}
+          className="size-10 rounded-full border border-[#d7d9cf] bg-cover bg-center"
+          style={{ backgroundImage: `url(${user.profileImageUrl})` }}
+        />
+      ) : (
+        <div className="flex size-10 items-center justify-center rounded-full bg-[#577060] text-sm font-bold text-white">
+          {initial}
+        </div>
+      )}
+      <div className="min-w-0">
+        <p className="max-w-36 truncate text-sm font-bold text-[#243528]">
+          {user.name}님
+        </p>
+        <p className="max-w-36 truncate text-xs text-[#66705f]">{user.email}</p>
+      </div>
+    </div>
   );
 }
 

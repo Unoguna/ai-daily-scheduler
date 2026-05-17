@@ -131,7 +131,7 @@ export default function Home() {
     await run(async () => {
       let me: AuthUser;
       try {
-        me = await request<AuthUser>("/api/v1/auth/me");
+        me = await request<AuthUser>("/api/v1/users/me");
       } catch {
         clearAuthState();
         throw new Error("로그인이 필요합니다.");
@@ -288,9 +288,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#f6f7f2] text-[#20231f]">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-5 py-6">
-        <DashboardHeader
-          userName={user?.name ?? null}
-        />
+        <DashboardHeader user={user} />
         <DateToolbar
           selectedDate={selectedDate}
           onDateChange={setSelectedDate}
