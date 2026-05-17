@@ -1,9 +1,14 @@
+"use client";
+
+import { FormEvent, useEffect, useRef, useState } from "react";
 import type { AuthUser } from "@/types/scheduler";
 
 export function DashboardHeader({
   user,
+  onUpdateProfile,
 }: {
   user: AuthUser | null;
+  onUpdateProfile: (profile: { name: string; profileImageUrl: string }) => void;
 }) {
   return (
     <header className="flex flex-col gap-4 border-b border-[#d7d9cf] pb-5 md:flex-row md:items-end md:justify-between">
@@ -11,33 +16,159 @@ export function DashboardHeader({
         <p className="text-sm font-semibold text-[#577060]">Haru Planner</p>
         <h1 className="text-3xl font-bold">하루 일정 코치</h1>
       </div>
-      {user ? <ProfileBadge user={user} /> : null}
+      {user ? (
+        <ProfileBadge user={user} onUpdateProfile={onUpdateProfile} />
+      ) : null}
     </header>
   );
 }
 
-function ProfileBadge({ user }: { user: AuthUser }) {
+function ProfileBadge({
+  user,
+  onUpdateProfile,
+}: {
+  user: AuthUser;
+  onUpdateProfile: (profile: { name: string; profileImageUrl: string }) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [name, setName] = useState(user.name);
+  const [profileImageUrl, setProfileImageUrl] = useState(
+    user.profileImageUrl ?? "",
+  );
+  const containerRef = useRef<HTMLDivElement>(null);
   const initial = user.name.trim().slice(0, 1).toUpperCase() || "?";
 
+  useEffect(() => {
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    return () => document.removeEventListener("mousedown", closeOnOutsideClick);
+  }, []);
+
+  const submitProfile = (event: FormEvent) => {
+    event.preventDefault();
+    onUpdateProfile({
+      name: name.trim(),
+      profileImageUrl: profileImageUrl.trim(),
+    });
+    setIsOpen(false);
+  };
+
+  const toggleProfileMenu = () => {
+    if (!isOpen) {
+      setName(user.name);
+      setProfileImageUrl(user.profileImageUrl ?? "");
+    }
+    setIsOpen((open) => !open);
+  };
+
   return (
-    <div className="flex items-center gap-3 rounded-md border border-[#c8cbbf] bg-white px-3 py-2 shadow-sm">
-      {user.profileImageUrl ? (
-        <div
-          aria-label={`${user.name} 프로필 사진`}
-          className="size-10 rounded-full border border-[#d7d9cf] bg-cover bg-center"
-          style={{ backgroundImage: `url(${user.profileImageUrl})` }}
+    <div ref={containerRef} className="relative">
+      <button
+        type="button"
+        onClick={toggleProfileMenu}
+        className="flex items-center gap-3 rounded-md border border-[#c8cbbf] bg-white px-3 py-2 text-left shadow-sm transition hover:bg-[#f6f7f2]"
+      >
+        <Avatar
+          name={user.name}
+          profileImageUrl={user.profileImageUrl}
+          initial={initial}
         />
-      ) : (
-        <div className="flex size-10 items-center justify-center rounded-full bg-[#577060] text-sm font-bold text-white">
-          {initial}
+        <div className="min-w-0">
+          <p className="max-w-36 truncate text-sm font-bold text-[#243528]">
+            {user.name}님
+          </p>
+          <p className="max-w-36 truncate text-xs text-[#66705f]">
+            {user.email}
+          </p>
         </div>
-      )}
-      <div className="min-w-0">
-        <p className="max-w-36 truncate text-sm font-bold text-[#243528]">
-          {user.name}님
-        </p>
-        <p className="max-w-36 truncate text-xs text-[#66705f]">{user.email}</p>
-      </div>
+      </button>
+
+      {isOpen ? (
+        <div className="absolute right-0 top-full z-40 mt-2 w-[min(360px,calc(100vw-40px))] rounded-md border border-[#d7d9cf] bg-[#fbfcf7] p-4 shadow-lg">
+          <div className="mb-4 flex items-center gap-3">
+            <Avatar
+              name={user.name}
+              profileImageUrl={profileImageUrl || user.profileImageUrl}
+              initial={initial}
+            />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-bold text-[#243528]">
+                개인정보 수정
+              </p>
+              <p className="truncate text-xs text-[#66705f]">{user.email}</p>
+            </div>
+          </div>
+
+          <form onSubmit={submitProfile} className="flex flex-col gap-3">
+            <label className="flex flex-col gap-1 text-sm font-semibold">
+              이름
+              <input
+                value={name}
+                maxLength={20}
+                required
+                onChange={(event) => setName(event.target.value)}
+                className="rounded-md border border-[#c8cbbf] bg-white px-3 py-2 font-normal"
+              />
+            </label>
+
+            <label className="flex flex-col gap-1 text-sm font-semibold">
+              프로필 이미지 URL
+              <input
+                value={profileImageUrl}
+                onChange={(event) => setProfileImageUrl(event.target.value)}
+                className="rounded-md border border-[#c8cbbf] bg-white px-3 py-2 font-normal"
+                placeholder="https://..."
+              />
+            </label>
+
+            <div className="flex justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="rounded-md border border-[#aeb4a5] px-4 py-2 text-sm font-semibold"
+              >
+                취소
+              </button>
+              <button
+                type="submit"
+                className="rounded-md bg-[#577060] px-4 py-2 text-sm font-semibold text-white"
+              >
+                저장
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function Avatar({
+  name,
+  profileImageUrl,
+  initial,
+}: {
+  name: string;
+  profileImageUrl?: string | null;
+  initial: string;
+}) {
+  return profileImageUrl ? (
+    <div
+      aria-label={`${name} 프로필 사진`}
+      className="size-10 shrink-0 rounded-full border border-[#d7d9cf] bg-cover bg-center"
+      style={{ backgroundImage: `url(${profileImageUrl})` }}
+    />
+  ) : (
+    <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#577060] text-sm font-bold text-white">
+      {initial}
     </div>
   );
 }

@@ -169,6 +169,44 @@ export default function Home() {
     }, "로그아웃했습니다.");
   };
 
+  const updateProfile = (profile: {
+    name: string;
+    profileImageUrl: string;
+  }) => {
+    void run(async () => {
+      if (!user) return;
+
+      const nextUser = { ...user };
+
+      if (profile.name && profile.name !== user.name) {
+        const response = await request<{ userId: number; name: string }>(
+          "/api/v1/users/me/name",
+          {
+            method: "PATCH",
+            body: JSON.stringify({ name: profile.name }),
+          },
+        );
+        nextUser.name = response.name;
+      }
+
+      if (
+        profile.profileImageUrl &&
+        profile.profileImageUrl !== (user.profileImageUrl ?? "")
+      ) {
+        const response = await request<{
+          userId: number;
+          profileImageUrl: string;
+        }>("/api/v1/users/me/profile-image", {
+          method: "PATCH",
+          body: JSON.stringify({ profileImageUrl: profile.profileImageUrl }),
+        });
+        nextUser.profileImageUrl = response.profileImageUrl;
+      }
+
+      setUser(nextUser);
+    }, "개인정보를 수정했습니다.");
+  };
+
   const createCondition = (event: FormEvent) => {
     event.preventDefault();
     void run(async () => {
@@ -288,7 +326,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#f6f7f2] text-[#20231f]">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-5 py-6">
-        <DashboardHeader user={user} />
+        <DashboardHeader user={user} onUpdateProfile={updateProfile} />
         <DateToolbar
           selectedDate={selectedDate}
           onDateChange={setSelectedDate}
