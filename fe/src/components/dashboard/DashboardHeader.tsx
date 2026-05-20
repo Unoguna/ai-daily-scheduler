@@ -91,13 +91,13 @@ function ProfileBadge({
               href="/goals/new"
               className="block rounded-md border border-[#aeb4a5] px-4 py-2 text-center text-sm font-semibold transition hover:bg-white"
             >
-              목표 추가
+              목표 관리
             </Link>
             <Link
               href="/fixed-schedules/new"
               className="block rounded-md border border-[#aeb4a5] px-4 py-2 text-center text-sm font-semibold transition hover:bg-white"
             >
-              고정 일정 추가
+              고정 일정 관리
             </Link>
           </div>
 
