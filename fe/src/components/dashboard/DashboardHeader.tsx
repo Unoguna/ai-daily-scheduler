@@ -62,12 +62,18 @@ function ProfileBadge({
         type="button"
         aria-label="프로필 메뉴 열기"
         onClick={toggleProfileMenu}
-        className="rounded-full transition hover:opacity-85"
+        className="flex items-center gap-2 rounded-full transition hover:opacity-85"
       >
         <Avatar
           name={user.name}
           profileImageUrl={user.profileImageUrl}
           initial={initial}
+        />
+        <span
+          aria-hidden="true"
+          className={`h-0 w-0 border-x-[6px] border-t-[8px] border-x-transparent border-t-[#66705f] transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
         />
       </button>
 
