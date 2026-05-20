@@ -23,7 +23,6 @@ import type {
   GeneratedSchedule,
   Goal,
   ScheduleItem,
-  SchedulingProfileForm,
 } from "@/types/scheduler";
 
 export default function Home() {
@@ -45,15 +44,6 @@ export default function Home() {
     focusLevel: 3,
     emotionState: "NEUTRAL" as EmotionState,
     memo: "",
-  });
-  const [profileForm, setProfileForm] = useState<SchedulingProfileForm>({
-    preferredStartTime: "09:00:00",
-    preferredEndTime: "22:00:00",
-    wakeUpTime: "07:30:00",
-    sleepTime: "23:30:00",
-    energyPattern: "MORNING_TYPE",
-    preferredSessionMinutes: 50,
-    breakMinutes: 10,
   });
   const [feedbackForm, setFeedbackForm] = useState({
     satisfactionScore: 3,
@@ -168,16 +158,6 @@ export default function Home() {
     }, "당일 컨디션을 저장했습니다.");
   };
 
-  const createSchedulingProfile = (event: FormEvent) => {
-    event.preventDefault();
-    void run(async () => {
-      await request<{ id: number }>("/api/v1/schedules/scheduling-profile", {
-        method: "POST",
-        body: JSON.stringify(profileForm),
-      });
-    }, "스케줄링 프로필을 저장했습니다.");
-  };
-
   const generateSchedule = () => {
     void run(async () => {
       const schedule = await request<GeneratedSchedule>(
@@ -252,11 +232,8 @@ export default function Home() {
         <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
           <SidebarForms
             conditionForm={conditionForm}
-            profileForm={profileForm}
             setConditionForm={setConditionForm}
-            setProfileForm={setProfileForm}
             onCreateCondition={createCondition}
-            onCreateSchedulingProfile={createSchedulingProfile}
           />
 
           <section className="flex flex-col gap-6">

@@ -8,6 +8,7 @@ import com.be.schedule.dto.FixedScheduleCreateRequest;
 import com.be.schedule.dto.FixedScheduleResponse;
 import com.be.schedule.dto.FixedScheduleUpdateRequest;
 import com.be.schedule.dto.SchedulingProfileCreateRequest;
+import com.be.schedule.dto.SchedulingProfileResponse;
 import com.be.schedule.repository.FixedScheduleRepository;
 import com.be.schedule.repository.SchedulingProfileRepository;
 import com.be.user.domain.User;
@@ -49,7 +50,33 @@ public class ScheduleCommandService {
         return schedulingProfileRepository.save(profile).getId();
     }
 
+    @Transactional(readOnly = true)
+    public SchedulingProfileResponse getSchedulingProfile(Long userId) {
+        getUser(userId);
 
+        return schedulingProfileRepository.findByUserId(userId)
+                .map(SchedulingProfileResponse::from)
+                .orElse(null);
+    }
+
+    public SchedulingProfileResponse updateSchedulingProfile(Long userId, SchedulingProfileCreateRequest request) {
+        getUser(userId);
+
+        SchedulingProfile profile = schedulingProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+
+        profile.updateProfile(
+                request.preferredStartTime(),
+                request.preferredEndTime(),
+                request.wakeUpTime(),
+                request.sleepTime(),
+                request.energyPattern(),
+                request.preferredSessionMinutes(),
+                request.breakMinutes()
+        );
+
+        return SchedulingProfileResponse.from(profile);
+    }
 
     public Long createFixedSchedule(Long userId, FixedScheduleCreateRequest request) {
         User user = getUser(userId);

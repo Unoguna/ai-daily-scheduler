@@ -118,3 +118,7 @@ export type SchedulingProfileForm = {
   preferredSessionMinutes: number;
   breakMinutes: number;
 };
+
+export type SchedulingProfile = SchedulingProfileForm & {
+  schedulingProfileId: number;
+};
