@@ -22,7 +22,6 @@ import type {
   FixedSchedule,
   GeneratedSchedule,
   Goal,
-  GoalPriority,
   ScheduleItem,
   SchedulingProfileForm,
 } from "@/types/scheduler";
@@ -46,12 +45,6 @@ export default function Home() {
     focusLevel: 3,
     emotionState: "NEUTRAL" as EmotionState,
     memo: "",
-  });
-  const [goalForm, setGoalForm] = useState({
-    title: "",
-    description: "",
-    priority: "MEDIUM" as GoalPriority,
-    targetDate: selectedDate,
   });
   const [profileForm, setProfileForm] = useState<SchedulingProfileForm>({
     preferredStartTime: "09:00:00",
@@ -175,24 +168,6 @@ export default function Home() {
     }, "당일 컨디션을 저장했습니다.");
   };
 
-  const createGoal = (event: FormEvent) => {
-    event.preventDefault();
-    void run(async () => {
-      await request<{ id: number }>("/api/v1/goals", {
-        method: "POST",
-        body: JSON.stringify({
-          title: goalForm.title,
-          description: goalForm.description || null,
-          priority: goalForm.priority,
-          targetDate: goalForm.targetDate || null,
-        }),
-      });
-      setGoalForm((form) => ({ ...form, title: "", description: "" }));
-      const goalList = await request<Goal[]>("/api/v1/goals");
-      setGoals(goalList);
-    }, "목표를 추가했습니다.");
-  };
-
   const createSchedulingProfile = (event: FormEvent) => {
     event.preventDefault();
     void run(async () => {
@@ -277,13 +252,10 @@ export default function Home() {
         <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
           <SidebarForms
             conditionForm={conditionForm}
-            goalForm={goalForm}
             profileForm={profileForm}
             setConditionForm={setConditionForm}
-            setGoalForm={setGoalForm}
             setProfileForm={setProfileForm}
             onCreateCondition={createCondition}
-            onCreateGoal={createGoal}
             onCreateSchedulingProfile={createSchedulingProfile}
           />
 

@@ -80,12 +80,26 @@ function ProfileBadge({
 
       {isOpen ? (
         <div className="absolute right-0 top-full z-40 mt-2 w-[min(300px,calc(100vw-40px))] rounded-md border border-[#d7d9cf] bg-[#fbfcf7] p-4 shadow-lg">
-          <Link
-            href="/profile"
-            className="block rounded-md border border-[#aeb4a5] px-4 py-2 text-center text-sm font-semibold transition hover:bg-white"
-          >
-            개인정보 수정
-          </Link>
+          <div className="flex flex-col gap-2">
+            <Link
+              href="/profile"
+              className="block rounded-md border border-[#aeb4a5] px-4 py-2 text-center text-sm font-semibold transition hover:bg-white"
+            >
+              개인정보 수정
+            </Link>
+            <Link
+              href="/goals/new"
+              className="block rounded-md border border-[#aeb4a5] px-4 py-2 text-center text-sm font-semibold transition hover:bg-white"
+            >
+              목표 추가
+            </Link>
+            <Link
+              href="/fixed-schedules/new"
+              className="block rounded-md border border-[#aeb4a5] px-4 py-2 text-center text-sm font-semibold transition hover:bg-white"
+            >
+              고정 일정 추가
+            </Link>
+          </div>
 
           <button
             type="button"

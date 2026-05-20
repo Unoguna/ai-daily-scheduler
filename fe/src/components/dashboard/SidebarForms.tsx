@@ -10,31 +10,23 @@ import {
 import type {
   ConditionForm,
   EmotionState,
-  GoalForm,
-  GoalPriority,
   SchedulingProfileForm,
   EnergyPattern,
 } from "@/types/scheduler";
 
 export function SidebarForms({
   conditionForm,
-  goalForm,
   profileForm,
   setConditionForm,
-  setGoalForm,
   setProfileForm,
   onCreateCondition,
-  onCreateGoal,
   onCreateSchedulingProfile,
 }: {
   conditionForm: ConditionForm;
-  goalForm: GoalForm;
   profileForm: SchedulingProfileForm;
   setConditionForm: Dispatch<SetStateAction<ConditionForm>>;
-  setGoalForm: Dispatch<SetStateAction<GoalForm>>;
   setProfileForm: Dispatch<SetStateAction<SchedulingProfileForm>>;
   onCreateCondition: (event: FormEvent) => void;
-  onCreateGoal: (event: FormEvent) => void;
   onCreateSchedulingProfile: (event: FormEvent) => void;
 }) {
   return (
@@ -170,46 +162,6 @@ export function SidebarForms({
             }
           />
           <SubmitButton label="컨디션 저장" />
-        </form>
-      </Panel>
-
-      <Panel title="목표 추가">
-        <form onSubmit={onCreateGoal} className="flex flex-col gap-3">
-          <Input
-            label="제목"
-            value={goalForm.title}
-            onChange={(value) =>
-              setGoalForm((form) => ({ ...form, title: value }))
-            }
-            required
-          />
-          <TextArea
-            label="설명"
-            value={goalForm.description}
-            onChange={(value) =>
-              setGoalForm((form) => ({ ...form, description: value }))
-            }
-          />
-          <Select
-            label="우선순위"
-            value={goalForm.priority}
-            options={["LOW", "MEDIUM", "HIGH"]}
-            onChange={(value) =>
-              setGoalForm((form) => ({
-                ...form,
-                priority: value as GoalPriority,
-              }))
-            }
-          />
-          <Input
-            label="마감일"
-            type="date"
-            value={goalForm.targetDate}
-            onChange={(value) =>
-              setGoalForm((form) => ({ ...form, targetDate: value }))
-            }
-          />
-          <SubmitButton label="목표 추가" />
         </form>
       </Panel>
 
