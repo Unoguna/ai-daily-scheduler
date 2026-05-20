@@ -60,26 +60,35 @@ function ProfileBadge({
     <div ref={containerRef} className="relative">
       <button
         type="button"
+        aria-label="프로필 메뉴 열기"
         onClick={toggleProfileMenu}
-        className="flex items-center gap-3 rounded-md border border-[#c8cbbf] bg-white px-3 py-2 text-left shadow-sm transition hover:bg-[#f6f7f2]"
+        className="rounded-full transition hover:opacity-85"
       >
         <Avatar
           name={user.name}
           profileImageUrl={user.profileImageUrl}
           initial={initial}
         />
-        <div className="min-w-0">
-          <p className="max-w-36 truncate text-sm font-bold text-[#243528]">
-            {user.name}님
-          </p>
-          <p className="max-w-36 truncate text-xs text-[#66705f]">
-            {user.email}
-          </p>
-        </div>
       </button>
 
       {isOpen ? (
         <div className="absolute right-0 top-full z-40 mt-2 w-[min(300px,calc(100vw-40px))] rounded-md border border-[#d7d9cf] bg-[#fbfcf7] p-4 shadow-lg">
+          <div className="mb-4 flex items-center gap-3">
+            <Avatar
+              name={user.name}
+              profileImageUrl={user.profileImageUrl}
+              initial={initial}
+            />
+            <div className="min-w-0">
+              <p className="max-w-44 truncate text-sm font-bold text-[#243528]">
+                {user.name}님
+              </p>
+              <p className="max-w-44 truncate text-xs text-[#66705f]">
+                {user.email}
+              </p>
+            </div>
+          </div>
+
           <div className="flex flex-col gap-2">
             <Link
               href="/profile"
@@ -128,14 +137,14 @@ function Avatar({
 
   if (!imageUrl || failedImageUrl === imageUrl) {
     return (
-      <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#577060] text-sm font-bold text-white">
+      <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#577060] text-base font-bold text-white">
         {initial}
       </div>
     );
   }
 
   return (
-    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#d7d9cf] bg-white">
+    <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={imageUrl}
