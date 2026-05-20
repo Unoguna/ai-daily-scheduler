@@ -1,14 +1,15 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import type { AuthUser } from "@/types/scheduler";
 
 export function DashboardHeader({
   user,
-  onUpdateProfile,
+  onLogout,
 }: {
   user: AuthUser | null;
-  onUpdateProfile: (profile: { name: string; profileImageFile: File | null }) => void;
+  onLogout: () => void;
 }) {
   return (
     <header className="flex flex-col gap-4 border-b border-[#d7d9cf] pb-5 md:flex-row md:items-end md:justify-between">
@@ -16,24 +17,19 @@ export function DashboardHeader({
         <p className="text-sm font-semibold text-[#577060]">Haru Planner</p>
         <h1 className="text-3xl font-bold">하루 일정 코치</h1>
       </div>
-      {user ? (
-        <ProfileBadge user={user} onUpdateProfile={onUpdateProfile} />
-      ) : null}
+      {user ? <ProfileBadge user={user} onLogout={onLogout} /> : null}
     </header>
   );
 }
 
 function ProfileBadge({
   user,
-  onUpdateProfile,
+  onLogout,
 }: {
   user: AuthUser;
-  onUpdateProfile: (profile: { name: string; profileImageFile: File | null }) => void;
+  onLogout: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [name, setName] = useState(user.name);
-  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const initial = user.name.trim().slice(0, 1).toUpperCase() || "?";
 
@@ -51,27 +47,13 @@ function ProfileBadge({
     return () => document.removeEventListener("mousedown", closeOnOutsideClick);
   }, []);
 
-  const submitProfile = (event: FormEvent) => {
-    event.preventDefault();
-    onUpdateProfile({
-      name: name.trim(),
-      profileImageFile,
-    });
-    setIsOpen(false);
-  };
-
   const toggleProfileMenu = () => {
-    if (!isOpen) {
-      setName(user.name);
-      setProfileImageFile(null);
-      setPreviewUrl(null);
-    }
     setIsOpen((open) => !open);
   };
 
-  const changeProfileImage = (file: File | null) => {
-    setProfileImageFile(file);
-    setPreviewUrl(file ? URL.createObjectURL(file) : null);
+  const logout = () => {
+    setIsOpen(false);
+    onLogout();
   };
 
   return (
@@ -97,61 +79,21 @@ function ProfileBadge({
       </button>
 
       {isOpen ? (
-        <div className="absolute right-0 top-full z-40 mt-2 w-[min(360px,calc(100vw-40px))] rounded-md border border-[#d7d9cf] bg-[#fbfcf7] p-4 shadow-lg">
-          <div className="mb-4 flex items-center gap-3">
-            <Avatar
-              name={user.name}
-              profileImageUrl={previewUrl ?? user.profileImageUrl}
-              initial={initial}
-            />
-            <div className="min-w-0">
-              <p className="truncate text-sm font-bold text-[#243528]">
-                개인정보 수정
-              </p>
-              <p className="truncate text-xs text-[#66705f]">{user.email}</p>
-            </div>
-          </div>
+        <div className="absolute right-0 top-full z-40 mt-2 w-[min(300px,calc(100vw-40px))] rounded-md border border-[#d7d9cf] bg-[#fbfcf7] p-4 shadow-lg">
+          <Link
+            href="/profile"
+            className="block rounded-md border border-[#aeb4a5] px-4 py-2 text-center text-sm font-semibold transition hover:bg-white"
+          >
+            개인정보 수정
+          </Link>
 
-          <form onSubmit={submitProfile} className="flex flex-col gap-3">
-            <label className="flex flex-col gap-1 text-sm font-semibold">
-              이름
-              <input
-                value={name}
-                maxLength={20}
-                required
-                onChange={(event) => setName(event.target.value)}
-                className="rounded-md border border-[#c8cbbf] bg-white px-3 py-2 font-normal"
-              />
-            </label>
-
-            <label className="flex flex-col gap-1 text-sm font-semibold">
-              프로필 사진
-              <input
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/gif"
-                onChange={(event) =>
-                  changeProfileImage(event.target.files?.[0] ?? null)
-                }
-                className="rounded-md border border-[#c8cbbf] bg-white px-3 py-2 font-normal file:mr-3 file:rounded-md file:border-0 file:bg-[#577060] file:px-3 file:py-1 file:text-sm file:font-semibold file:text-white"
-              />
-            </label>
-
-            <div className="flex justify-end gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="rounded-md border border-[#aeb4a5] px-4 py-2 text-sm font-semibold"
-              >
-                취소
-              </button>
-              <button
-                type="submit"
-                className="rounded-md bg-[#577060] px-4 py-2 text-sm font-semibold text-white"
-              >
-                저장
-              </button>
-            </div>
-          </form>
+          <button
+            type="button"
+            onClick={logout}
+            className="mt-4 w-full rounded-md border border-[#d6a2a2] px-4 py-2 text-sm font-semibold text-[#612b2b] transition hover:bg-[#fff7f7]"
+          >
+            로그아웃
+          </button>
         </div>
       ) : null}
     </div>
@@ -206,19 +148,14 @@ function resolveImageUrl(profileImageUrl?: string | null) {
   return `${apiBaseUrl}${profileImageUrl}`;
 }
 
-
 export function DateToolbar({
   selectedDate,
   onDateChange,
-  onRefresh,
   isAuthenticated,
-  onLogout,
 }: {
   selectedDate: string;
   onDateChange: (date: string) => void;
-  onRefresh: () => void;
   isAuthenticated: boolean;
-  onLogout: () => void;
 }) {
   return (
     <section className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -232,22 +169,7 @@ export function DateToolbar({
         />
       </div>
       <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={onRefresh}
-          className="rounded-md border border-[#aeb4a5] px-4 py-2 text-sm font-semibold"
-        >
-          새로고침
-        </button>
-        {isAuthenticated ? (
-          <button
-            type="button"
-            onClick={onLogout}
-            className="rounded-md border border-[#aeb4a5] px-4 py-2 text-sm font-semibold"
-          >
-            로그아웃
-          </button>
-        ) : (
+        {isAuthenticated ? null : (
           <a
             href="/login"
             className="rounded-md border border-[#aeb4a5] px-4 py-2 text-sm font-semibold"
