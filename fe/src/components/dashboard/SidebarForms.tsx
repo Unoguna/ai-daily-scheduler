@@ -9,12 +9,9 @@ import {
 } from "@/components/dashboard/FormControls";
 import type {
   ConditionForm,
-  DayOfWeek,
   EmotionState,
-  FixedScheduleForm,
   GoalForm,
   GoalPriority,
-  ScheduleCategory,
   SchedulingProfileForm,
   EnergyPattern,
 } from "@/types/scheduler";
@@ -22,28 +19,22 @@ import type {
 export function SidebarForms({
   conditionForm,
   goalForm,
-  fixedForm,
   profileForm,
   setConditionForm,
   setGoalForm,
-  setFixedForm,
   setProfileForm,
   onCreateCondition,
   onCreateGoal,
-  onCreateFixedSchedule,
   onCreateSchedulingProfile,
 }: {
   conditionForm: ConditionForm;
   goalForm: GoalForm;
-  fixedForm: FixedScheduleForm;
   profileForm: SchedulingProfileForm;
   setConditionForm: Dispatch<SetStateAction<ConditionForm>>;
   setGoalForm: Dispatch<SetStateAction<GoalForm>>;
-  setFixedForm: Dispatch<SetStateAction<FixedScheduleForm>>;
   setProfileForm: Dispatch<SetStateAction<SchedulingProfileForm>>;
   onCreateCondition: (event: FormEvent) => void;
   onCreateGoal: (event: FormEvent) => void;
-  onCreateFixedSchedule: (event: FormEvent) => void;
   onCreateSchedulingProfile: (event: FormEvent) => void;
 }) {
   return (
@@ -222,75 +213,6 @@ export function SidebarForms({
         </form>
       </Panel>
 
-      <Panel title="고정 일정 추가">
-        <form onSubmit={onCreateFixedSchedule} className="flex flex-col gap-3">
-          <Select
-            label="요일"
-            value={fixedForm.dayOfWeek}
-            options={[
-              "MONDAY",
-              "TUESDAY",
-              "WEDNESDAY",
-              "THURSDAY",
-              "FRIDAY",
-              "SATURDAY",
-              "SUNDAY",
-            ]}
-            onChange={(value) =>
-              setFixedForm((form) => ({
-                ...form,
-                dayOfWeek: value as DayOfWeek,
-              }))
-            }
-          />
-          <Input
-            label="제목"
-            value={fixedForm.title}
-            onChange={(value) =>
-              setFixedForm((form) => ({ ...form, title: value }))
-            }
-            required
-          />
-          <Select
-            label="카테고리"
-            value={fixedForm.category}
-            options={[
-              "CLASS",
-              "STUDY",
-              "EXERCISE",
-              "WORK",
-              "MEETING",
-              "PERSONAL",
-              "OTHER",
-            ]}
-            onChange={(value) =>
-              setFixedForm((form) => ({
-                ...form,
-                category: value as ScheduleCategory,
-              }))
-            }
-          />
-          <div className="grid grid-cols-2 gap-2">
-            <Input
-              label="시작"
-              type="time"
-              value={fixedForm.startTime.slice(0, 5)}
-              onChange={(value) =>
-                setFixedForm((form) => ({ ...form, startTime: `${value}:00` }))
-              }
-            />
-            <Input
-              label="종료"
-              type="time"
-              value={fixedForm.endTime.slice(0, 5)}
-              onChange={(value) =>
-                setFixedForm((form) => ({ ...form, endTime: `${value}:00` }))
-              }
-            />
-          </div>
-          <SubmitButton label="고정 일정 추가" />
-        </form>
-      </Panel>
     </aside>
   );
 }

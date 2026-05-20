@@ -19,12 +19,10 @@ import type {
   AuthUser,
   ConfirmedSchedule,
   EmotionState,
-  FixedScheduleForm,
   FixedSchedule,
   GeneratedSchedule,
   Goal,
   GoalPriority,
-  ScheduleCategory,
   ScheduleItem,
   SchedulingProfileForm,
 } from "@/types/scheduler";
@@ -54,14 +52,6 @@ export default function Home() {
     description: "",
     priority: "MEDIUM" as GoalPriority,
     targetDate: selectedDate,
-  });
-  const [fixedForm, setFixedForm] = useState<FixedScheduleForm>({
-    dayOfWeek: "MONDAY",
-    title: "",
-    category: "STUDY" as ScheduleCategory,
-    startTime: "09:00:00",
-    endTime: "10:00:00",
-    mandatory: true,
   });
   const [profileForm, setProfileForm] = useState<SchedulingProfileForm>({
     preferredStartTime: "09:00:00",
@@ -203,21 +193,6 @@ export default function Home() {
     }, "목표를 추가했습니다.");
   };
 
-  const createFixedSchedule = (event: FormEvent) => {
-    event.preventDefault();
-    void run(async () => {
-      await request<{ id: number }>("/api/v1/schedules/fixed-schedules", {
-        method: "POST",
-        body: JSON.stringify(fixedForm),
-      });
-      setFixedForm((form) => ({ ...form, title: "" }));
-      const fixedList = await request<FixedSchedule[]>(
-        "/api/v1/schedules/fixed-schedules",
-      );
-      setFixedSchedules(fixedList);
-    }, "고정 일정을 추가했습니다.");
-  };
-
   const createSchedulingProfile = (event: FormEvent) => {
     event.preventDefault();
     void run(async () => {
@@ -303,15 +278,12 @@ export default function Home() {
           <SidebarForms
             conditionForm={conditionForm}
             goalForm={goalForm}
-            fixedForm={fixedForm}
             profileForm={profileForm}
             setConditionForm={setConditionForm}
             setGoalForm={setGoalForm}
-            setFixedForm={setFixedForm}
             setProfileForm={setProfileForm}
             onCreateCondition={createCondition}
             onCreateGoal={createGoal}
-            onCreateFixedSchedule={createFixedSchedule}
             onCreateSchedulingProfile={createSchedulingProfile}
           />
 

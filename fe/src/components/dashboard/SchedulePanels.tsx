@@ -1,4 +1,5 @@
 import type { Dispatch, FormEvent, SetStateAction } from "react";
+import Link from "next/link";
 import { ListEmpty, NumberField, Panel, SubmitButton, TextArea } from "@/components/dashboard/FormControls";
 import { Timeline, TimelineEditor } from "@/components/dashboard/Timeline";
 import type {
@@ -42,6 +43,14 @@ export function SummaryPanels({
       </Panel>
 
       <Panel title="고정 일정">
+        <div className="mb-3">
+          <Link
+            href="/fixed-schedules/new"
+            className="inline-flex rounded-md bg-[#577060] px-4 py-2 text-sm font-semibold text-white"
+          >
+            고정 일정 추가
+          </Link>
+        </div>
         <ListEmpty
           show={fixedSchedules.length === 0}
           text="고정 일정이 없습니다."
