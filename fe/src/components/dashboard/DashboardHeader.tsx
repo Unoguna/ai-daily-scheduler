@@ -167,17 +167,26 @@ function Avatar({
   profileImageUrl?: string | null;
   initial: string;
 }) {
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
   const imageUrl = resolveImageUrl(profileImageUrl);
 
-  return imageUrl ? (
-    <div
-      aria-label={`${name} 프로필 사진`}
-      className="size-10 shrink-0 rounded-full border border-[#d7d9cf] bg-cover bg-center"
-      style={{ backgroundImage: `url(${imageUrl})` }}
-    />
-  ) : (
-    <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#577060] text-sm font-bold text-white">
-      {initial}
+  if (!imageUrl || failedImageUrl === imageUrl) {
+    return (
+      <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#577060] text-sm font-bold text-white">
+        {initial}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#d7d9cf] bg-white">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={imageUrl}
+        alt={`${name} 프로필 사진`}
+        className="size-full object-contain"
+        onError={() => setFailedImageUrl(imageUrl)}
+      />
     </div>
   );
 }
@@ -196,6 +205,7 @@ function resolveImageUrl(profileImageUrl?: string | null) {
     process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
   return `${apiBaseUrl}${profileImageUrl}`;
 }
+
 
 export function DateToolbar({
   selectedDate,
