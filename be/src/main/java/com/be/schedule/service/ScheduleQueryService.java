@@ -25,9 +25,8 @@ public class ScheduleQueryService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         LocalDate scheduleDate = date == null ? LocalDate.now() : date;
-        ConfirmedSchedule confirmedSchedule = confirmedScheduleRepository.findByUserIdAndDate(userId, scheduleDate)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
-
-        return ConfirmedScheduleResponse.from(confirmedSchedule);
+        return confirmedScheduleRepository.findByUserIdAndDate(userId, scheduleDate)
+                .map(ConfirmedScheduleResponse::from)
+                .orElse(null);
     }
 }

@@ -146,7 +146,7 @@ export default function Home() {
       setFixedSchedules(fixedList);
 
       try {
-        const dailySchedule = await request<ConfirmedSchedule>(
+        const dailySchedule = await request<ConfirmedSchedule | null>(
           `/api/v1/schedules?date=${selectedDate}`,
         );
         setConfirmed(dailySchedule);
