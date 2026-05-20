@@ -184,7 +184,7 @@ function Avatar({
       <img
         src={imageUrl}
         alt={`${name} 프로필 사진`}
-        className="size-full object-contain"
+        className="size-full object-cover"
         onError={() => setFailedImageUrl(imageUrl)}
       />
     </div>
