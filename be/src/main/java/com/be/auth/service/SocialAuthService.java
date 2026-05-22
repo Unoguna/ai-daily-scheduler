@@ -62,7 +62,7 @@ public class SocialAuthService {
         }
 
         if (!isNew) {
-            user.updateProfile(email, name, profileImageUrl);
+            user.updateSocialEmail(email);
         }
 
         String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getName());
@@ -106,7 +106,7 @@ public class SocialAuthService {
         }
 
         if (!isNew) {
-            user.updateProfile(email, name, profileImageUrl);
+            user.updateSocialEmail(email);
         }
 
         String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getName());

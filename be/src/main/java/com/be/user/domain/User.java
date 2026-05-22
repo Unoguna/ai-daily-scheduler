@@ -71,6 +71,10 @@ public class User {
         this.profileImageUrl = profileImageUrl;
     }
 
+    public void updateSocialEmail(String email) {
+        this.email = email;
+    }
+
     public void updateName(String name) {
         if (name == null || name.isBlank()) {
             throw new BusinessException(ErrorCode.INVALID_USER_NAME);
