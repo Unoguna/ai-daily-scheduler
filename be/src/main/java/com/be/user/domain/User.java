@@ -1,18 +1,12 @@
 package com.be.user.domain;
 
-import com.be.daily_condition.domain.DailyCondition;
 import com.be.global.exception.BusinessException;
 import com.be.global.exception.ErrorCode;
-import com.be.schedule.domain.FixedSchedule;
-import com.be.goal.domain.Goal;
 import com.be.schedule.domain.SchedulingProfile;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "users")

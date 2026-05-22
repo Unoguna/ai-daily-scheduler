@@ -13,17 +13,17 @@ import {
   ScheduleGenerationPanel,
   SummaryPanels,
 } from "@/components/dashboard/SchedulePanels";
-import { SidebarForms } from "@/components/dashboard/SidebarForms";
 import { request, today } from "@/lib/schedulerApi";
 import type {
   AuthUser,
   ConfirmedSchedule,
-  EmotionState,
   FixedSchedule,
   GeneratedSchedule,
   Goal,
   ScheduleItem,
 } from "@/types/scheduler";
+
+const GENERATED_SCHEDULE_STORAGE_KEY = "pendingGeneratedSchedule";
 
 export default function Home() {
   const router = useRouter();
@@ -38,13 +38,6 @@ export default function Home() {
   const [fixedSchedules, setFixedSchedules] = useState<FixedSchedule[]>([]);
   const [generated, setGenerated] = useState<GeneratedSchedule | null>(null);
   const [confirmed, setConfirmed] = useState<ConfirmedSchedule | null>(null);
-
-  const [conditionForm, setConditionForm] = useState({
-    fatigueLevel: 3,
-    focusLevel: 3,
-    emotionState: "NEUTRAL" as EmotionState,
-    memo: "",
-  });
   const [feedbackForm, setFeedbackForm] = useState({
     satisfactionScore: 3,
     rawFeedback: "",
@@ -60,6 +53,21 @@ export default function Home() {
     if (!savedToken) {
       router.replace("/login");
       return;
+    }
+
+    const pendingGeneratedSchedule = sessionStorage.getItem(
+      GENERATED_SCHEDULE_STORAGE_KEY,
+    );
+    if (pendingGeneratedSchedule) {
+      try {
+        const schedule = JSON.parse(
+          pendingGeneratedSchedule,
+        ) as GeneratedSchedule;
+        setSelectedDate(schedule.date);
+        setGenerated(schedule);
+      } finally {
+        sessionStorage.removeItem(GENERATED_SCHEDULE_STORAGE_KEY);
+      }
     }
 
     setToken(savedToken);
@@ -88,7 +96,8 @@ export default function Home() {
       setToast({ message: successMessage, type: "success" });
     } catch (error) {
       setToast({
-        message: error instanceof Error ? error.message : "요청에 실패했습니다.",
+        message:
+          error instanceof Error ? error.message : "요청에 실패했습니다.",
         type: "error",
       });
     }
@@ -148,30 +157,8 @@ export default function Home() {
     }, "로그아웃했습니다.");
   };
 
-  const createCondition = (event: FormEvent) => {
-    event.preventDefault();
-    void run(async () => {
-      await request<{ id: number }>("/api/v1/daily-conditions", {
-        method: "POST",
-        body: JSON.stringify({
-          date: selectedDate,
-          fatigueLevel: Number(conditionForm.fatigueLevel),
-          focusLevel: Number(conditionForm.focusLevel),
-          emotionState: conditionForm.emotionState,
-          memo: conditionForm.memo || null,
-        }),
-      });
-    }, "당일 컨디션을 저장했습니다.");
-  };
-
   const generateSchedule = () => {
-    void run(async () => {
-      const schedule = await request<GeneratedSchedule>(
-        `/api/v1/schedules/generate?date=${selectedDate}`,
-        { method: "POST" },
-      );
-      setGenerated(schedule);
-    }, "일정 초안을 생성했습니다.");
+    router.push(`/conditions/new?date=${selectedDate}`);
   };
 
   const confirmSchedule = () => {
@@ -228,10 +215,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#f6f7f2] text-[#20231f]">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-5 py-6">
-        <DashboardHeader
-          user={user}
-          onLogout={logout}
-        />
+        <DashboardHeader user={user} onLogout={logout} />
         <DateToolbar
           selectedDate={selectedDate}
           onDateChange={setSelectedDate}
@@ -239,31 +223,23 @@ export default function Home() {
         />
         <StatusMessage toast={toast} />
 
-        <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
-          <SidebarForms
-            conditionForm={conditionForm}
-            setConditionForm={setConditionForm}
-            onCreateCondition={createCondition}
+        <div className="flex flex-col gap-6">
+          <SummaryPanels
+            activeGoals={activeGoals}
+            fixedSchedules={fixedSchedules}
           />
-
-          <section className="flex flex-col gap-6">
-            <SummaryPanels
-              activeGoals={activeGoals}
-              fixedSchedules={fixedSchedules}
-            />
-            <ScheduleGenerationPanel
-              generated={generated}
-              onGenerateSchedule={generateSchedule}
-              onConfirmSchedule={confirmSchedule}
-              onUpdateGeneratedItem={updateGeneratedItem}
-            />
-            <ConfirmedSchedulePanel confirmed={confirmed} />
-            <FeedbackPanel
-              feedbackForm={feedbackForm}
-              setFeedbackForm={setFeedbackForm}
-              onSubmitFeedback={submitFeedback}
-            />
-          </section>
+          <ScheduleGenerationPanel
+            generated={generated}
+            onGenerateSchedule={generateSchedule}
+            onConfirmSchedule={confirmSchedule}
+            onUpdateGeneratedItem={updateGeneratedItem}
+          />
+          <ConfirmedSchedulePanel confirmed={confirmed} />
+          <FeedbackPanel
+            feedbackForm={feedbackForm}
+            setFeedbackForm={setFeedbackForm}
+            onSubmitFeedback={submitFeedback}
+          />
         </div>
       </div>
     </main>
