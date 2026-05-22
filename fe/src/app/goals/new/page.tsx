@@ -49,6 +49,12 @@ export default function GoalManagePage() {
 
   useEffect(() => {
     const initializePage = async () => {
+      const savedToken = localStorage.getItem("accessToken");
+      if (!savedToken) {
+        router.replace("/login");
+        return;
+      }
+
       try {
         await request<AuthUser>("/api/v1/users/me");
         const goalList = await request<Goal[]>("/api/v1/goals");

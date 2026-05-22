@@ -62,6 +62,12 @@ export default function FixedScheduleManagePage() {
 
   useEffect(() => {
     const initializePage = async () => {
+      const savedToken = localStorage.getItem("accessToken");
+      if (!savedToken) {
+        router.replace("/login");
+        return;
+      }
+
       try {
         await request<AuthUser>("/api/v1/users/me");
         const schedules = await request<FixedSchedule[]>(

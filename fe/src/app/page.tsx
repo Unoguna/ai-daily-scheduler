@@ -57,8 +57,13 @@ export default function Home() {
 
   useEffect(() => {
     const savedToken = localStorage.getItem("accessToken") ?? "";
+    if (!savedToken) {
+      router.replace("/login");
+      return;
+    }
+
     setToken(savedToken);
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (!token) return;
@@ -107,6 +112,7 @@ export default function Home() {
         me = await request<AuthUser>("/api/v1/users/me");
       } catch {
         clearAuthState();
+        router.replace("/login");
         throw new Error("로그인이 필요합니다.");
       }
 
@@ -214,6 +220,10 @@ export default function Home() {
       return { ...schedule, items };
     });
   };
+
+  if (!token) {
+    return null;
+  }
 
   return (
     <main className="min-h-screen bg-[#f6f7f2] text-[#20231f]">

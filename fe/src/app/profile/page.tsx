@@ -41,6 +41,12 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const loadProfile = async () => {
+      const savedToken = localStorage.getItem("accessToken");
+      if (!savedToken) {
+        router.replace("/login");
+        return;
+      }
+
       try {
         const me = await request<AuthUser>("/api/v1/users/me");
         setUser(me);
