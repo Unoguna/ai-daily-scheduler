@@ -10,7 +10,6 @@ import {
 import {
   ConfirmedSchedulePanel,
   FeedbackPanel,
-  ScheduleGenerationPanel,
   SummaryPanels,
 } from "@/components/dashboard/SchedulePanels";
 import { request, today } from "@/lib/schedulerApi";
@@ -18,12 +17,8 @@ import type {
   AuthUser,
   ConfirmedSchedule,
   FixedSchedule,
-  GeneratedSchedule,
   Goal,
-  ScheduleItem,
 } from "@/types/scheduler";
-
-const GENERATED_SCHEDULE_STORAGE_KEY = "pendingGeneratedSchedule";
 
 export default function Home() {
   const router = useRouter();
@@ -36,7 +31,6 @@ export default function Home() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [fixedSchedules, setFixedSchedules] = useState<FixedSchedule[]>([]);
-  const [generated, setGenerated] = useState<GeneratedSchedule | null>(null);
   const [confirmed, setConfirmed] = useState<ConfirmedSchedule | null>(null);
   const [feedbackForm, setFeedbackForm] = useState({
     satisfactionScore: 3,
@@ -53,21 +47,6 @@ export default function Home() {
     if (!savedToken) {
       router.replace("/login");
       return;
-    }
-
-    const pendingGeneratedSchedule = sessionStorage.getItem(
-      GENERATED_SCHEDULE_STORAGE_KEY,
-    );
-    if (pendingGeneratedSchedule) {
-      try {
-        const schedule = JSON.parse(
-          pendingGeneratedSchedule,
-        ) as GeneratedSchedule;
-        setSelectedDate(schedule.date);
-        setGenerated(schedule);
-      } finally {
-        sessionStorage.removeItem(GENERATED_SCHEDULE_STORAGE_KEY);
-      }
     }
 
     setToken(savedToken);
@@ -110,7 +89,6 @@ export default function Home() {
     setUser(null);
     setGoals([]);
     setFixedSchedules([]);
-    setGenerated(null);
     setConfirmed(null);
   };
 
@@ -157,26 +135,8 @@ export default function Home() {
     }, "로그아웃했습니다.");
   };
 
-  const generateSchedule = () => {
-    router.push(`/conditions/new?date=${selectedDate}`);
-  };
-
-  const confirmSchedule = () => {
-    if (!generated) return;
-
-    void run(async () => {
-      await request<{ id: number }>("/api/v1/schedules/confirm", {
-        method: "POST",
-        body: JSON.stringify({
-          date: selectedDate,
-          items: generated.items,
-        }),
-      });
-      const dailySchedule = await request<ConfirmedSchedule>(
-        `/api/v1/schedules?date=${selectedDate}`,
-      );
-      setConfirmed(dailySchedule);
-    }, "하루 일정을 확정했습니다.");
+  const openScheduleGenerationPage = () => {
+    router.push(`/schedules/generate?date=${selectedDate}`);
   };
 
   const submitFeedback = (event: FormEvent) => {
@@ -192,20 +152,6 @@ export default function Home() {
       });
       setFeedbackForm({ satisfactionScore: 3, rawFeedback: "" });
     }, "피드백을 저장하고 분석했습니다.");
-  };
-
-  const updateGeneratedItem = (
-    index: number,
-    key: keyof ScheduleItem,
-    value: string,
-  ) => {
-    setGenerated((schedule) => {
-      if (!schedule) return schedule;
-      const items = schedule.items.map((item, itemIndex) =>
-        itemIndex === index ? { ...item, [key]: value } : item,
-      );
-      return { ...schedule, items };
-    });
   };
 
   if (!token) {
@@ -228,13 +174,10 @@ export default function Home() {
             activeGoals={activeGoals}
             fixedSchedules={fixedSchedules}
           />
-          <ScheduleGenerationPanel
-            generated={generated}
-            onGenerateSchedule={generateSchedule}
-            onConfirmSchedule={confirmSchedule}
-            onUpdateGeneratedItem={updateGeneratedItem}
+          <ConfirmedSchedulePanel
+            confirmed={confirmed}
+            onCreateSchedule={openScheduleGenerationPage}
           />
-          <ConfirmedSchedulePanel confirmed={confirmed} />
           <FeedbackPanel
             feedbackForm={feedbackForm}
             setFeedbackForm={setFeedbackForm}

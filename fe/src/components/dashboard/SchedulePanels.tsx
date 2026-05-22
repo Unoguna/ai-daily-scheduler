@@ -1,13 +1,17 @@
 import type { Dispatch, FormEvent, SetStateAction } from "react";
-import { ListEmpty, NumberField, Panel, SubmitButton, TextArea } from "@/components/dashboard/FormControls";
-import { Timeline, TimelineEditor } from "@/components/dashboard/Timeline";
+import {
+  ListEmpty,
+  NumberField,
+  Panel,
+  SubmitButton,
+  TextArea,
+} from "@/components/dashboard/FormControls";
+import { Timeline } from "@/components/dashboard/Timeline";
 import type {
   ConfirmedSchedule,
   FeedbackForm,
   FixedSchedule,
-  GeneratedSchedule,
   Goal,
-  ScheduleItem,
 } from "@/types/scheduler";
 
 export function SummaryPanels({
@@ -70,58 +74,12 @@ export function SummaryPanels({
   );
 }
 
-export function ScheduleGenerationPanel({
-  generated,
-  onGenerateSchedule,
-  onConfirmSchedule,
-  onUpdateGeneratedItem,
-}: {
-  generated: GeneratedSchedule | null;
-  onGenerateSchedule: () => void;
-  onConfirmSchedule: () => void;
-  onUpdateGeneratedItem: (
-    index: number,
-    key: keyof ScheduleItem,
-    value: string,
-  ) => void;
-}) {
-  return (
-    <Panel title="일정 생성과 확정">
-      <div className="mb-4 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={onGenerateSchedule}
-          className="rounded-md bg-[#243528] px-4 py-2 text-sm font-semibold text-white"
-        >
-          일정 생성
-        </button>
-        <button
-          type="button"
-          onClick={onConfirmSchedule}
-          disabled={!generated}
-          className="rounded-md border border-[#aeb4a5] px-4 py-2 text-sm font-semibold disabled:opacity-40"
-        >
-          생성안 확정
-        </button>
-      </div>
-      {generated ? (
-        <TimelineEditor
-          items={generated.items}
-          onChange={onUpdateGeneratedItem}
-        />
-      ) : (
-        <p className="text-sm text-[#66705f]">
-          생성 버튼을 누르면 프런트에서 수정 가능한 일정 초안이 표시됩니다.
-        </p>
-      )}
-    </Panel>
-  );
-}
-
 export function ConfirmedSchedulePanel({
   confirmed,
+  onCreateSchedule,
 }: {
   confirmed: ConfirmedSchedule | null;
+  onCreateSchedule: () => void;
 }) {
   return (
     <Panel title="확정된 당일 일정">
@@ -134,9 +92,20 @@ export function ConfirmedSchedulePanel({
           }))}
         />
       ) : (
-        <p className="text-sm text-[#66705f]">
-          아직 확정된 일정이 없습니다.
-        </p>
+        <div className="flex flex-col gap-3">
+          <p className="text-sm text-[#66705f]">
+            아직 확정된 일정이 없습니다.
+          </p>
+          <div>
+            <button
+              type="button"
+              onClick={onCreateSchedule}
+              className="rounded-md bg-[#243528] px-4 py-2 text-sm font-semibold text-white"
+            >
+              일정 생성
+            </button>
+          </div>
+        </div>
       )}
     </Panel>
   );
