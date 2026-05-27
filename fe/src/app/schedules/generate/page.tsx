@@ -125,6 +125,14 @@ export default function ScheduleGeneratePage() {
     });
   };
 
+  const deleteGeneratedItem = (index: number) => {
+    setGenerated((schedule) => {
+      if (!schedule) return schedule;
+      const items = schedule.items.filter((_, itemIndex) => itemIndex !== index);
+      return { ...schedule, items };
+    });
+  };
+
   return (
     <main className="min-h-screen bg-[#f6f7f2] text-[#20231f]">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-5 py-6">
@@ -209,6 +217,7 @@ export default function ScheduleGeneratePage() {
                 <CircularTimetableEditor
                   items={generated.items}
                   onChange={updateGeneratedItem}
+                  onDelete={deleteGeneratedItem}
                 />
                 <div className="flex justify-end gap-2">
                   <button

@@ -88,9 +88,11 @@ export function TimelineEditor({
 export function CircularTimetableEditor({
   items,
   onChange,
+  onDelete,
 }: {
   items: ScheduleItem[];
   onChange: (index: number, key: keyof ScheduleItem, value: string) => void;
+  onDelete: (index: number) => void;
 }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const size = 420;
@@ -107,6 +109,11 @@ export function CircularTimetableEditor({
 
   const selectItem = (index: number) => {
     setSelectedIndex(index);
+  };
+
+  const deleteItem = (index: number) => {
+    onDelete(index);
+    setSelectedIndex(null);
   };
 
   return (
@@ -277,6 +284,7 @@ export function CircularTimetableEditor({
             item={selectedItem}
             index={selectedIndex}
             onChange={onChange}
+            onDelete={deleteItem}
           />
         ) : (
           <div className="rounded-md border border-dashed border-[#c8cbbf] bg-white p-5 text-sm font-semibold text-[#66705f]">
@@ -292,10 +300,12 @@ function SelectedScheduleEditor({
   item,
   index,
   onChange,
+  onDelete,
 }: {
   item: ScheduleItem;
   index: number;
   onChange: (index: number, key: keyof ScheduleItem, value: string) => void;
+  onDelete: (index: number) => void;
 }) {
   return (
     <section className="rounded-md border border-[#d7d9cf] bg-white p-4">
@@ -356,6 +366,16 @@ function SelectedScheduleEditor({
             placeholder="설명"
           />
         </label>
+
+        <div className="flex justify-end border-t border-[#e1e3da] pt-4">
+          <button
+            type="button"
+            onClick={() => onDelete(index)}
+            className="rounded-md border border-[#d6a2a2] px-4 py-2 text-sm font-semibold text-[#612b2b] transition hover:bg-[#fff7f7]"
+          >
+            일정 삭제
+          </button>
+        </div>
       </div>
     </section>
   );
