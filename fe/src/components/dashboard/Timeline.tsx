@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ScheduleItem } from "@/types/scheduler";
 
 export function Timeline({ items }: { items: ScheduleItem[] }) {
@@ -93,6 +93,7 @@ export function CircularTimetable({ items }: { items: ScheduleItem[] }) {
         centerTitle="하루 일정"
         centerSubtitle="확정됨"
         maxWidthClass="max-w-[460px]"
+        showClockHands
       />
     </div>
   );
@@ -168,6 +169,7 @@ function CircularTimetableChart({
   centerTitle,
   centerSubtitle,
   maxWidthClass,
+  showClockHands = false,
 }: {
   items: ScheduleItem[];
   selectedIndex?: number | null;
@@ -175,16 +177,28 @@ function CircularTimetableChart({
   centerTitle: string;
   centerSubtitle: string;
   maxWidthClass: string;
+  showClockHands?: boolean;
 }) {
   const size = 420;
   const center = size / 2;
   const outerRadius = 178;
   const innerRadius = 104;
+  const [now, setNow] = useState(() => new Date());
   const sortedItems = items
     .map((item, index) => ({ item, index }))
     .sort(
       (a, b) => timeToMinutes(a.item.startTime) - timeToMinutes(b.item.startTime),
     );
+
+  useEffect(() => {
+    if (!showClockHands) return;
+
+    const intervalId = window.setInterval(() => {
+      setNow(new Date());
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [showClockHands]);
 
   return (
     <div className={`relative aspect-square w-full ${maxWidthClass}`}>
@@ -305,24 +319,87 @@ function CircularTimetableChart({
           fill="#fbfcf7"
           stroke="#d7d9cf"
         />
-        <text
-          x={center}
-          y={center - 8}
-          textAnchor="middle"
-          className="fill-[#243528] text-[18px] font-bold"
-        >
-          {centerTitle}
-        </text>
-        <text
-          x={center}
-          y={center + 16}
-          textAnchor="middle"
-          className="fill-[#66705f] text-[12px] font-semibold"
-        >
-          {centerSubtitle}
-        </text>
+        {showClockHands ? (
+          <ClockHands
+            center={center}
+            hour={now.getHours()}
+            minute={now.getMinutes()}
+            second={now.getSeconds()}
+          />
+        ) : (
+          <>
+            <text
+              x={center}
+              y={center - 8}
+              textAnchor="middle"
+              className="fill-[#243528] text-[18px] font-bold"
+            >
+              {centerTitle}
+            </text>
+            <text
+              x={center}
+              y={center + 16}
+              textAnchor="middle"
+              className="fill-[#66705f] text-[12px] font-semibold"
+            >
+              {centerSubtitle}
+            </text>
+          </>
+        )}
       </svg>
     </div>
+  );
+}
+
+function ClockHands({
+  center,
+  hour,
+  minute,
+  second,
+}: {
+  center: number;
+  hour: number;
+  minute: number;
+  second: number;
+}) {
+  const hourAngle = minutesToAngle(((hour % 12) + minute / 60) * 120);
+  const minuteAngle = minutesToAngle((minute + second / 60) * 24);
+  const secondAngle = minutesToAngle(second * 24);
+  const hourEnd = pointOnCircle(center, center, 118, hourAngle);
+  const minuteEnd = pointOnCircle(center, center, 156, minuteAngle);
+  const secondEnd = pointOnCircle(center, center, 174, secondAngle);
+
+  return (
+    <g aria-label="현재 시간">
+      <line
+        x1={center}
+        y1={center}
+        x2={hourEnd.x}
+        y2={hourEnd.y}
+        stroke="#243528"
+        strokeWidth="8"
+        strokeLinecap="round"
+      />
+      <line
+        x1={center}
+        y1={center}
+        x2={minuteEnd.x}
+        y2={minuteEnd.y}
+        stroke="#577060"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
+      <line
+        x1={center}
+        y1={center}
+        x2={secondEnd.x}
+        y2={secondEnd.y}
+        stroke="#b64d45"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
+      <circle cx={center} cy={center} r="8" fill="#243528" />
+    </g>
   );
 }
 
