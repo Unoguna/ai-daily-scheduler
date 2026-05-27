@@ -327,25 +327,29 @@ function SelectedScheduleEditor({
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
           <label className="grid gap-1 text-xs font-semibold">
             시작
-            <input
-              type="time"
+            <TimeSelect
               value={item.startTime.slice(0, 5)}
-              onChange={(event) =>
-                onChange(index, "startTime", `${event.target.value}:00`)
+              onChange={(value) =>
+                onChange(
+                  index,
+                  "startTime",
+                  `${value}:00`,
+                )
               }
-              className="min-w-0 rounded-md border border-[#c8cbbf] px-2 py-1 text-sm font-normal"
             />
           </label>
           <span className="mt-5 text-[#66705f]">-</span>
           <label className="grid gap-1 text-xs font-semibold">
             종료
-            <input
-              type="time"
+            <TimeSelect
               value={item.endTime.slice(0, 5)}
-              onChange={(event) =>
-                onChange(index, "endTime", `${event.target.value}:00`)
+              onChange={(value) =>
+                onChange(
+                  index,
+                  "endTime",
+                  `${value}:00`,
+                )
               }
-              className="min-w-0 rounded-md border border-[#c8cbbf] px-2 py-1 text-sm font-normal"
             />
           </label>
         </div>
@@ -385,9 +389,70 @@ function SelectedScheduleEditor({
   );
 }
 
+function TimeSelect({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [hour, minute] = snapTimeToFiveMinutes(value).split(":");
+
+  const changeHour = (nextHour: string) => {
+    onChange(`${nextHour}:${minute}`);
+  };
+
+  const changeMinute = (nextMinute: string) => {
+    onChange(`${hour}:${nextMinute}`);
+  };
+
+  return (
+    <div className="grid grid-cols-[1fr_1fr] gap-1">
+      <select
+        aria-label="시"
+        value={hour}
+        onChange={(event) => changeHour(event.target.value)}
+        className="min-w-0 rounded-md border border-[#c8cbbf] bg-white px-2 py-1 text-sm font-normal"
+      >
+        {Array.from({ length: 24 }, (_, index) =>
+          String(index).padStart(2, "0"),
+        ).map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+      <select
+        aria-label="분"
+        value={minute}
+        onChange={(event) => changeMinute(event.target.value)}
+        className="min-w-0 rounded-md border border-[#c8cbbf] bg-white px-2 py-1 text-sm font-normal"
+      >
+        {Array.from({ length: 12 }, (_, index) =>
+          String(index * 5).padStart(2, "0"),
+        ).map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 function timeToMinutes(time: string) {
   const [hour, minute] = time.split(":").map(Number);
   return hour * 60 + minute;
+}
+
+function snapTimeToFiveMinutes(time: string) {
+  const totalMinutes = timeToMinutes(time);
+  const snappedMinutes = Math.round(totalMinutes / 5) * 5;
+  const normalizedMinutes = snappedMinutes % (24 * 60);
+  const hour = Math.floor(normalizedMinutes / 60);
+  const minute = normalizedMinutes % 60;
+
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
 }
 
 function normalizeEndMinutes(start: number, end: number) {
