@@ -1,4 +1,5 @@
 import type { Dispatch, FormEvent, SetStateAction } from "react";
+import Link from "next/link";
 import {
   ListEmpty,
   NumberField,
@@ -14,6 +15,9 @@ import type {
   Goal,
 } from "@/types/scheduler";
 
+const moreLinkClass =
+  "text-sm font-semibold text-[#577060] transition hover:text-[#243528]";
+
 export function SummaryPanels({
   activeGoals,
   fixedSchedules,
@@ -23,7 +27,14 @@ export function SummaryPanels({
 }) {
   return (
     <div className="grid gap-6 xl:grid-cols-2">
-      <Panel title="활성 목표">
+      <Panel
+        title="활성 목표"
+        action={
+          <Link href="/goals/new" className={moreLinkClass}>
+            더보기
+          </Link>
+        }
+      >
         <ListEmpty show={activeGoals.length === 0} text="목표가 없습니다." />
         <div className="flex flex-col gap-2">
           {activeGoals.map((goal) => (
@@ -45,7 +56,14 @@ export function SummaryPanels({
         </div>
       </Panel>
 
-      <Panel title="고정 일정">
+      <Panel
+        title="고정 일정"
+        action={
+          <Link href="/fixed-schedules/new" className={moreLinkClass}>
+            더보기
+          </Link>
+        }
+      >
         <ListEmpty
           show={fixedSchedules.length === 0}
           text="고정 일정이 없습니다."

@@ -2,14 +2,19 @@ import type { ReactNode } from "react";
 
 export function Panel({
   title,
+  action,
   children,
 }: {
   title: string;
+  action?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <section className="rounded-md border border-[#d7d9cf] bg-[#fbfcf7] p-4 shadow-sm">
-      <h2 className="mb-4 text-lg font-bold">{title}</h2>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="text-lg font-bold">{title}</h2>
+        {action}
+      </div>
       {children}
     </section>
   );
