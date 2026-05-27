@@ -116,13 +116,24 @@ export default function ScheduleGeneratePage() {
     key: keyof ScheduleItem,
     value: string,
   ) => {
+    let nextSelectedIndex: number | void = index;
+
     setGenerated((schedule) => {
       if (!schedule) return schedule;
-      const items = schedule.items.map((item, itemIndex) =>
-        itemIndex === index ? { ...item, [key]: value } : item,
+      const updatedTargetItem = { ...schedule.items[index], [key]: value };
+      const updatedItems = schedule.items.map((item, itemIndex) =>
+        itemIndex === index ? updatedTargetItem : item,
       );
-      return { ...schedule, items };
+      const result =
+        key === "startTime" || key === "endTime"
+          ? trimOverlappingGeneratedItems(updatedItems, updatedTargetItem)
+          : { items: updatedItems, targetIndex: index };
+      nextSelectedIndex = result.targetIndex;
+
+      return { ...schedule, items: result.items };
     });
+
+    return nextSelectedIndex;
   };
 
   const deleteGeneratedItem = (index: number) => {
@@ -131,6 +142,70 @@ export default function ScheduleGeneratePage() {
       const items = schedule.items.filter((_, itemIndex) => itemIndex !== index);
       return { ...schedule, items };
     });
+  };
+
+  const trimOverlappingGeneratedItems = (
+    items: ScheduleItem[],
+    targetItem: ScheduleItem,
+  ) => {
+    if (!targetItem || !isValidTimeRange(targetItem)) {
+      return { items, targetIndex: items.indexOf(targetItem) };
+    }
+
+    const targetStart = timeToMinutes(targetItem.startTime);
+    const targetEnd = timeToMinutes(targetItem.endTime);
+    const trimmedItems = items.flatMap((item) => {
+      if (item === targetItem || !isValidTimeRange(item)) {
+        return [item];
+      }
+
+      const itemStart = timeToMinutes(item.startTime);
+      const itemEnd = timeToMinutes(item.endTime);
+      const overlaps = itemStart < targetEnd && itemEnd > targetStart;
+
+      if (!overlaps) {
+        return [item];
+      }
+
+      const hasBefore = itemStart < targetStart;
+      const hasAfter = itemEnd > targetEnd;
+
+      if (hasBefore && hasAfter) {
+        return [
+          { ...item, endTime: minutesToTime(targetStart) },
+          { ...item, startTime: minutesToTime(targetEnd) },
+        ];
+      }
+
+      if (hasBefore) {
+        return [{ ...item, endTime: minutesToTime(targetStart) }];
+      }
+
+      if (hasAfter) {
+        return [{ ...item, startTime: minutesToTime(targetEnd) }];
+      }
+
+      return [];
+    });
+
+    return {
+      items: trimmedItems,
+      targetIndex: trimmedItems.indexOf(targetItem),
+    };
+  };
+
+  const isValidTimeRange = (item: ScheduleItem) =>
+    timeToMinutes(item.startTime) < timeToMinutes(item.endTime);
+
+  const timeToMinutes = (time: string) => {
+    const [hour, minute] = time.split(":").map(Number);
+    return hour * 60 + minute;
+  };
+
+  const minutesToTime = (minutes: number) => {
+    const hour = Math.floor(minutes / 60);
+    const minute = minutes % 60;
+    return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:00`;
   };
 
   return (

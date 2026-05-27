@@ -145,7 +145,11 @@ export function CircularTimetableEditor({
   onDelete,
 }: {
   items: ScheduleItem[];
-  onChange: (index: number, key: keyof ScheduleItem, value: string) => void;
+  onChange: (
+    index: number,
+    key: keyof ScheduleItem,
+    value: string,
+  ) => number | void;
   onDelete: (index: number) => void;
 }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -155,6 +159,17 @@ export function CircularTimetableEditor({
   const deleteItem = (index: number) => {
     onDelete(index);
     setSelectedIndex(null);
+  };
+
+  const changeItem = (
+    index: number,
+    key: keyof ScheduleItem,
+    value: string,
+  ) => {
+    const nextIndex = onChange(index, key, value);
+    if (typeof nextIndex === "number") {
+      setSelectedIndex(nextIndex);
+    }
   };
 
   return (
@@ -188,7 +203,7 @@ export function CircularTimetableEditor({
             <SelectedScheduleEditor
               item={selectedItem}
               index={selectedIndex}
-              onChange={onChange}
+              onChange={changeItem}
               onDelete={deleteItem}
             />
           ) : (
@@ -504,7 +519,11 @@ function SelectedScheduleEditor({
 }: {
   item: ScheduleItem;
   index: number;
-  onChange: (index: number, key: keyof ScheduleItem, value: string) => void;
+  onChange: (
+    index: number,
+    key: keyof ScheduleItem,
+    value: string,
+  ) => number | void;
   onDelete: (index: number) => void;
 }) {
   return (
