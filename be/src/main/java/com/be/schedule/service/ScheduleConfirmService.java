@@ -5,6 +5,7 @@ import com.be.global.exception.ErrorCode;
 import com.be.global.response.IdResponse;
 import com.be.schedule.domain.ConfirmedSchedule;
 import com.be.schedule.domain.ConfirmedScheduleItem;
+import com.be.schedule.dto.ConfirmedScheduleResponse;
 import com.be.schedule.dto.ScheduleConfirmItemRequest;
 import com.be.schedule.dto.ScheduleConfirmRequest;
 import com.be.schedule.repository.ConfirmedScheduleRepository;
@@ -55,5 +56,51 @@ public class ScheduleConfirmService {
 
         Long confirmedScheduleId = confirmedScheduleRepository.save(confirmedSchedule).getId();
         return new IdResponse(confirmedScheduleId);
+    }
+
+    public ConfirmedScheduleResponse updateConfirmedScheduleItem(
+            Long userId,
+            Long scheduleId,
+            Long itemId,
+            ScheduleConfirmItemRequest request
+    ) {
+        ConfirmedSchedule confirmedSchedule = getConfirmedSchedule(userId, scheduleId);
+        ConfirmedScheduleItem item = getConfirmedScheduleItem(confirmedSchedule, itemId);
+
+        item.update(
+                request.type(),
+                request.title(),
+                request.startTime(),
+                request.endTime(),
+                request.goalId(),
+                request.fixedScheduleId(),
+                request.description()
+        );
+        confirmedSchedule.resequenceItems();
+
+        return ConfirmedScheduleResponse.from(confirmedSchedule);
+    }
+
+    public ConfirmedScheduleResponse deleteConfirmedScheduleItem(Long userId, Long scheduleId, Long itemId) {
+        ConfirmedSchedule confirmedSchedule = getConfirmedSchedule(userId, scheduleId);
+        ConfirmedScheduleItem item = getConfirmedScheduleItem(confirmedSchedule, itemId);
+
+        confirmedSchedule.removeItem(item);
+        if (confirmedSchedule.getItems().isEmpty()) {
+            confirmedScheduleRepository.delete(confirmedSchedule);
+            return null;
+        }
+
+        return ConfirmedScheduleResponse.from(confirmedSchedule);
+    }
+
+    private ConfirmedSchedule getConfirmedSchedule(Long userId, Long scheduleId) {
+        return confirmedScheduleRepository.findByIdAndUserId(scheduleId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+    }
+
+    private ConfirmedScheduleItem getConfirmedScheduleItem(ConfirmedSchedule confirmedSchedule, Long itemId) {
+        return confirmedSchedule.findItem(itemId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
     }
 }

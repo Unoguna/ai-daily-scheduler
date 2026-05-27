@@ -94,6 +94,29 @@ public class ConfirmedScheduleItem {
         this.confirmedSchedule = confirmedSchedule;
     }
 
+    void updateSequence(Integer sequence) {
+        this.sequence = sequence;
+    }
+
+    public void update(
+            ScheduleItemType type,
+            String title,
+            LocalTime startTime,
+            LocalTime endTime,
+            Long goalId,
+            Long fixedScheduleId,
+            String description
+    ) {
+        validateTime(startTime, endTime);
+        this.type = type;
+        this.title = title;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.goalId = goalId;
+        this.fixedScheduleId = fixedScheduleId;
+        this.description = description;
+    }
+
     private void validateTime(LocalTime startTime, LocalTime endTime) {
         if (startTime == null || endTime == null || !startTime.isBefore(endTime)) {
             throw new BusinessException(ErrorCode.INVALID_TIME_RANGE);

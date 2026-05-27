@@ -1,4 +1,5 @@
 import type { Dispatch, FormEvent, SetStateAction } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import {
   ListEmpty,
@@ -13,6 +14,7 @@ import type {
   FeedbackForm,
   FixedSchedule,
   Goal,
+  ScheduleItem,
 } from "@/types/scheduler";
 
 const moreLinkClass =
@@ -26,7 +28,7 @@ export function SummaryPanels({
   fixedSchedules: FixedSchedule[];
 }) {
   return (
-    <div className="grid gap-6 xl:grid-cols-2">
+    <div className="grid gap-6">
       <Panel
         title="활성 목표"
         action={
@@ -95,14 +97,43 @@ export function SummaryPanels({
 export function ConfirmedSchedulePanel({
   confirmed,
   onCreateSchedule,
+  onUpdateScheduleItem,
+  onDeleteScheduleItem,
 }: {
   confirmed: ConfirmedSchedule | null;
   onCreateSchedule: () => void;
+  onUpdateScheduleItem: (index: number, item: ScheduleItem) => Promise<void>;
+  onDeleteScheduleItem: (index: number) => Promise<void>;
 }) {
+  const [selectedScheduleIndex, setSelectedScheduleIndex] = useState<number | null>(
+    null,
+  );
+
   return (
-    <Panel title="확정된 당일 일정">
+    <Panel
+      title="확정된 당일 일정"
+      action={
+        selectedScheduleIndex !== null ? (
+          <button
+            type="button"
+            aria-label="원형 시간표로 돌아가기"
+            onClick={() => setSelectedScheduleIndex(null)}
+            className="text-xl font-bold leading-none text-[#577060] transition hover:text-[#243528]"
+          >
+            ←
+          </button>
+        ) : null
+      }
+    >
       {confirmed ? (
         <CircularTimetable
+          selectedIndex={selectedScheduleIndex}
+          onSelectedIndexChange={setSelectedScheduleIndex}
+          onUpdateItem={onUpdateScheduleItem}
+          onDeleteItem={async (index) => {
+            await onDeleteScheduleItem(index);
+            setSelectedScheduleIndex(null);
+          }}
           items={confirmed.items.map((item) => ({
             ...item,
             goalId: item.goalId,

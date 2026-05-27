@@ -1,3 +1,4 @@
+import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import type { ScheduleItem } from "@/types/scheduler";
 
@@ -85,16 +86,55 @@ export function TimelineEditor({
   );
 }
 
-export function CircularTimetable({ items }: { items: ScheduleItem[] }) {
+export function CircularTimetable({
+  items,
+  selectedIndex,
+  onSelectedIndexChange,
+  onUpdateItem,
+  onDeleteItem,
+}: {
+  items: ScheduleItem[];
+  selectedIndex: number | null;
+  onSelectedIndexChange: (index: number | null) => void;
+  onUpdateItem?: (index: number, item: ScheduleItem) => Promise<void> | void;
+  onDeleteItem?: (index: number) => Promise<void> | void;
+}) {
+  const selectedItem =
+    selectedIndex === null ? null : (items[selectedIndex] ?? null);
+
   return (
-    <div className="flex justify-center">
-      <CircularTimetableChart
-        items={items}
-        centerTitle="하루 일정"
-        centerSubtitle="확정됨"
-        maxWidthClass="max-w-[460px]"
-        showClockHands
-      />
+    <div
+      className={
+        selectedItem
+          ? "grid gap-5 lg:grid-cols-[430px_minmax(240px,1fr)]"
+          : "flex justify-center"
+      }
+    >
+      <div
+        className={selectedItem ? "flex justify-center lg:justify-start" : ""}
+      >
+        <CircularTimetableChart
+          items={items}
+          selectedIndex={selectedIndex}
+          onSelect={onSelectedIndexChange}
+          centerTitle="하루 일정"
+          centerSubtitle="확정됨"
+          maxWidthClass="w-[430px] max-w-full"
+          showClockHands
+        />
+      </div>
+      {selectedItem ? (
+        onUpdateItem && onDeleteItem ? (
+          <ConfirmedScheduleEditor
+            item={selectedItem}
+            index={selectedIndex ?? 0}
+            onUpdate={onUpdateItem}
+            onDelete={onDeleteItem}
+          />
+        ) : (
+          <ScheduleInfoPanel item={selectedItem} />
+        )
+      ) : null}
     </div>
   );
 }
@@ -110,7 +150,7 @@ export function CircularTimetableEditor({
 }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const selectedItem =
-    selectedIndex === null ? null : items[selectedIndex] ?? null;
+    selectedIndex === null ? null : (items[selectedIndex] ?? null);
 
   const deleteItem = (index: number) => {
     onDelete(index);
@@ -187,8 +227,12 @@ function CircularTimetableChart({
   const sortedItems = items
     .map((item, index) => ({ item, index }))
     .sort(
-      (a, b) => timeToMinutes(a.item.startTime) - timeToMinutes(b.item.startTime),
+      (a, b) =>
+        timeToMinutes(a.item.startTime) - timeToMinutes(b.item.startTime),
     );
+  const currentMinutes = showClockHands
+    ? now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60
+    : null;
 
   useEffect(() => {
     if (!showClockHands) return;
@@ -208,13 +252,65 @@ function CircularTimetableChart({
         aria-label="원형 일정 시간표"
         className="size-full"
       >
+        <defs>
+          <filter
+            id="timetable-soft-shadow"
+            x="-20%"
+            y="-20%"
+            width="140%"
+            height="140%"
+          >
+            <feDropShadow
+              dx="0"
+              dy="4"
+              stdDeviation="4"
+              floodColor="#20231f"
+              floodOpacity="0.14"
+            />
+          </filter>
+          <filter
+            id="current-time-hand-shadow"
+            x="-30%"
+            y="-30%"
+            width="160%"
+            height="160%"
+          >
+            <feDropShadow
+              dx="0"
+              dy="2"
+              stdDeviation="2"
+              floodColor="#612b2b"
+              floodOpacity="0.35"
+            />
+          </filter>
+          <marker
+            id="current-time-arrow"
+            markerWidth="9"
+            markerHeight="9"
+            refX="8"
+            refY="4.5"
+            orient="auto"
+            markerUnits="strokeWidth"
+          >
+            <path d="M 0 0 L 9 4.5 L 0 9 Z" fill="#b64d45" />
+          </marker>
+        </defs>
+        <circle
+          cx={center}
+          cy={center}
+          r={outerRadius + 13}
+          fill="#f6f7f2"
+          stroke="#e1e3da"
+          strokeWidth="1"
+        />
         <circle
           cx={center}
           cy={center}
           r={outerRadius}
           fill="#fbfcf7"
-          stroke="#d7d9cf"
-          strokeWidth="1"
+          stroke="#cfd3c6"
+          strokeWidth="1.5"
+          filter="url(#timetable-soft-shadow)"
         />
         <circle cx={center} cy={center} r={innerRadius} fill="#f6f7f2" />
 
@@ -232,7 +328,8 @@ function CircularTimetableChart({
                 x2={outer.x}
                 y2={outer.y}
                 stroke={hour % 6 === 0 ? "#66705f" : "#c8cbbf"}
-                strokeWidth={hour % 6 === 0 ? 1.5 : 1}
+                strokeWidth={hour % 6 === 0 ? 2 : 1}
+                strokeLinecap="round"
               />
               {hour % 3 === 0 ? (
                 <text
@@ -268,6 +365,9 @@ function CircularTimetableChart({
           );
           const duration = Math.max(1, end - start);
           const isSelected = selectedIndex === index;
+          const isCurrent =
+            currentMinutes !== null &&
+            isMinuteWithinRange(currentMinutes, start, end);
           const interactiveProps = onSelect
             ? {
                 role: "button",
@@ -288,8 +388,10 @@ function CircularTimetableChart({
                 d={path}
                 aria-label={onSelect ? `${item.title} 편집` : item.title}
                 fill={typeColor(item.type)}
-                stroke={isSelected ? "#243528" : "#fbfcf7"}
-                strokeWidth={isSelected ? 4 : 2}
+                stroke={isSelected || isCurrent ? "#243528" : "#fbfcf7"}
+                strokeWidth={isSelected || isCurrent ? 5 : 2.5}
+                opacity={isCurrent ? 1 : 0.9}
+                filter={isCurrent ? "url(#timetable-soft-shadow)" : undefined}
                 className={
                   onSelect
                     ? "cursor-pointer transition-opacity hover:opacity-85 focus:outline-none"
@@ -318,9 +420,11 @@ function CircularTimetableChart({
           r={innerRadius - 8}
           fill="#fbfcf7"
           stroke="#d7d9cf"
+          strokeWidth="1.5"
+          filter="url(#timetable-soft-shadow)"
         />
         {showClockHands ? (
-          <ClockHands
+          <CurrentTimeHand
             center={center}
             hour={now.getHours()}
             minute={now.getMinutes()}
@@ -351,7 +455,7 @@ function CircularTimetableChart({
   );
 }
 
-function ClockHands({
+function CurrentTimeHand({
   center,
   hour,
   minute,
@@ -362,43 +466,32 @@ function ClockHands({
   minute: number;
   second: number;
 }) {
-  const hourAngle = minutesToAngle(((hour % 12) + minute / 60) * 120);
-  const minuteAngle = minutesToAngle((minute + second / 60) * 24);
-  const secondAngle = minutesToAngle(second * 24);
-  const hourEnd = pointOnCircle(center, center, 118, hourAngle);
-  const minuteEnd = pointOnCircle(center, center, 156, minuteAngle);
-  const secondEnd = pointOnCircle(center, center, 174, secondAngle);
+  const currentMinutes = hour * 60 + minute + second / 60;
+  const angle = minutesToAngle(currentMinutes);
+  const handEnd = pointOnCircle(center, center, 90, angle);
 
   return (
     <g aria-label="현재 시간">
+      <circle cx={center} cy={center} r="28" fill="#fff7f7" opacity="0.75" />
       <line
         x1={center}
         y1={center}
-        x2={hourEnd.x}
-        y2={hourEnd.y}
-        stroke="#243528"
-        strokeWidth="8"
-        strokeLinecap="round"
-      />
-      <line
-        x1={center}
-        y1={center}
-        x2={minuteEnd.x}
-        y2={minuteEnd.y}
-        stroke="#577060"
-        strokeWidth="5"
-        strokeLinecap="round"
-      />
-      <line
-        x1={center}
-        y1={center}
-        x2={secondEnd.x}
-        y2={secondEnd.y}
+        x2={handEnd.x}
+        y2={handEnd.y}
         stroke="#b64d45"
-        strokeWidth="2.5"
+        strokeWidth="3"
         strokeLinecap="round"
+        markerEnd="url(#current-time-arrow)"
+        filter="url(#current-time-hand-shadow)"
       />
-      <circle cx={center} cy={center} r="8" fill="#243528" />
+      <circle
+        cx={center}
+        cy={center}
+        r="6"
+        fill="#fbfcf7"
+        stroke="#b64d45"
+        strokeWidth="3"
+      />
     </g>
   );
 }
@@ -417,9 +510,7 @@ function SelectedScheduleEditor({
   return (
     <section className="h-full rounded-md border border-[#d7d9cf] bg-white p-3">
       <div className="mb-2 flex items-center justify-between gap-3">
-        <h3 className="text-sm font-bold text-[#243528]">
-          선택한 일정 수정
-        </h3>
+        <h3 className="text-sm font-bold text-[#243528]">선택한 일정 수정</h3>
         <span
           className="rounded-md px-2 py-1 text-xs font-bold text-white"
           style={{ backgroundColor: typeColor(item.type) }}
@@ -434,9 +525,7 @@ function SelectedScheduleEditor({
             시작
             <TimeSelect
               value={item.startTime.slice(0, 5)}
-              onChange={(value) =>
-                onChange(index, "startTime", `${value}:00`)
-              }
+              onChange={(value) => onChange(index, "startTime", `${value}:00`)}
             />
           </label>
           <span className="mt-5 text-[#66705f]">-</span>
@@ -444,9 +533,7 @@ function SelectedScheduleEditor({
             종료
             <TimeSelect
               value={item.endTime.slice(0, 5)}
-              onChange={(value) =>
-                onChange(index, "endTime", `${value}:00`)
-              }
+              onChange={(value) => onChange(index, "endTime", `${value}:00`)}
             />
           </label>
         </div>
@@ -483,6 +570,158 @@ function SelectedScheduleEditor({
         </div>
       </div>
     </section>
+  );
+}
+
+function ScheduleInfoPanel({ item }: { item: ScheduleItem }) {
+  return (
+    <section className="self-start rounded-md border border-[#d7d9cf] bg-white p-4 shadow-sm">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-bold text-[#577060]">
+            {item.startTime.slice(0, 5)} - {item.endTime.slice(0, 5)}
+          </p>
+          <h3 className="mt-1 truncate text-lg font-bold text-[#243528]">
+            {item.title}
+          </h3>
+        </div>
+        <span
+          className="shrink-0 rounded-md px-2 py-1 text-xs font-bold text-white"
+          style={{ backgroundColor: typeColor(item.type) }}
+        >
+          {item.type}
+        </span>
+      </div>
+      <p className="text-sm leading-6 text-[#66705f]">
+        {item.description || "설명 없음"}
+      </p>
+    </section>
+  );
+}
+
+function ConfirmedScheduleEditor({
+  item,
+  index,
+  onUpdate,
+  onDelete,
+}: {
+  item: ScheduleItem;
+  index: number;
+  onUpdate: (index: number, item: ScheduleItem) => Promise<void> | void;
+  onDelete: (index: number) => Promise<void> | void;
+}) {
+  const [draft, setDraft] = useState<ScheduleItem>(item);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setDraft(item);
+  }, [item]);
+
+  const updateDraft = (key: keyof ScheduleItem, value: string) => {
+    setDraft((current) => ({ ...current, [key]: value }));
+  };
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await onUpdate(index, {
+        ...draft,
+        title: draft.title.trim(),
+        description: draft.description?.trim() || null,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const deleteItem = async () => {
+    setIsSubmitting(true);
+    try {
+      await onDelete(index);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={submit}
+      className="self-start rounded-md border border-[#d7d9cf] bg-white p-4 shadow-sm"
+    >
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold text-[#577060]">선택한 일정</p>
+          <h3 className="mt-1 text-lg font-bold text-[#243528]">일정 수정</h3>
+        </div>
+        <span
+          className="shrink-0 rounded-md px-2 py-1 text-xs font-bold text-white"
+          style={{ backgroundColor: typeColor(draft.type) }}
+        >
+          {draft.type}
+        </span>
+      </div>
+
+      <div className="grid gap-3">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+          <label className="grid gap-1 text-xs font-semibold">
+            시작
+            <TimeSelect
+              value={draft.startTime.slice(0, 5)}
+              onChange={(value) => updateDraft("startTime", `${value}:00`)}
+            />
+          </label>
+          <span className="mt-5 text-[#66705f]">-</span>
+          <label className="grid gap-1 text-xs font-semibold">
+            종료
+            <TimeSelect
+              value={draft.endTime.slice(0, 5)}
+              onChange={(value) => updateDraft("endTime", `${value}:00`)}
+            />
+          </label>
+        </div>
+
+        <label className="grid gap-1 text-xs font-semibold">
+          제목
+          <input
+            value={draft.title}
+            required
+            maxLength={100}
+            onChange={(event) => updateDraft("title", event.target.value)}
+            className="rounded-md border border-[#c8cbbf] px-3 py-2 text-sm font-normal"
+          />
+        </label>
+
+        <label className="grid gap-1 text-xs font-semibold">
+          내용
+          <textarea
+            value={draft.description ?? ""}
+            maxLength={500}
+            onChange={(event) => updateDraft("description", event.target.value)}
+            className="h-24 resize-none rounded-md border border-[#c8cbbf] px-3 py-2 text-sm font-normal"
+            placeholder="설명 없음"
+          />
+        </label>
+
+        <div className="flex justify-between gap-2 border-t border-[#e1e3da] pt-3">
+          <button
+            type="button"
+            onClick={deleteItem}
+            disabled={isSubmitting}
+            className="rounded-md border border-[#d6a2a2] px-3 py-2 text-xs font-semibold text-[#612b2b] transition hover:bg-[#fff7f7] disabled:opacity-60"
+          >
+            삭제
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="rounded-md bg-[#243528] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#577060] disabled:opacity-60"
+          >
+            저장
+          </button>
+        </div>
+      </div>
+    </form>
   );
 }
 
@@ -546,6 +785,11 @@ function snapTimeToFiveMinutes(time: string) {
 
 function normalizeEndMinutes(start: number, end: number) {
   return end <= start ? end + 24 * 60 : end;
+}
+
+function isMinuteWithinRange(current: number, start: number, end: number) {
+  const normalizedCurrent = current < start ? current + 24 * 60 : current;
+  return normalizedCurrent >= start && normalizedCurrent < end;
 }
 
 function minutesToAngle(minutes: number) {

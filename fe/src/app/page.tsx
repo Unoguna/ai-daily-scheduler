@@ -18,6 +18,7 @@ import type {
   ConfirmedSchedule,
   FixedSchedule,
   Goal,
+  ScheduleItem,
 } from "@/types/scheduler";
 
 export default function Home() {
@@ -154,13 +155,57 @@ export default function Home() {
     }, "피드백을 저장하고 분석했습니다.");
   };
 
+  const updateConfirmedScheduleItem = async (
+    index: number,
+    item: ScheduleItem,
+  ) => {
+    if (!confirmed) return;
+
+    const selectedItem = confirmed.items[index];
+    if (!selectedItem) return;
+
+    await run(async () => {
+      const updated = await request<ConfirmedSchedule>(
+        `/api/v1/schedules/${confirmed.confirmedScheduleId}/items/${selectedItem.scheduleItemId}`,
+        {
+          method: "PUT",
+          body: JSON.stringify({
+            type: item.type,
+            title: item.title,
+            startTime: item.startTime,
+            endTime: item.endTime,
+            goalId: item.goalId,
+            fixedScheduleId: item.fixedScheduleId,
+            description: item.description,
+          }),
+        },
+      );
+      setConfirmed(updated);
+    }, "일정을 수정했습니다.");
+  };
+
+  const deleteConfirmedScheduleItem = async (index: number) => {
+    if (!confirmed) return;
+
+    const selectedItem = confirmed.items[index];
+    if (!selectedItem) return;
+
+    await run(async () => {
+      const updated = await request<ConfirmedSchedule | null>(
+        `/api/v1/schedules/${confirmed.confirmedScheduleId}/items/${selectedItem.scheduleItemId}`,
+        { method: "DELETE" },
+      );
+      setConfirmed(updated);
+    }, "일정을 삭제했습니다.");
+  };
+
   if (!token) {
     return null;
   }
 
   return (
     <main className="min-h-screen bg-[#f6f7f2] text-[#20231f]">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-5 py-6">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-5 py-6">
         <DashboardHeader user={user} onLogout={logout} />
         <DateToolbar
           selectedDate={selectedDate}
@@ -177,6 +222,8 @@ export default function Home() {
           <ConfirmedSchedulePanel
             confirmed={confirmed}
             onCreateSchedule={openScheduleGenerationPage}
+            onUpdateScheduleItem={updateConfirmedScheduleItem}
+            onDeleteScheduleItem={deleteConfirmedScheduleItem}
           />
           <FeedbackPanel
             feedbackForm={feedbackForm}

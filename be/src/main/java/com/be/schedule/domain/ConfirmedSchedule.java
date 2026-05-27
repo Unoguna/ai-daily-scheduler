@@ -19,7 +19,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Getter
@@ -58,5 +60,27 @@ public class ConfirmedSchedule {
     public void addItem(ConfirmedScheduleItem item) {
         items.add(item);
         item.assignConfirmedSchedule(this);
+    }
+
+    public Optional<ConfirmedScheduleItem> findItem(Long itemId) {
+        return items.stream()
+                .filter(item -> item.getId().equals(itemId))
+                .findFirst();
+    }
+
+    public void removeItem(ConfirmedScheduleItem item) {
+        items.remove(item);
+        resequenceItems();
+    }
+
+    public void resequenceItems() {
+        List<ConfirmedScheduleItem> sortedItems = items.stream()
+                .sorted(Comparator.comparing(ConfirmedScheduleItem::getStartTime)
+                        .thenComparing(ConfirmedScheduleItem::getEndTime))
+                .toList();
+
+        for (int i = 0; i < sortedItems.size(); i++) {
+            sortedItems.get(i).updateSequence(i + 1);
+        }
     }
 }

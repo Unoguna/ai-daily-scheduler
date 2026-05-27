@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface ConfirmedScheduleRepository extends JpaRepository<ConfirmedSchedule, Long> {
     Optional<ConfirmedSchedule> findByUserIdAndDate(Long userId, LocalDate date);
+
+    Optional<ConfirmedSchedule> findByIdAndUserId(Long id, Long userId);
 }

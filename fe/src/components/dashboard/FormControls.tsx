@@ -3,14 +3,18 @@ import type { ReactNode } from "react";
 export function Panel({
   title,
   action,
+  className = "",
   children,
 }: {
   title: string;
   action?: ReactNode;
+  className?: string;
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-md border border-[#d7d9cf] bg-[#fbfcf7] p-4 shadow-sm">
+    <section
+      className={`rounded-md border border-[#d7d9cf] bg-[#fbfcf7] p-4 shadow-sm ${className}`}
+    >
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-lg font-bold">{title}</h2>
         {action}
