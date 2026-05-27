@@ -11,7 +11,7 @@ import {
   SubmitButton,
   TextArea,
 } from "@/components/dashboard/FormControls";
-import { TimelineEditor } from "@/components/dashboard/Timeline";
+import { CircularTimetableEditor } from "@/components/dashboard/Timeline";
 import { request, today } from "@/lib/schedulerApi";
 import type {
   ConditionForm,
@@ -206,7 +206,7 @@ export default function ScheduleGeneratePage() {
           <Panel title="일정 초안">
             {generated ? (
               <div className="flex flex-col gap-4">
-                <TimelineEditor
+                <CircularTimetableEditor
                   items={generated.items}
                   onChange={updateGeneratedItem}
                 />
