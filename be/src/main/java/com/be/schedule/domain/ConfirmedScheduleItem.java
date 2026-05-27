@@ -90,12 +90,22 @@ public class ConfirmedScheduleItem {
         return new ConfirmedScheduleItem(sequence, type, title, startTime, endTime, goalId, fixedScheduleId, description);
     }
 
+    ConfirmedScheduleItem copyWithTime(Integer sequence, LocalTime startTime, LocalTime endTime) {
+        return create(sequence, type, title, startTime, endTime, goalId, fixedScheduleId, description);
+    }
+
     void assignConfirmedSchedule(ConfirmedSchedule confirmedSchedule) {
         this.confirmedSchedule = confirmedSchedule;
     }
 
     void updateSequence(Integer sequence) {
         this.sequence = sequence;
+    }
+
+    void updateTime(LocalTime startTime, LocalTime endTime) {
+        validateTime(startTime, endTime);
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
     public void update(

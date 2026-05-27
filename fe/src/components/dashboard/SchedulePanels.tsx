@@ -129,7 +129,10 @@ export function ConfirmedSchedulePanel({
         <CircularTimetable
           selectedIndex={selectedScheduleIndex}
           onSelectedIndexChange={setSelectedScheduleIndex}
-          onUpdateItem={onUpdateScheduleItem}
+          onUpdateItem={async (index, item) => {
+            await onUpdateScheduleItem(index, item);
+            setSelectedScheduleIndex(null);
+          }}
           onDeleteItem={async (index) => {
             await onDeleteScheduleItem(index);
             setSelectedScheduleIndex(null);

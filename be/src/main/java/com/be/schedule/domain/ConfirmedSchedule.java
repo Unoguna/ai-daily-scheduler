@@ -73,6 +73,42 @@ public class ConfirmedSchedule {
         resequenceItems();
     }
 
+    public void trimOverlappingItems(ConfirmedScheduleItem targetItem) {
+        List<ConfirmedScheduleItem> snapshot = new ArrayList<>(items);
+
+        for (ConfirmedScheduleItem item : snapshot) {
+            if (isSameItem(item, targetItem) || !isOverlapping(item, targetItem)) {
+                continue;
+            }
+
+            boolean hasBefore = item.getStartTime().isBefore(targetItem.getStartTime());
+            boolean hasAfter = item.getEndTime().isAfter(targetItem.getEndTime());
+
+            if (hasBefore && hasAfter) {
+                ConfirmedScheduleItem afterItem = item.copyWithTime(
+                        item.getSequence(),
+                        targetItem.getEndTime(),
+                        item.getEndTime()
+                );
+                item.updateTime(item.getStartTime(), targetItem.getStartTime());
+                addItem(afterItem);
+                continue;
+            }
+
+            if (hasBefore) {
+                item.updateTime(item.getStartTime(), targetItem.getStartTime());
+                continue;
+            }
+
+            if (hasAfter) {
+                item.updateTime(targetItem.getEndTime(), item.getEndTime());
+                continue;
+            }
+
+            items.remove(item);
+        }
+    }
+
     public void resequenceItems() {
         List<ConfirmedScheduleItem> sortedItems = items.stream()
                 .sorted(Comparator.comparing(ConfirmedScheduleItem::getStartTime)
@@ -82,5 +118,14 @@ public class ConfirmedSchedule {
         for (int i = 0; i < sortedItems.size(); i++) {
             sortedItems.get(i).updateSequence(i + 1);
         }
+    }
+
+    private boolean isSameItem(ConfirmedScheduleItem item, ConfirmedScheduleItem targetItem) {
+        return item == targetItem || item.getId().equals(targetItem.getId());
+    }
+
+    private boolean isOverlapping(ConfirmedScheduleItem item, ConfirmedScheduleItem targetItem) {
+        return item.getStartTime().isBefore(targetItem.getEndTime())
+                && item.getEndTime().isAfter(targetItem.getStartTime());
     }
 }

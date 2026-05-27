@@ -76,6 +76,7 @@ public class ScheduleConfirmService {
                 request.fixedScheduleId(),
                 request.description()
         );
+        confirmedSchedule.trimOverlappingItems(item);
         confirmedSchedule.resequenceItems();
 
         return ConfirmedScheduleResponse.from(confirmedSchedule);
