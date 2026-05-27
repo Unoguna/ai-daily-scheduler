@@ -28,7 +28,7 @@ export function SummaryPanels({
   fixedSchedules: FixedSchedule[];
 }) {
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-6 xl:grid-cols-2">
       <Panel
         title="활성 목표"
         action={
