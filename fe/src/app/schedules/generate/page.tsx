@@ -219,7 +219,7 @@ export default function ScheduleGeneratePage() {
                   onChange={updateGeneratedItem}
                   onDelete={deleteGeneratedItem}
                 />
-                <div className="flex justify-end gap-2">
+                <div className="mt-4 flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={confirmSchedule}
