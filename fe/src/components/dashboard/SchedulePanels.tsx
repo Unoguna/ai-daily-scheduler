@@ -7,7 +7,7 @@ import {
   SubmitButton,
   TextArea,
 } from "@/components/dashboard/FormControls";
-import { Timeline } from "@/components/dashboard/Timeline";
+import { CircularTimetable } from "@/components/dashboard/Timeline";
 import type {
   ConfirmedSchedule,
   FeedbackForm,
@@ -102,7 +102,7 @@ export function ConfirmedSchedulePanel({
   return (
     <Panel title="확정된 당일 일정">
       {confirmed ? (
-        <Timeline
+        <CircularTimetable
           items={confirmed.items.map((item) => ({
             ...item,
             goalId: item.goalId,

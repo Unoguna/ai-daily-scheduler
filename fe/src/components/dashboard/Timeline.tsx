@@ -85,6 +85,19 @@ export function TimelineEditor({
   );
 }
 
+export function CircularTimetable({ items }: { items: ScheduleItem[] }) {
+  return (
+    <div className="flex justify-center">
+      <CircularTimetableChart
+        items={items}
+        centerTitle="하루 일정"
+        centerSubtitle="확정됨"
+        maxWidthClass="max-w-[460px]"
+      />
+    </div>
+  );
+}
+
 export function CircularTimetableEditor({
   items,
   onChange,
@@ -95,21 +108,8 @@ export function CircularTimetableEditor({
   onDelete: (index: number) => void;
 }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const size = 420;
-  const center = size / 2;
-  const outerRadius = 178;
-  const innerRadius = 104;
   const selectedItem =
     selectedIndex === null ? null : items[selectedIndex] ?? null;
-  const sortedItems = items
-    .map((item, index) => ({ item, index }))
-    .sort(
-      (a, b) => timeToMinutes(a.item.startTime) - timeToMinutes(b.item.startTime),
-    );
-
-  const selectItem = (index: number) => {
-    setSelectedIndex(index);
-  };
 
   const deleteItem = (index: number) => {
     onDelete(index);
@@ -119,151 +119,14 @@ export function CircularTimetableEditor({
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(320px,520px)_minmax(280px,1fr)]">
       <div className="flex min-w-0 justify-center">
-        <div className="relative aspect-square w-full max-w-[520px]">
-          <svg
-            viewBox={`0 0 ${size} ${size}`}
-            role="img"
-            aria-label="원형 일정 시간표"
-            className="size-full"
-          >
-            <circle
-              cx={center}
-              cy={center}
-              r={outerRadius}
-              fill="#fbfcf7"
-              stroke="#d7d9cf"
-              strokeWidth="1"
-            />
-            <circle cx={center} cy={center} r={innerRadius} fill="#f6f7f2" />
-
-            {Array.from({ length: 24 }, (_, hour) => {
-              const angle = minutesToAngle(hour * 60);
-              const outer = pointOnCircle(
-                center,
-                center,
-                outerRadius + 8,
-                angle,
-              );
-              const inner = pointOnCircle(
-                center,
-                center,
-                outerRadius - 8,
-                angle,
-              );
-              const label = pointOnCircle(
-                center,
-                center,
-                outerRadius + 26,
-                angle,
-              );
-
-              return (
-                <g key={hour}>
-                  <line
-                    x1={inner.x}
-                    y1={inner.y}
-                    x2={outer.x}
-                    y2={outer.y}
-                    stroke={hour % 6 === 0 ? "#66705f" : "#c8cbbf"}
-                    strokeWidth={hour % 6 === 0 ? 1.5 : 1}
-                  />
-                  {hour % 3 === 0 ? (
-                    <text
-                      x={label.x}
-                      y={label.y}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      className="fill-[#66705f] text-[11px] font-bold"
-                    >
-                      {String(hour).padStart(2, "0")}
-                    </text>
-                  ) : null}
-                </g>
-              );
-            })}
-
-            {sortedItems.map(({ item, index }) => {
-              const start = timeToMinutes(item.startTime);
-              const end = normalizeEndMinutes(
-                start,
-                timeToMinutes(item.endTime),
-              );
-              const path = describeDonutSegment(
-                center,
-                center,
-                outerRadius,
-                innerRadius,
-                minutesToAngle(start),
-                minutesToAngle(end),
-              );
-              const labelPoint = pointOnCircle(
-                center,
-                center,
-                (outerRadius + innerRadius) / 2,
-                minutesToAngle((start + end) / 2),
-              );
-              const duration = Math.max(1, end - start);
-              const isSelected = selectedIndex === index;
-
-              return (
-                <g key={`${item.startTime}-${item.title}-${index}`}>
-                  <path
-                    d={path}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`${item.title} 편집`}
-                    fill={typeColor(item.type)}
-                    stroke={isSelected ? "#243528" : "#fbfcf7"}
-                    strokeWidth={isSelected ? 4 : 2}
-                    className="cursor-pointer transition-opacity hover:opacity-85 focus:outline-none"
-                    onClick={() => selectItem(index)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        selectItem(index);
-                      }
-                    }}
-                  />
-                  {duration >= 45 ? (
-                    <text
-                      x={labelPoint.x}
-                      y={labelPoint.y}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      className="pointer-events-none fill-white text-[10px] font-bold"
-                    >
-                      {truncateLabel(item.title, duration)}
-                    </text>
-                  ) : null}
-                </g>
-              );
-            })}
-
-            <circle
-              cx={center}
-              cy={center}
-              r={innerRadius - 8}
-              fill="#fbfcf7"
-              stroke="#d7d9cf"
-            />
-            <text
-              x={center}
-              y={center - 8}
-              textAnchor="middle"
-              className="fill-[#243528] text-[18px] font-bold"
-            >
-              하루 일정
-            </text>
-            <text
-              x={center}
-              y={center + 16}
-              textAnchor="middle"
-              className="fill-[#66705f] text-[12px] font-semibold"
-            >
-              일정을 클릭해 수정
-            </text>
-          </svg>
-        </div>
+        <CircularTimetableChart
+          items={items}
+          selectedIndex={selectedIndex}
+          onSelect={setSelectedIndex}
+          centerTitle="하루 일정"
+          centerSubtitle="일정을 클릭해 수정"
+          maxWidthClass="max-w-[520px]"
+        />
       </div>
 
       <div className="min-w-0">
@@ -281,19 +144,184 @@ export function CircularTimetableEditor({
 
         <div className="h-[320px] overflow-hidden">
           {selectedIndex !== null && selectedItem ? (
-          <SelectedScheduleEditor
-            item={selectedItem}
-            index={selectedIndex}
-            onChange={onChange}
-            onDelete={deleteItem}
-          />
-        ) : (
-          <div className="flex h-full items-center rounded-md border border-dashed border-[#c8cbbf] bg-white p-4 text-sm font-semibold text-[#66705f]">
-            원형 시간표에서 수정할 일정을 선택하세요.
-          </div>
+            <SelectedScheduleEditor
+              item={selectedItem}
+              index={selectedIndex}
+              onChange={onChange}
+              onDelete={deleteItem}
+            />
+          ) : (
+            <div className="flex h-full items-center rounded-md border border-dashed border-[#c8cbbf] bg-white p-4 text-sm font-semibold text-[#66705f]">
+              원형 시간표에서 수정할 일정을 선택하세요.
+            </div>
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function CircularTimetableChart({
+  items,
+  selectedIndex,
+  onSelect,
+  centerTitle,
+  centerSubtitle,
+  maxWidthClass,
+}: {
+  items: ScheduleItem[];
+  selectedIndex?: number | null;
+  onSelect?: (index: number) => void;
+  centerTitle: string;
+  centerSubtitle: string;
+  maxWidthClass: string;
+}) {
+  const size = 420;
+  const center = size / 2;
+  const outerRadius = 178;
+  const innerRadius = 104;
+  const sortedItems = items
+    .map((item, index) => ({ item, index }))
+    .sort(
+      (a, b) => timeToMinutes(a.item.startTime) - timeToMinutes(b.item.startTime),
+    );
+
+  return (
+    <div className={`relative aspect-square w-full ${maxWidthClass}`}>
+      <svg
+        viewBox={`0 0 ${size} ${size}`}
+        role="img"
+        aria-label="원형 일정 시간표"
+        className="size-full"
+      >
+        <circle
+          cx={center}
+          cy={center}
+          r={outerRadius}
+          fill="#fbfcf7"
+          stroke="#d7d9cf"
+          strokeWidth="1"
+        />
+        <circle cx={center} cy={center} r={innerRadius} fill="#f6f7f2" />
+
+        {Array.from({ length: 24 }, (_, hour) => {
+          const angle = minutesToAngle(hour * 60);
+          const outer = pointOnCircle(center, center, outerRadius + 8, angle);
+          const inner = pointOnCircle(center, center, outerRadius - 8, angle);
+          const label = pointOnCircle(center, center, outerRadius + 26, angle);
+
+          return (
+            <g key={hour}>
+              <line
+                x1={inner.x}
+                y1={inner.y}
+                x2={outer.x}
+                y2={outer.y}
+                stroke={hour % 6 === 0 ? "#66705f" : "#c8cbbf"}
+                strokeWidth={hour % 6 === 0 ? 1.5 : 1}
+              />
+              {hour % 3 === 0 ? (
+                <text
+                  x={label.x}
+                  y={label.y}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  className="fill-[#66705f] text-[11px] font-bold"
+                >
+                  {String(hour).padStart(2, "0")}
+                </text>
+              ) : null}
+            </g>
+          );
+        })}
+
+        {sortedItems.map(({ item, index }) => {
+          const start = timeToMinutes(item.startTime);
+          const end = normalizeEndMinutes(start, timeToMinutes(item.endTime));
+          const path = describeDonutSegment(
+            center,
+            center,
+            outerRadius,
+            innerRadius,
+            minutesToAngle(start),
+            minutesToAngle(end),
+          );
+          const labelPoint = pointOnCircle(
+            center,
+            center,
+            (outerRadius + innerRadius) / 2,
+            minutesToAngle((start + end) / 2),
+          );
+          const duration = Math.max(1, end - start);
+          const isSelected = selectedIndex === index;
+          const interactiveProps = onSelect
+            ? {
+                role: "button",
+                tabIndex: 0,
+                onClick: () => onSelect(index),
+                onKeyDown: (event: React.KeyboardEvent<SVGPathElement>) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onSelect(index);
+                  }
+                },
+              }
+            : {};
+
+          return (
+            <g key={`${item.startTime}-${item.title}-${index}`}>
+              <path
+                d={path}
+                aria-label={onSelect ? `${item.title} 편집` : item.title}
+                fill={typeColor(item.type)}
+                stroke={isSelected ? "#243528" : "#fbfcf7"}
+                strokeWidth={isSelected ? 4 : 2}
+                className={
+                  onSelect
+                    ? "cursor-pointer transition-opacity hover:opacity-85 focus:outline-none"
+                    : undefined
+                }
+                {...interactiveProps}
+              />
+              {duration >= 45 ? (
+                <text
+                  x={labelPoint.x}
+                  y={labelPoint.y}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  className="pointer-events-none fill-white text-[10px] font-bold"
+                >
+                  {truncateLabel(item.title, duration)}
+                </text>
+              ) : null}
+            </g>
+          );
+        })}
+
+        <circle
+          cx={center}
+          cy={center}
+          r={innerRadius - 8}
+          fill="#fbfcf7"
+          stroke="#d7d9cf"
+        />
+        <text
+          x={center}
+          y={center - 8}
+          textAnchor="middle"
+          className="fill-[#243528] text-[18px] font-bold"
+        >
+          {centerTitle}
+        </text>
+        <text
+          x={center}
+          y={center + 16}
+          textAnchor="middle"
+          className="fill-[#66705f] text-[12px] font-semibold"
+        >
+          {centerSubtitle}
+        </text>
+      </svg>
     </div>
   );
 }
@@ -330,11 +358,7 @@ function SelectedScheduleEditor({
             <TimeSelect
               value={item.startTime.slice(0, 5)}
               onChange={(value) =>
-                onChange(
-                  index,
-                  "startTime",
-                  `${value}:00`,
-                )
+                onChange(index, "startTime", `${value}:00`)
               }
             />
           </label>
@@ -344,11 +368,7 @@ function SelectedScheduleEditor({
             <TimeSelect
               value={item.endTime.slice(0, 5)}
               onChange={(value) =>
-                onChange(
-                  index,
-                  "endTime",
-                  `${value}:00`,
-                )
+                onChange(index, "endTime", `${value}:00`)
               }
             />
           </label>
@@ -398,20 +418,12 @@ function TimeSelect({
 }) {
   const [hour, minute] = snapTimeToFiveMinutes(value).split(":");
 
-  const changeHour = (nextHour: string) => {
-    onChange(`${nextHour}:${minute}`);
-  };
-
-  const changeMinute = (nextMinute: string) => {
-    onChange(`${hour}:${nextMinute}`);
-  };
-
   return (
     <div className="grid grid-cols-[1fr_1fr] gap-1">
       <select
         aria-label="시"
         value={hour}
-        onChange={(event) => changeHour(event.target.value)}
+        onChange={(event) => onChange(`${event.target.value}:${minute}`)}
         className="min-w-0 rounded-md border border-[#c8cbbf] bg-white px-2 py-1 text-sm font-normal"
       >
         {Array.from({ length: 24 }, (_, index) =>
@@ -425,7 +437,7 @@ function TimeSelect({
       <select
         aria-label="분"
         value={minute}
-        onChange={(event) => changeMinute(event.target.value)}
+        onChange={(event) => onChange(`${hour}:${event.target.value}`)}
         className="min-w-0 rounded-md border border-[#c8cbbf] bg-white px-2 py-1 text-sm font-normal"
       >
         {Array.from({ length: 12 }, (_, index) =>
