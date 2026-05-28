@@ -102,24 +102,24 @@ export default function DailyConditionPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f6f7f2] text-[#20231f]">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-5 py-6">
-        <header className="flex flex-col gap-4 border-b border-[#d7d9cf] pb-5 md:flex-row md:items-end md:justify-between">
+    <main className="min-h-screen bg-slate-50 text-slate-950">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+        <header className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white/95 p-5 shadow-sm shadow-slate-200/70 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm font-semibold text-[#577060]">
+            <p className="text-sm font-semibold text-blue-600">
               Haru Planner
             </p>
-            <h1 className="text-3xl font-bold">당일 컨디션</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">당일 컨디션</h1>
           </div>
           <Link
             href="/"
-            className="rounded-md border border-[#aeb4a5] px-4 py-2 text-center text-sm font-semibold"
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-semibold shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
           >
             대시보드로
           </Link>
         </header>
 
-        <Panel title="일정 생성 전 컨디션 저장">
+        <Panel title="일정 생성을 위한 컨디션 저장">
           <form
             onSubmit={submitConditionAndGenerate}
             className="flex flex-col gap-4"
@@ -178,7 +178,7 @@ export default function DailyConditionPage() {
             <div className="flex justify-end gap-2 pt-2">
               <Link
                 href="/"
-                className="rounded-md border border-[#aeb4a5] px-4 py-2 text-sm font-semibold"
+                className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
               >
                 취소
               </Link>
@@ -204,16 +204,16 @@ function StatusToast({
   if (!toast) return null;
 
   const colorClass = {
-    loading: "border-[#c8cbbf] bg-white text-[#243528]",
-    success: "border-[#9fb49c] bg-[#f5fbf3] text-[#243528]",
-    error: "border-[#d6a2a2] bg-[#fff7f7] text-[#612b2b]",
+    loading: "border-slate-200 bg-white text-slate-950",
+    success: "border-emerald-200 bg-emerald-50 text-slate-950",
+    error: "border-red-200 bg-red-50 text-red-700",
   }[toast.type];
 
   return (
     <div
       role="status"
       aria-live="polite"
-      className={`fixed bottom-5 right-5 z-50 max-w-[calc(100vw-40px)] rounded-md border px-4 py-3 text-sm font-semibold shadow-lg md:max-w-sm ${colorClass}`}
+      className={`fixed bottom-5 right-5 z-50 max-w-[calc(100vw-40px)] rounded-2xl border px-4 py-3 text-sm font-semibold shadow-lg md:max-w-sm ${colorClass}`}
     >
       {toast.message}
     </div>

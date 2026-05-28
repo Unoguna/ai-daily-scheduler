@@ -23,7 +23,7 @@ export default function KakaoLoginButton() {
     <button
       type="button"
       onClick={handleLogin}
-      className="flex w-full items-center justify-center gap-3 rounded-md bg-[#fee500] px-4 py-3 text-sm font-bold text-[#191600] shadow-sm transition hover:bg-[#f6dc00]"
+      className="flex w-full items-center justify-center gap-3 rounded-2xl bg-[#fee500] px-4 py-3 text-sm font-semibold text-[#191600] shadow-sm shadow-slate-200/70 transition hover:bg-[#f6dc00]"
     >
       <span className="flex size-6 items-center justify-center rounded-full bg-[#191600] text-xs font-black text-[#fee500]">
         K

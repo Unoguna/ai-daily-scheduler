@@ -167,47 +167,47 @@ export default function ProfilePage() {
   const initial = user?.name.trim().slice(0, 1).toUpperCase() || "?";
 
   return (
-    <main className="min-h-screen bg-[#f6f7f2] text-[#20231f]">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-5 py-6">
-        <header className="flex flex-col gap-4 border-b border-[#d7d9cf] pb-5 md:flex-row md:items-end md:justify-between">
+    <main className="min-h-screen bg-slate-50 text-slate-950">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+        <header className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white/95 p-5 shadow-sm shadow-slate-200/70 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm font-semibold text-[#577060]">
+            <p className="text-sm font-semibold text-blue-600">
               Haru Planner
             </p>
-            <h1 className="text-3xl font-bold">개인정보 수정</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">개인정보 수정</h1>
           </div>
           <Link
             href="/"
-            className="rounded-md border border-[#aeb4a5] px-4 py-2 text-center text-sm font-semibold"
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-semibold shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
           >
             대시보드로
           </Link>
         </header>
 
-        <section className="rounded-md border border-[#d7d9cf] bg-[#fbfcf7] p-5 shadow-sm">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="mb-6 flex items-center gap-4">
             <ProfileImage imageUrl={imageUrl} initial={initial} />
             <div className="min-w-0">
-              <p className="truncate text-lg font-bold">
-                {user ? `${user.name}님` : "사용자 정보 불러오는 중"}
+              <p className="truncate text-lg font-semibold text-slate-950">
+                {user ? `${user.name}님` : "사용자 정보를 불러오는 중"}
               </p>
-              <p className="truncate text-sm text-[#66705f]">{user?.email}</p>
+              <p className="truncate text-sm text-slate-500">{user?.email}</p>
             </div>
           </div>
 
           <form onSubmit={submitProfile} className="flex flex-col gap-4">
-            <label className="flex flex-col gap-1 text-sm font-semibold">
+            <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
               이름
               <input
                 value={name}
                 maxLength={20}
                 required
                 onChange={(event) => setName(event.target.value)}
-                className="rounded-md border border-[#c8cbbf] bg-white px-3 py-2 font-normal"
+                className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 font-normal shadow-sm outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
               />
             </label>
 
-            <label className="flex flex-col gap-1 text-sm font-semibold">
+            <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
               프로필 사진
               <input
                 type="file"
@@ -215,21 +215,21 @@ export default function ProfilePage() {
                 onChange={(event) =>
                   changeProfileImage(event.target.files?.[0] ?? null)
                 }
-                className="rounded-md border border-[#c8cbbf] bg-white px-3 py-2 font-normal file:mr-3 file:rounded-md file:border-0 file:bg-[#577060] file:px-3 file:py-1 file:text-sm file:font-semibold file:text-white"
+                className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 font-normal shadow-sm file:mr-3 file:rounded-2xl file:border-0 file:bg-blue-600 file:px-3 file:py-1 file:text-sm file:font-semibold file:text-white"
               />
             </label>
 
             <div className="flex justify-end gap-2 pt-2">
               <Link
                 href="/"
-                className="rounded-md border border-[#aeb4a5] px-4 py-2 text-sm font-semibold"
+                className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
               >
                 취소
               </Link>
               <button
                 type="submit"
                 disabled={!user}
-                className="rounded-md bg-[#577060] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                className="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-600/20 transition hover:bg-blue-700 disabled:opacity-50"
               >
                 저장
               </button>
@@ -244,7 +244,7 @@ export default function ProfilePage() {
           >
             <div className="grid gap-3 md:grid-cols-2">
               <Input
-                label="활동 시작"
+                label="선호 시작"
                 type="time"
                 value={scheduleProfileForm.preferredStartTime.slice(0, 5)}
                 onChange={(value) =>
@@ -255,7 +255,7 @@ export default function ProfilePage() {
                 }
               />
               <Input
-                label="활동 종료"
+                label="선호 종료"
                 type="time"
                 value={scheduleProfileForm.preferredEndTime.slice(0, 5)}
                 onChange={(value) =>
@@ -311,7 +311,7 @@ export default function ProfilePage() {
 
             <div className="grid gap-3 md:grid-cols-2">
               <MinuteField
-                label="집중 분"
+                label="집중 시간"
                 min={10}
                 max={300}
                 value={scheduleProfileForm.preferredSessionMinutes}
@@ -323,7 +323,7 @@ export default function ProfilePage() {
                 }
               />
               <MinuteField
-                label="휴식 분"
+                label="휴식 시간"
                 min={0}
                 max={180}
                 value={scheduleProfileForm.breakMinutes}
@@ -370,7 +370,7 @@ function MinuteField({
         max={max}
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="rounded-md border border-[#c8cbbf] bg-white px-3 py-2 font-normal"
+        className="rounded-2xl border border-slate-200 bg-white px-3 py-2 font-normal"
       />
     </label>
   );
@@ -387,14 +387,14 @@ function ProfileImage({
 
   if (!imageUrl || failedImageUrl === imageUrl) {
     return (
-      <div className="flex size-20 shrink-0 items-center justify-center rounded-full bg-[#577060] text-2xl font-bold text-white">
+      <div className="flex size-20 shrink-0 items-center justify-center rounded-full bg-blue-600 text-2xl font-bold text-white">
         {initial}
       </div>
     );
   }
 
   return (
-    <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#d7d9cf] bg-white">
+    <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={imageUrl}
@@ -417,16 +417,16 @@ function StatusToast({
   if (!toast) return null;
 
   const colorClass = {
-    loading: "border-[#c8cbbf] bg-white text-[#243528]",
-    success: "border-[#9fb49c] bg-[#f5fbf3] text-[#243528]",
-    error: "border-[#d6a2a2] bg-[#fff7f7] text-[#612b2b]",
+    loading: "border-slate-200 bg-white text-slate-950",
+    success: "border-emerald-200 bg-emerald-50 text-slate-950",
+    error: "border-red-200 bg-red-50 text-red-700",
   }[toast.type];
 
   return (
     <div
       role="status"
       aria-live="polite"
-      className={`fixed bottom-5 right-5 z-50 max-w-[calc(100vw-40px)] rounded-md border px-4 py-3 text-sm font-semibold shadow-lg md:max-w-sm ${colorClass}`}
+      className={`fixed bottom-5 right-5 z-50 max-w-[calc(100vw-40px)] rounded-2xl border px-4 py-3 text-sm font-semibold shadow-lg md:max-w-sm ${colorClass}`}
     >
       {toast.message}
     </div>

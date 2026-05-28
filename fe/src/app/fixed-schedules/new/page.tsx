@@ -158,7 +158,7 @@ export default function FixedScheduleManagePage() {
       });
       await loadFixedSchedules();
       resetForm();
-    }, editingScheduleId ? "고정 일정을 수정했습니다." : "고정 일정을 추가했습니다.");
+    }, editingScheduleId ? "怨좎젙 일정을 수정했습니다." : "怨좎젙 ?쇱젙??異붽??덉뒿?덈떎.");
   };
 
   const deleteFixedSchedule = (scheduleId: number) => {
@@ -176,18 +176,18 @@ export default function FixedScheduleManagePage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f6f7f2] text-[#20231f]">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-5 py-6">
-        <header className="flex flex-col gap-4 border-b border-[#d7d9cf] pb-5 md:flex-row md:items-end md:justify-between">
+    <main className="min-h-screen bg-slate-50 text-slate-950">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+        <header className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white/95 p-5 shadow-sm shadow-slate-200/70 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm font-semibold text-[#577060]">
+            <p className="text-sm font-semibold text-blue-600">
               Haru Planner
             </p>
-            <h1 className="text-3xl font-bold">고정 일정 관리</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">고정 일정 관리</h1>
           </div>
           <Link
             href="/"
-            className="rounded-md border border-[#aeb4a5] px-4 py-2 text-center text-sm font-semibold"
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-semibold shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
           >
             대시보드로
           </Link>
@@ -282,14 +282,14 @@ export default function FixedScheduleManagePage() {
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="rounded-md border border-[#aeb4a5] px-4 py-2 text-sm font-semibold"
+                    className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
                   >
                     새 일정
                   </button>
                 ) : (
                   <Link
                     href="/"
-                    className="rounded-md border border-[#aeb4a5] px-4 py-2 text-sm font-semibold"
+                    className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
                   >
                     취소
                   </Link>
@@ -306,36 +306,35 @@ export default function FixedScheduleManagePage() {
               {groupedSchedules.map(({ day, schedules }) => (
                 <section
                   key={day}
-                  className="rounded-md border border-[#d7d9cf] bg-white p-3"
+                  className="rounded-2xl border border-slate-200 bg-white p-3"
                 >
                   <div className="mb-3 flex items-center justify-between">
-                    <h3 className="font-bold text-[#243528]">{day}</h3>
-                    <span className="text-xs font-semibold text-[#66705f]">
-                      {schedules.length}개
-                    </span>
+                    <h3 className="font-bold text-slate-950">{day}</h3>
+                    <span className="text-xs font-semibold text-slate-500">
+                      {schedules.length}개                    </span>
                   </div>
 
                   {schedules.length === 0 ? (
-                    <p className="text-sm text-[#66705f]">일정 없음</p>
+                    <p className="text-sm text-slate-500">일정 없음</p>
                   ) : (
                     <div className="flex flex-col gap-2">
                       {schedules.map((schedule) => (
                         <div
                           key={schedule.fixedScheduleId}
-                          className="rounded-md border border-[#e1e3da] bg-[#fbfcf7] p-3"
+                          className="rounded-2xl border border-slate-100 bg-white p-3"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
                               <p className="truncate font-semibold">
                                 {schedule.title}
                               </p>
-                              <p className="mt-1 text-sm text-[#66705f]">
+                              <p className="mt-1 text-sm text-slate-500">
                                 {schedule.startTime.slice(0, 5)} -{" "}
-                                {schedule.endTime.slice(0, 5)} ·{" "}
+                                {schedule.endTime.slice(0, 5)} 쨌{" "}
                                 {schedule.category}
                               </p>
                               {schedule.mandatory ? (
-                                <p className="mt-1 text-xs font-semibold text-[#577060]">
+                                <p className="mt-1 text-xs font-semibold text-blue-600">
                                   필수 일정
                                 </p>
                               ) : null}
@@ -344,16 +343,16 @@ export default function FixedScheduleManagePage() {
                               <button
                                 type="button"
                                 onClick={() => selectSchedule(schedule)}
-                                className="rounded-md border border-[#aeb4a5] px-3 py-1 text-xs font-semibold"
+                                className="rounded-2xl border border-slate-300 px-3 py-1 text-xs font-semibold"
                               >
-                                수정
+                                ?섏젙
                               </button>
                               <button
                                 type="button"
                                 onClick={() =>
                                   deleteFixedSchedule(schedule.fixedScheduleId)
                                 }
-                                className="rounded-md border border-[#d6a2a2] px-3 py-1 text-xs font-semibold text-[#612b2b]"
+                                className="rounded-2xl border border-red-200 px-3 py-1 text-xs font-semibold text-red-700"
                               >
                                 삭제
                               </button>
@@ -386,16 +385,16 @@ function StatusToast({
   if (!toast) return null;
 
   const colorClass = {
-    loading: "border-[#c8cbbf] bg-white text-[#243528]",
-    success: "border-[#9fb49c] bg-[#f5fbf3] text-[#243528]",
-    error: "border-[#d6a2a2] bg-[#fff7f7] text-[#612b2b]",
+    loading: "border-slate-200 bg-white text-slate-950",
+    success: "border-emerald-200 bg-emerald-50 text-slate-950",
+    error: "border-red-200 bg-red-50 text-red-700",
   }[toast.type];
 
   return (
     <div
       role="status"
       aria-live="polite"
-      className={`fixed bottom-5 right-5 z-50 max-w-[calc(100vw-40px)] rounded-md border px-4 py-3 text-sm font-semibold shadow-lg md:max-w-sm ${colorClass}`}
+      className={`fixed bottom-5 right-5 z-50 max-w-[calc(100vw-40px)] rounded-2xl border px-4 py-3 text-sm font-semibold shadow-lg md:max-w-sm ${colorClass}`}
     >
       {toast.message}
     </div>

@@ -79,8 +79,8 @@ export default function GoogleCallbackPage() {
 
 function CallbackMessage({ message }: { message: string }) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f6f7f2]">
-      <div className="rounded-md border border-[#d7d9cf] bg-white p-8 shadow-sm">
+    <main className="flex min-h-screen items-center justify-center bg-slate-50">
+      <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <p>{message}</p>
       </div>
     </main>

@@ -8,20 +8,20 @@ export function Timeline({ items }: { items: ScheduleItem[] }) {
       {items.map((item, index) => (
         <div
           key={`${item.startTime}-${item.title}-${index}`}
-          className="grid gap-2 rounded-md border border-[#d7d9cf] bg-white p-3 md:grid-cols-[110px_1fr]"
+          className="grid gap-2 rounded-2xl border border-slate-200 bg-white p-3 md:grid-cols-[110px_1fr]"
         >
-          <div className="text-sm font-bold text-[#577060]">
+          <div className="text-sm font-bold text-blue-600">
             {item.startTime.slice(0, 5)} - {item.endTime.slice(0, 5)}
           </div>
           <div>
             <div className="flex items-center justify-between gap-3">
               <strong>{item.title}</strong>
-              <span className="text-xs font-semibold text-[#66705f]">
+              <span className="text-xs font-semibold text-slate-500">
                 {item.type}
               </span>
             </div>
             {item.description ? (
-              <p className="mt-1 text-sm text-[#66705f]">{item.description}</p>
+              <p className="mt-1 text-sm text-slate-500">{item.description}</p>
             ) : null}
           </div>
         </div>
@@ -42,7 +42,7 @@ export function TimelineEditor({
       {items.map((item, index) => (
         <div
           key={`${item.startTime}-${item.title}-${index}`}
-          className="grid gap-3 rounded-md border border-[#d7d9cf] bg-white p-3 md:grid-cols-[130px_1fr]"
+          className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-3 md:grid-cols-[130px_1fr]"
         >
           <div className="grid grid-cols-2 gap-2 md:grid-cols-1">
             <input
@@ -51,7 +51,7 @@ export function TimelineEditor({
               onChange={(event) =>
                 onChange(index, "startTime", `${event.target.value}:00`)
               }
-              className="rounded-md border border-[#c8cbbf] px-2 py-2 text-sm"
+              className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
             />
             <input
               type="time"
@@ -59,24 +59,24 @@ export function TimelineEditor({
               onChange={(event) =>
                 onChange(index, "endTime", `${event.target.value}:00`)
               }
-              className="rounded-md border border-[#c8cbbf] px-2 py-2 text-sm"
+              className="rounded-2xl border border-slate-200 px-2 py-2 text-sm"
             />
           </div>
           <div className="grid gap-2">
             <input
               value={item.title}
               onChange={(event) => onChange(index, "title", event.target.value)}
-              className="rounded-md border border-[#c8cbbf] px-3 py-2 font-semibold"
+              className="rounded-2xl border border-slate-200 px-3 py-2 font-semibold"
             />
             <input
               value={item.description ?? ""}
               onChange={(event) =>
                 onChange(index, "description", event.target.value)
               }
-              className="rounded-md border border-[#c8cbbf] px-3 py-2 text-sm"
+              className="rounded-2xl border border-slate-200 px-3 py-2 text-sm"
               placeholder="설명"
             />
-            <span className="text-xs font-semibold text-[#66705f]">
+            <span className="text-xs font-semibold text-slate-500">
               {item.type}
             </span>
           </div>
@@ -186,7 +186,7 @@ export function CircularTimetableEditor({
       </div>
 
       <div className="min-w-0">
-        <div className="mb-4 flex flex-wrap gap-2 text-xs font-bold text-[#66705f]">
+        <div className="mb-4 flex flex-wrap gap-2 text-xs font-bold text-slate-500">
           {(["FIXED_SCHEDULE", "GOAL_WORK", "BREAK"] as const).map((type) => (
             <span key={type} className="inline-flex items-center gap-1">
               <span
@@ -207,7 +207,7 @@ export function CircularTimetableEditor({
               onDelete={deleteItem}
             />
           ) : (
-            <div className="flex h-full items-center rounded-md border border-dashed border-[#c8cbbf] bg-white p-4 text-sm font-semibold text-[#66705f]">
+            <div className="flex h-full items-center rounded-2xl border border-dashed border-slate-200 bg-white p-4 text-sm font-semibold text-slate-500">
               원형 시간표에서 수정할 일정을 선택하세요.
             </div>
           )}
@@ -279,7 +279,7 @@ function CircularTimetableChart({
               dx="0"
               dy="4"
               stdDeviation="4"
-              floodColor="#20231f"
+              floodColor="#0f172a"
               floodOpacity="0.14"
             />
           </filter>
@@ -314,20 +314,20 @@ function CircularTimetableChart({
           cx={center}
           cy={center}
           r={outerRadius + 13}
-          fill="#f6f7f2"
-          stroke="#e1e3da"
+          fill="#f8fafc"
+          stroke="#dbeafe"
           strokeWidth="1"
         />
         <circle
           cx={center}
           cy={center}
           r={outerRadius}
-          fill="#fbfcf7"
+          fill="#ffffff"
           stroke="#cfd3c6"
           strokeWidth="1.5"
           filter="url(#timetable-soft-shadow)"
         />
-        <circle cx={center} cy={center} r={innerRadius} fill="#f6f7f2" />
+        <circle cx={center} cy={center} r={innerRadius} fill="#f8fafc" />
 
         {Array.from({ length: 24 }, (_, hour) => {
           const angle = minutesToAngle(hour * 60);
@@ -342,7 +342,7 @@ function CircularTimetableChart({
                 y1={inner.y}
                 x2={outer.x}
                 y2={outer.y}
-                stroke={hour % 6 === 0 ? "#66705f" : "#c8cbbf"}
+                stroke={hour % 6 === 0 ? "#475569" : "#cbd5e1"}
                 strokeWidth={hour % 6 === 0 ? 2 : 1}
                 strokeLinecap="round"
               />
@@ -352,7 +352,7 @@ function CircularTimetableChart({
                   y={label.y}
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  className="fill-[#66705f] text-[11px] font-bold"
+                  className="fill-slate-500 text-[11px] font-bold"
                 >
                   {String(hour).padStart(2, "0")}
                 </text>
@@ -401,9 +401,9 @@ function CircularTimetableChart({
             <g key={`${item.startTime}-${item.title}-${index}`}>
               <path
                 d={path}
-                aria-label={onSelect ? `${item.title} 편집` : item.title}
+                aria-label={onSelect ? `${item.title} ?몄쭛` : item.title}
                 fill={typeColor(item.type)}
-                stroke={isSelected || isCurrent ? "#243528" : "#fbfcf7"}
+                stroke={isSelected || isCurrent ? "#0f172a" : "#ffffff"}
                 strokeWidth={isSelected || isCurrent ? 5 : 2.5}
                 opacity={isCurrent ? 1 : 0.9}
                 filter={isCurrent ? "url(#timetable-soft-shadow)" : undefined}
@@ -433,8 +433,8 @@ function CircularTimetableChart({
           cx={center}
           cy={center}
           r={innerRadius - 8}
-          fill="#fbfcf7"
-          stroke="#d7d9cf"
+          fill="#ffffff"
+          stroke="#e2e8f0"
           strokeWidth="1.5"
           filter="url(#timetable-soft-shadow)"
         />
@@ -451,7 +451,7 @@ function CircularTimetableChart({
               x={center}
               y={center - 8}
               textAnchor="middle"
-              className="fill-[#243528] text-[18px] font-bold"
+              className="fill-slate-950 text-[18px] font-bold"
             >
               {centerTitle}
             </text>
@@ -459,7 +459,7 @@ function CircularTimetableChart({
               x={center}
               y={center + 16}
               textAnchor="middle"
-              className="fill-[#66705f] text-[12px] font-semibold"
+              className="fill-slate-500 text-[12px] font-semibold"
             >
               {centerSubtitle}
             </text>
@@ -486,7 +486,7 @@ function CurrentTimeHand({
   const handEnd = pointOnCircle(center, center, 90, angle);
 
   return (
-    <g aria-label="현재 시간">
+    <g aria-label="?꾩옱 ?쒓컙">
       <circle cx={center} cy={center} r="28" fill="#fff7f7" opacity="0.75" />
       <line
         x1={center}
@@ -503,7 +503,7 @@ function CurrentTimeHand({
         cx={center}
         cy={center}
         r="6"
-        fill="#fbfcf7"
+        fill="#ffffff"
         stroke="#b64d45"
         strokeWidth="3"
       />
@@ -527,11 +527,11 @@ function SelectedScheduleEditor({
   onDelete: (index: number) => void;
 }) {
   return (
-    <section className="h-full rounded-md border border-[#d7d9cf] bg-white p-3">
+    <section className="h-full rounded-2xl border border-slate-200 bg-white p-3">
       <div className="mb-2 flex items-center justify-between gap-3">
-        <h3 className="text-sm font-bold text-[#243528]">선택한 일정 수정</h3>
+        <h3 className="text-sm font-bold text-slate-950">선택한 일정 수정</h3>
         <span
-          className="rounded-md px-2 py-1 text-xs font-bold text-white"
+          className="rounded-2xl px-2 py-1 text-xs font-bold text-white"
           style={{ backgroundColor: typeColor(item.type) }}
         >
           {item.type}
@@ -547,7 +547,7 @@ function SelectedScheduleEditor({
               onChange={(value) => onChange(index, "startTime", `${value}:00`)}
             />
           </label>
-          <span className="mt-5 text-[#66705f]">-</span>
+          <span className="mt-5 text-slate-500">-</span>
           <label className="grid gap-1 text-xs font-semibold">
             종료
             <TimeSelect
@@ -562,7 +562,7 @@ function SelectedScheduleEditor({
           <input
             value={item.title}
             onChange={(event) => onChange(index, "title", event.target.value)}
-            className="rounded-md border border-[#c8cbbf] px-3 py-1 text-sm font-normal"
+            className="rounded-2xl border border-slate-200 px-3 py-1 text-sm font-normal"
           />
         </label>
 
@@ -573,16 +573,16 @@ function SelectedScheduleEditor({
             onChange={(event) =>
               onChange(index, "description", event.target.value)
             }
-            className="h-14 rounded-md border border-[#c8cbbf] px-3 py-1 text-sm font-normal"
+            className="h-14 rounded-2xl border border-slate-200 px-3 py-1 text-sm font-normal"
             placeholder="설명"
           />
         </label>
 
-        <div className="flex justify-end border-t border-[#e1e3da] pt-2">
+        <div className="flex justify-end border-t border-slate-100 pt-2">
           <button
             type="button"
             onClick={() => onDelete(index)}
-            className="rounded-md border border-[#d6a2a2] px-3 py-1 text-xs font-semibold text-[#612b2b] transition hover:bg-[#fff7f7]"
+            className="rounded-2xl border border-red-200 px-3 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-50"
           >
             일정 삭제
           </button>
@@ -594,24 +594,24 @@ function SelectedScheduleEditor({
 
 function ScheduleInfoPanel({ item }: { item: ScheduleItem }) {
   return (
-    <section className="self-start rounded-md border border-[#d7d9cf] bg-white p-4 shadow-sm">
+    <section className="self-start rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-bold text-[#577060]">
+          <p className="text-xs font-bold text-blue-600">
             {item.startTime.slice(0, 5)} - {item.endTime.slice(0, 5)}
           </p>
-          <h3 className="mt-1 truncate text-lg font-bold text-[#243528]">
+          <h3 className="mt-1 truncate text-lg font-bold text-slate-950">
             {item.title}
           </h3>
         </div>
         <span
-          className="shrink-0 rounded-md px-2 py-1 text-xs font-bold text-white"
+          className="shrink-0 rounded-2xl px-2 py-1 text-xs font-bold text-white"
           style={{ backgroundColor: typeColor(item.type) }}
         >
           {item.type}
         </span>
       </div>
-      <p className="text-sm leading-6 text-[#66705f]">
+      <p className="text-sm leading-6 text-slate-500">
         {item.description || "설명 없음"}
       </p>
     </section>
@@ -666,15 +666,15 @@ function ConfirmedScheduleEditor({
   return (
     <form
       onSubmit={submit}
-      className="self-start rounded-md border border-[#d7d9cf] bg-white p-4 shadow-sm"
+      className="self-start rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
     >
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-bold text-[#577060]">선택한 일정</p>
-          <h3 className="mt-1 text-lg font-bold text-[#243528]">일정 수정</h3>
+          <p className="text-xs font-bold text-blue-600">선택한 일정</p>
+          <h3 className="mt-1 text-lg font-bold text-slate-950">일정 수정</h3>
         </div>
         <span
-          className="shrink-0 rounded-md px-2 py-1 text-xs font-bold text-white"
+          className="shrink-0 rounded-2xl px-2 py-1 text-xs font-bold text-white"
           style={{ backgroundColor: typeColor(draft.type) }}
         >
           {draft.type}
@@ -690,7 +690,7 @@ function ConfirmedScheduleEditor({
               onChange={(value) => updateDraft("startTime", `${value}:00`)}
             />
           </label>
-          <span className="mt-5 text-[#66705f]">-</span>
+          <span className="mt-5 text-slate-500">-</span>
           <label className="grid gap-1 text-xs font-semibold">
             종료
             <TimeSelect
@@ -707,7 +707,7 @@ function ConfirmedScheduleEditor({
             required
             maxLength={100}
             onChange={(event) => updateDraft("title", event.target.value)}
-            className="rounded-md border border-[#c8cbbf] px-3 py-2 text-sm font-normal"
+            className="rounded-2xl border border-slate-200 px-3 py-2 text-sm font-normal"
           />
         </label>
 
@@ -717,24 +717,24 @@ function ConfirmedScheduleEditor({
             value={draft.description ?? ""}
             maxLength={500}
             onChange={(event) => updateDraft("description", event.target.value)}
-            className="h-24 resize-none rounded-md border border-[#c8cbbf] px-3 py-2 text-sm font-normal"
+            className="h-24 resize-none rounded-2xl border border-slate-200 px-3 py-2 text-sm font-normal"
             placeholder="설명 없음"
           />
         </label>
 
-        <div className="flex justify-between gap-2 border-t border-[#e1e3da] pt-3">
+        <div className="flex justify-between gap-2 border-t border-slate-100 pt-3">
           <button
             type="button"
             onClick={deleteItem}
             disabled={isSubmitting}
-            className="rounded-md border border-[#d6a2a2] px-3 py-2 text-xs font-semibold text-[#612b2b] transition hover:bg-[#fff7f7] disabled:opacity-60"
+            className="rounded-2xl border border-red-200 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-60"
           >
             삭제
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-md bg-[#243528] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#577060] disabled:opacity-60"
+            className="rounded-2xl bg-slate-950 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-600 disabled:opacity-60"
           >
             저장
           </button>
@@ -759,7 +759,7 @@ function TimeSelect({
         aria-label="시"
         value={hour}
         onChange={(event) => onChange(`${event.target.value}:${minute}`)}
-        className="min-w-0 rounded-md border border-[#c8cbbf] bg-white px-2 py-1 text-sm font-normal"
+        className="min-w-0 rounded-2xl border border-slate-200 bg-white px-2 py-1 text-sm font-normal"
       >
         {Array.from({ length: 24 }, (_, index) =>
           String(index).padStart(2, "0"),
@@ -773,7 +773,7 @@ function TimeSelect({
         aria-label="분"
         value={minute}
         onChange={(event) => onChange(`${hour}:${event.target.value}`)}
-        className="min-w-0 rounded-md border border-[#c8cbbf] bg-white px-2 py-1 text-sm font-normal"
+        className="min-w-0 rounded-2xl border border-slate-200 bg-white px-2 py-1 text-sm font-normal"
       >
         {Array.from({ length: 12 }, (_, index) =>
           String(index * 5).padStart(2, "0"),
@@ -848,9 +848,9 @@ function describeDonutSegment(
 
 function typeColor(type: ScheduleItem["type"]) {
   return {
-    FIXED_SCHEDULE: "#577060",
-    GOAL_WORK: "#435c8a",
-    BREAK: "#b47b50",
+    FIXED_SCHEDULE: "#2563eb",
+    GOAL_WORK: "#0f766e",
+    BREAK: "#64748b",
   }[type];
 }
 

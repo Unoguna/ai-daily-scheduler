@@ -18,7 +18,7 @@ import type {
 } from "@/types/scheduler";
 
 const moreLinkClass =
-  "text-sm font-semibold text-[#577060] transition hover:text-[#243528]";
+  "text-sm font-semibold text-blue-600 transition hover:text-slate-950";
 
 export function SummaryPanels({
   activeGoals,
@@ -42,15 +42,15 @@ export function SummaryPanels({
           {activeGoals.map((goal) => (
             <div
               key={goal.goalId}
-              className="rounded-md border border-[#d7d9cf] bg-white p-3"
+              className="rounded-2xl border border-slate-200 bg-white p-3"
             >
               <div className="flex items-center justify-between gap-3">
                 <strong>{goal.title}</strong>
-                <span className="text-xs font-semibold text-[#577060]">
+                <span className="text-xs font-semibold text-blue-600">
                   {goal.priority}
                 </span>
               </div>
-              <p className="mt-1 text-sm text-[#66705f]">
+              <p className="mt-1 text-sm text-slate-500">
                 {goal.description || "설명 없음"}
               </p>
             </div>
@@ -74,15 +74,15 @@ export function SummaryPanels({
           {fixedSchedules.map((schedule) => (
             <div
               key={schedule.fixedScheduleId}
-              className="rounded-md border border-[#d7d9cf] bg-white p-3"
+              className="rounded-2xl border border-slate-200 bg-white p-3"
             >
               <div className="flex items-center justify-between gap-3">
                 <strong>{schedule.title}</strong>
-                <span className="text-xs font-semibold text-[#577060]">
+                <span className="text-xs font-semibold text-blue-600">
                   {schedule.dayOfWeek}
                 </span>
               </div>
-              <p className="mt-1 text-sm text-[#66705f]">
+              <p className="mt-1 text-sm text-slate-500">
                 {schedule.startTime.slice(0, 5)} -{" "}
                 {schedule.endTime.slice(0, 5)} · {schedule.category}
               </p>
@@ -118,7 +118,7 @@ export function ConfirmedSchedulePanel({
             type="button"
             aria-label="원형 시간표로 돌아가기"
             onClick={() => setSelectedScheduleIndex(null)}
-            className="text-xl font-bold leading-none text-[#577060] transition hover:text-[#243528]"
+            className="text-xl font-bold leading-none text-blue-600 transition hover:text-slate-950"
           >
             ←
           </button>
@@ -145,14 +145,14 @@ export function ConfirmedSchedulePanel({
         />
       ) : (
         <div className="flex flex-col gap-3">
-          <p className="text-sm text-[#66705f]">
+          <p className="text-sm text-slate-500">
             아직 확정된 일정이 없습니다.
           </p>
           <div>
             <button
               type="button"
               onClick={onCreateSchedule}
-              className="rounded-md bg-[#243528] px-4 py-2 text-sm font-semibold text-white"
+              className="rounded-2xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white"
             >
               일정 생성
             </button>

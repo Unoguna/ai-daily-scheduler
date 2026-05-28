@@ -6,7 +6,7 @@ export default function GoogleLoginButton() {
     const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI;
 
     if (!clientId || !redirectUri) {
-      alert("구글 로그인 환경변수가 설정되지 않았습니다.");
+      alert("Google 로그인 환경변수가 설정되지 않았습니다.");
       return;
     }
 
@@ -24,9 +24,9 @@ export default function GoogleLoginButton() {
     <button
       type="button"
       onClick={handleLogin}
-      className="flex w-full items-center justify-center gap-3 rounded-md border border-[#c8cbbf] bg-white px-4 py-3 text-sm font-bold text-[#20231f] shadow-sm transition hover:bg-[#f6f7f2]"
+      className="flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-950 shadow-sm shadow-slate-200/70 transition hover:border-blue-200 hover:bg-blue-50"
     >
-      <span className="flex size-6 items-center justify-center rounded-full border border-[#d7d9cf] bg-white text-xs font-black text-[#4285f4]">
+      <span className="flex size-6 items-center justify-center rounded-full border border-slate-200 bg-white text-xs font-black text-[#4285f4]">
         G
       </span>
       Google로 로그인
