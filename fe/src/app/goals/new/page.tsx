@@ -153,7 +153,7 @@ export default function GoalManagePage() {
       if (editingGoalId === goalId) {
         resetForm();
       }
-    }, "紐⑺몴瑜?삭제?덉뒿?덈떎.");
+    }, "목표를 삭제했습니다.");
   };
 
   return (
@@ -247,7 +247,8 @@ export default function GoalManagePage() {
                   <div className="mb-3 flex items-center justify-between">
                     <h3 className="font-bold text-slate-950">{status}</h3>
                     <span className="text-xs font-semibold text-slate-500">
-                      {statusGoals.length}개                    </span>
+                      {statusGoals.length}개
+                    </span>
                   </div>
 
                   {statusGoals.length === 0 ? (
@@ -265,25 +266,25 @@ export default function GoalManagePage() {
                                 {goal.title}
                               </p>
                               <p className="mt-1 text-sm text-slate-500">
-                                {goal.description || "설명 ?놁쓬"}
+                                {goal.description || "설명 없음"}
                               </p>
                               <p className="mt-2 text-xs font-semibold text-blue-600">
                                 {goal.priority}
-                                {goal.targetDate ? ` 쨌 ${goal.targetDate}` : ""}
+                                {goal.targetDate ? ` · ${goal.targetDate}` : ""}
                               </p>
                             </div>
                             <div className="flex shrink-0 flex-col gap-1">
                               <button
                                 type="button"
                                 onClick={() => selectGoal(goal)}
-                                className="rounded-2xl border border-slate-300 px-3 py-1 text-xs font-semibold"
+                                className="min-w-12 rounded-2xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
                               >
-                                ?섏젙
+                                수정
                               </button>
                               <button
                                 type="button"
                                 onClick={() => deleteGoal(goal.goalId)}
-                                className="rounded-2xl border border-red-200 px-3 py-1 text-xs font-semibold text-red-700"
+                                className="min-w-12 rounded-2xl border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50"
                               >
                                 삭제
                               </button>

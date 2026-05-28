@@ -158,7 +158,7 @@ export default function FixedScheduleManagePage() {
       });
       await loadFixedSchedules();
       resetForm();
-    }, editingScheduleId ? "怨좎젙 일정을 수정했습니다." : "怨좎젙 ?쇱젙??異붽??덉뒿?덈떎.");
+    }, editingScheduleId ? "고정 일정을 수정했습니다." : "고정 일정을 추가했습니다.");
   };
 
   const deleteFixedSchedule = (scheduleId: number) => {
@@ -311,7 +311,8 @@ export default function FixedScheduleManagePage() {
                   <div className="mb-3 flex items-center justify-between">
                     <h3 className="font-bold text-slate-950">{day}</h3>
                     <span className="text-xs font-semibold text-slate-500">
-                      {schedules.length}개                    </span>
+                      {schedules.length}개
+                    </span>
                   </div>
 
                   {schedules.length === 0 ? (
@@ -330,7 +331,7 @@ export default function FixedScheduleManagePage() {
                               </p>
                               <p className="mt-1 text-sm text-slate-500">
                                 {schedule.startTime.slice(0, 5)} -{" "}
-                                {schedule.endTime.slice(0, 5)} 쨌{" "}
+                                {schedule.endTime.slice(0, 5)} ·{" "}
                                 {schedule.category}
                               </p>
                               {schedule.mandatory ? (
@@ -343,16 +344,16 @@ export default function FixedScheduleManagePage() {
                               <button
                                 type="button"
                                 onClick={() => selectSchedule(schedule)}
-                                className="rounded-2xl border border-slate-300 px-3 py-1 text-xs font-semibold"
+                                className="min-w-12 rounded-2xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
                               >
-                                ?섏젙
+                                수정
                               </button>
                               <button
                                 type="button"
                                 onClick={() =>
                                   deleteFixedSchedule(schedule.fixedScheduleId)
                                 }
-                                className="rounded-2xl border border-red-200 px-3 py-1 text-xs font-semibold text-red-700"
+                                className="min-w-12 rounded-2xl border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 shadow-sm transition hover:bg-red-50"
                               >
                                 삭제
                               </button>
