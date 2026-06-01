@@ -11,18 +11,19 @@ export default function LoginPage() {
               Haru Planner
             </p>
             <h1 className="mt-3 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-slate-950 md:text-5xl">
-              ?ㅻ뒛??而⑤뵒?섏뿉 留욎떠 ?섎（瑜??뺣━?댁슂
+              오늘의 컨디션에 맞춰 하루를 정리해요
             </h1>
             <p className="mt-4 max-w-xl text-base leading-7 text-slate-500">
-              紐⑺몴, 怨좎젙 ?쇱젙, ?쇰뱶諛깆쓣 ?쒓납??紐⑥븘 遺???녿뒗 ?섎（ 怨꾪쉷??              시작?섏꽭??
+              목표, 고정 일정, 피드백을 한곳에 모아 부담 없는 하루 계획을
+              시작하세요.
             </p>
           </div>
 
           <div className="grid max-w-2xl gap-3 sm:grid-cols-3">
             {[
-              ["09:00", "吏묒쨷 ?낅Т", "HIGH"],
-              ["13:30", "怨좎젙 ?쇱젙", "CLASS"],
-              ["20:00", "?뚭퀬", "FEEDBACK"],
+              ["09:00", "집중 업무", "HIGH"],
+              ["13:30", "고정 일정", "CLASS"],
+              ["20:00", "회고", "FEEDBACK"],
             ].map(([time, title, label]) => (
               <div
                 key={time}
@@ -42,7 +43,7 @@ export default function LoginPage() {
           <div className="mb-6">
             <h2 className="text-2xl font-semibold tracking-tight text-slate-950">로그인</h2>
             <p className="mt-2 text-sm text-slate-500">
-              ?뚯뀥 怨꾩젙?쇰줈 鍮좊Ⅴ寃?시작?????덉뼱??
+              소셜 계정으로 빠르게 시작할 수 있어요.
             </p>
           </div>
 
@@ -52,7 +53,7 @@ export default function LoginPage() {
           </div>
 
           <p className="mt-6 border-t border-slate-200 pt-4 text-xs leading-5 text-slate-400">
-            濡쒓렇?명븯硫??쇱젙, 紐⑺몴, 而⑤뵒??湲곕줉??怨꾩젙???덉쟾?섍쾶 ?곌껐?⑸땲??
+            로그인하면 일정, 목표, 컨디션 기록을 계정에 안전하게 연결합니다.
           </p>
         </section>
       </div>
