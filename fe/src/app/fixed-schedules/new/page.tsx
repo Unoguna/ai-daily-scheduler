@@ -74,10 +74,11 @@ export default function FixedScheduleManagePage() {
           "/api/v1/schedules/fixed-schedules",
         );
         setFixedSchedules(schedules);
-      } catch {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        router.replace("/login");
+      } catch (error) {
+        setToast({
+          type: "error",
+          message: error instanceof Error ? error.message : "데이터를 불러오지 못했습니다.",
+        });
       }
     };
 

@@ -95,14 +95,7 @@ export default function Home() {
 
   const loadDashboard = async () => {
     await run(async () => {
-      let me: AuthUser;
-      try {
-        me = await request<AuthUser>("/api/v1/users/me");
-      } catch {
-        clearAuthState();
-        router.replace("/login");
-        throw new Error("로그인이 필요합니다.");
-      }
+      const me = await request<AuthUser>("/api/v1/users/me");
 
       const [goalList, fixedList] = await Promise.all([
         request<Goal[]>("/api/v1/goals"),

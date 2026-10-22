@@ -59,10 +59,11 @@ export default function GoalManagePage() {
         await request<AuthUser>("/api/v1/users/me");
         const goalList = await request<Goal[]>("/api/v1/goals");
         setGoals(goalList);
-      } catch {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        router.replace("/login");
+      } catch (error) {
+        setToast({
+          type: "error",
+          message: error instanceof Error ? error.message : "데이터를 불러오지 못했습니다.",
+        });
       }
     };
 
