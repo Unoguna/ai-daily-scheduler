@@ -13,6 +13,7 @@ import {
   SummaryPanels,
 } from "@/components/dashboard/SchedulePanels";
 import { request, today } from "@/lib/schedulerApi";
+import { getLoginDestination } from "@/lib/loginDestination";
 import type {
   AuthUser,
   ConfirmedSchedule,
@@ -96,6 +97,11 @@ export default function Home() {
   const loadDashboard = async () => {
     await run(async () => {
       const me = await request<AuthUser>("/api/v1/users/me");
+      const destination = await getLoginDestination();
+      if (destination !== "/") {
+        router.replace(destination);
+        return;
+      }
 
       const [goalList, fixedList] = await Promise.all([
         request<Goal[]>("/api/v1/goals"),

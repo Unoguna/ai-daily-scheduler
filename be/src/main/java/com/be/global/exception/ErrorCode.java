@@ -27,7 +27,8 @@ public enum ErrorCode {
 
     //Schedule
     INVALID_TIME_RANGE(HttpStatus.BAD_REQUEST, "S001", "시작 시간은 종료 시간보다 빨라야 합니다."),
-    SCHEDULING_PROFILE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "S002", "스케줄링 프로필이 이미 존재합니다.");
+    SCHEDULING_PROFILE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "S002", "스케줄링 프로필이 이미 존재합니다."),
+    SCHEDULING_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "S003", "프로필에서 스케줄링 프로필(기상·취침 시간, 집중·휴식 시간)을 먼저 저장해 주세요.");
 
 
     private final HttpStatus status;

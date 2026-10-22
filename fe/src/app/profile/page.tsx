@@ -3,19 +3,8 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  Input,
-  Panel,
-  Select,
-  SubmitButton,
-} from "@/components/dashboard/FormControls";
 import { request } from "@/lib/schedulerApi";
-import type {
-  AuthUser,
-  EnergyPattern,
-  SchedulingProfile,
-  SchedulingProfileForm,
-} from "@/types/scheduler";
+import type { AuthUser } from "@/types/scheduler";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -23,17 +12,6 @@ export default function ProfilePage() {
   const [name, setName] = useState("");
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [scheduleProfileForm, setScheduleProfileForm] =
-    useState<SchedulingProfileForm>({
-      preferredStartTime: "09:00:00",
-      preferredEndTime: "22:00:00",
-      wakeUpTime: "07:30:00",
-      sleepTime: "23:30:00",
-      energyPattern: "MORNING_TYPE",
-      preferredSessionMinutes: 50,
-      breakMinutes: 10,
-    });
-  const [hasSchedulingProfile, setHasSchedulingProfile] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
     type: "loading" | "success" | "error";
@@ -52,22 +30,6 @@ export default function ProfilePage() {
         setUser(me);
         setName(me.name);
 
-        const schedulingProfile =
-          await request<SchedulingProfile | null>(
-            "/api/v1/schedules/scheduling-profile",
-          );
-        if (schedulingProfile) {
-          setScheduleProfileForm({
-            preferredStartTime: schedulingProfile.preferredStartTime,
-            preferredEndTime: schedulingProfile.preferredEndTime,
-            wakeUpTime: schedulingProfile.wakeUpTime,
-            sleepTime: schedulingProfile.sleepTime,
-            energyPattern: schedulingProfile.energyPattern,
-            preferredSessionMinutes: schedulingProfile.preferredSessionMinutes,
-            breakMinutes: schedulingProfile.breakMinutes,
-          });
-          setHasSchedulingProfile(true);
-        }
       } catch (error) {
         setToast({
           type: "error",
@@ -133,22 +95,6 @@ export default function ProfilePage() {
       setProfileImageFile(null);
       setPreviewUrl(null);
     }, "개인정보를 수정했습니다.");
-  };
-
-  const submitSchedulingProfile = (event: FormEvent) => {
-    event.preventDefault();
-
-    void run(async () => {
-      const method = hasSchedulingProfile ? "PUT" : "POST";
-      await request<{ id: number } | SchedulingProfile>(
-        "/api/v1/schedules/scheduling-profile",
-        {
-          method,
-          body: JSON.stringify(scheduleProfileForm),
-        },
-      );
-      setHasSchedulingProfile(true);
-    }, "스케줄링 프로필을 저장했습니다.");
   };
 
   const run = async (action: () => Promise<void>, successMessage: string) => {
@@ -238,142 +184,11 @@ export default function ProfilePage() {
           </form>
         </section>
 
-        <Panel title="스케줄링 프로필">
-          <form
-            onSubmit={submitSchedulingProfile}
-            className="flex flex-col gap-4"
-          >
-            <div className="grid gap-3 md:grid-cols-2">
-              <Input
-                label="선호 시작"
-                type="time"
-                value={scheduleProfileForm.preferredStartTime.slice(0, 5)}
-                onChange={(value) =>
-                  setScheduleProfileForm((form) => ({
-                    ...form,
-                    preferredStartTime: `${value}:00`,
-                  }))
-                }
-              />
-              <Input
-                label="선호 종료"
-                type="time"
-                value={scheduleProfileForm.preferredEndTime.slice(0, 5)}
-                onChange={(value) =>
-                  setScheduleProfileForm((form) => ({
-                    ...form,
-                    preferredEndTime: `${value}:00`,
-                  }))
-                }
-              />
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-2">
-              <Input
-                label="기상"
-                type="time"
-                value={scheduleProfileForm.wakeUpTime.slice(0, 5)}
-                onChange={(value) =>
-                  setScheduleProfileForm((form) => ({
-                    ...form,
-                    wakeUpTime: `${value}:00`,
-                  }))
-                }
-              />
-              <Input
-                label="취침"
-                type="time"
-                value={scheduleProfileForm.sleepTime.slice(0, 5)}
-                onChange={(value) =>
-                  setScheduleProfileForm((form) => ({
-                    ...form,
-                    sleepTime: `${value}:00`,
-                  }))
-                }
-              />
-            </div>
-
-            <Select
-              label="에너지 패턴"
-              value={scheduleProfileForm.energyPattern}
-              options={[
-                "MORNING_TYPE",
-                "AFTERNOON_TYPE",
-                "EVENING_TYPE",
-                "IRREGULAR",
-              ]}
-              onChange={(value) =>
-                setScheduleProfileForm((form) => ({
-                  ...form,
-                  energyPattern: value as EnergyPattern,
-                }))
-              }
-            />
-
-            <div className="grid gap-3 md:grid-cols-2">
-              <MinuteField
-                label="집중 시간"
-                min={10}
-                max={300}
-                value={scheduleProfileForm.preferredSessionMinutes}
-                onChange={(value) =>
-                  setScheduleProfileForm((form) => ({
-                    ...form,
-                    preferredSessionMinutes: value,
-                  }))
-                }
-              />
-              <MinuteField
-                label="휴식 시간"
-                min={0}
-                max={180}
-                value={scheduleProfileForm.breakMinutes}
-                onChange={(value) =>
-                  setScheduleProfileForm((form) => ({
-                    ...form,
-                    breakMinutes: value,
-                  }))
-                }
-              />
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <SubmitButton label="스케줄링 프로필 저장" />
-            </div>
-          </form>
-        </Panel>
+        <Link href="/scheduling-profile" className="rounded-2xl border border-slate-200 bg-white p-5 font-semibold text-blue-600 shadow-sm">스케줄링 프로필 설정 →</Link>
 
         <StatusToast toast={toast} />
       </div>
     </main>
-  );
-}
-
-function MinuteField({
-  label,
-  value,
-  min,
-  max,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  onChange: (value: number) => void;
-}) {
-  return (
-    <label className="flex flex-col gap-1 text-sm font-semibold">
-      {label}
-      <input
-        type="number"
-        min={min}
-        max={max}
-        value={value}
-        onChange={(event) => onChange(Number(event.target.value))}
-        className="rounded-2xl border border-slate-200 bg-white px-3 py-2 font-normal"
-      />
-    </label>
   );
 }
 

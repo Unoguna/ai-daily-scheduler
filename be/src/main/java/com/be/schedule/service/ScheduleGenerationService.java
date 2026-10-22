@@ -49,7 +49,7 @@ public class ScheduleGenerationService {
         DailyCondition condition = dailyConditionRepository.findByUserIdAndDate(userId, scheduleDate)
                 .orElseThrow(() -> new BusinessException(ErrorCode.DAILY_CONDITION_NOT_FOUND));
         SchedulingProfile profile = schedulingProfileRepository.findByUserId(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.SCHEDULING_PROFILE_NOT_FOUND));
         FeedbackAdjustment feedbackAdjustment = dailyScheduleFeedbackRepository
                 .findTopByUserIdAndDateLessThanEqualOrderByDateDesc(userId, scheduleDate.minusDays(1))
                 .map(FeedbackAdjustment::from)

@@ -16,6 +16,7 @@ import type {
   ConditionForm,
   EmotionState,
   GeneratedSchedule,
+  SchedulingProfile,
 } from "@/types/scheduler";
 
 const GENERATED_SCHEDULE_STORAGE_KEY = "pendingGeneratedSchedule";
@@ -64,6 +65,12 @@ export default function DailyConditionPage() {
     event.preventDefault();
 
     void run(async () => {
+      const profile = await request<SchedulingProfile | null>(
+        "/api/v1/schedules/scheduling-profile",
+      );
+      if (!profile) {
+        throw new Error("스케줄링 프로필 설정 페이지에서 생활 패턴을 먼저 저장해 주세요.");
+      }
       await request<{ id: number }>("/api/v1/daily-conditions", {
         method: "POST",
         body: JSON.stringify({
@@ -120,6 +127,12 @@ export default function DailyConditionPage() {
         </header>
 
         <Panel title="일정 생성을 위한 컨디션 저장">
+          <p className="mb-4 text-sm text-slate-600">
+            처음 사용한다면 기상·취침 시간과 집중·휴식 시간을 먼저 저장해 주세요.{" "}
+            <Link href="/scheduling-profile" className="font-semibold text-blue-600 underline">
+              스케줄링 프로필 설정
+            </Link>
+          </p>
           <form
             onSubmit={submitConditionAndGenerate}
             className="flex flex-col gap-4"
