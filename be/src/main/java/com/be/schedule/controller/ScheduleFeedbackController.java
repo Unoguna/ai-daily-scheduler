@@ -16,6 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
 
 @Tag(name = "Schedule Feedback API", description = "Schedule feedback API")
 @RestController
@@ -24,6 +28,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class ScheduleFeedbackController {
 
     private final ScheduleFeedbackService scheduleFeedbackService;
+
+    @Operation(summary = "날짜별 피드백 조회", description = "선택한 날짜의 피드백과 분석 결과를 조회합니다. 미등록이면 null을 반환합니다.")
+    @GetMapping("")
+    public CommonResponse<ScheduleFeedbackResponse> getFeedback(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        return CommonResponse.success(scheduleFeedbackService.getFeedback(userPrincipal.getUserId(), date));
+    }
 
     @Operation(summary = "피드백 생성", description = "피드백을 생성합니다.")
     @PostMapping("")

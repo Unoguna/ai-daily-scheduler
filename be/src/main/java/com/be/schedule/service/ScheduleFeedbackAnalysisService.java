@@ -42,6 +42,7 @@ public class ScheduleFeedbackAnalysisService {
                     .prompt()
                     .system("""
                             You analyze Korean daily schedule feedback and return only compact JSON.
+                            Write summary in Korean, at most 1000 characters.
                             The JSON schema is:
                             {
                               "summary": "string",
@@ -76,6 +77,8 @@ public class ScheduleFeedbackAnalysisService {
         JsonNode root = objectMapper.readTree(content);
 
         String summary = root.path("summary").asText(fallbackAnalysis.summary());
+        if (summary.isBlank()) summary = fallbackAnalysis.summary();
+        if (summary.length() > 1000) summary = summary.substring(0, 1000);
         int sessionAdjustment = clamp(
                 root.path("sessionMinutesAdjustment").asInt(fallbackAnalysis.sessionMinutesAdjustment()),
                 -30,
@@ -206,17 +209,17 @@ public class ScheduleFeedbackAnalysisService {
             LocalTime avoidHeavyTasksAfter
     ) {
         StringBuilder summary = new StringBuilder();
-        summary.append("User feedback analyzed for schedule generation.");
+        summary.append("피드백을 분석해 다음 일정의 작업·휴식 시간을 조정합니다.");
         if (sessionAdjustment < 0) {
-            summary.append(" Shorter work sessions are recommended.");
+            summary.append(" 집중 시간을 짧게 나누는 것을 권장합니다.");
         } else if (sessionAdjustment > 0) {
-            summary.append(" Longer work sessions are acceptable.");
+            summary.append(" 집중 시간을 조금 늘려도 좋습니다.");
         }
         if (breakAdjustment > 0) {
-            summary.append(" More break time is recommended.");
+            summary.append(" 휴식 시간을 늘리는 것을 권장합니다.");
         }
         if (afternoonPenalty > 0 || avoidHeavyTasksAfter != null) {
-            summary.append(" Heavy tasks should be reduced in the afternoon.");
+            summary.append(" 오후에는 부담이 적은 목표를 우선하는 것을 권장합니다.");
         }
         return summary.toString();
     }

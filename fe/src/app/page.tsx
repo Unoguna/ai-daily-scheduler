@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DashboardHeader,
@@ -9,11 +9,11 @@ import {
 } from "@/components/dashboard/DashboardHeader";
 import {
   ConfirmedSchedulePanel,
-  FeedbackPanel,
   SummaryPanels,
 } from "@/components/dashboard/SchedulePanels";
 import { request, today } from "@/lib/schedulerApi";
 import { getLoginDestination } from "@/lib/loginDestination";
+import { FeedbackPanel } from "@/components/dashboard/FeedbackPanel";
 import { ScheduleChatPanel } from "@/components/dashboard/ScheduleChatPanel";
 import type {
   AuthUser,
@@ -36,10 +36,6 @@ export default function Home() {
   const [fixedSchedules, setFixedSchedules] = useState<FixedSchedule[]>([]);
   const [confirmed, setConfirmed] = useState<ConfirmedSchedule | null>(null);
   const [completionPending, setCompletionPending] = useState(false);
-  const [feedbackForm, setFeedbackForm] = useState({
-    satisfactionScore: 3,
-    rawFeedback: "",
-  });
 
   const activeGoals = useMemo(
     () => goals.filter((goal) => goal.status === "ACTIVE"),
@@ -139,21 +135,6 @@ export default function Home() {
 
   const openScheduleGenerationPage = () => {
     router.push(`/schedules/generate?date=${selectedDate}`);
-  };
-
-  const submitFeedback = (event: FormEvent) => {
-    event.preventDefault();
-    void run(async () => {
-      await request("/api/v1/schedules/feedback", {
-        method: "POST",
-        body: JSON.stringify({
-          date: selectedDate,
-          satisfactionScore: Number(feedbackForm.satisfactionScore),
-          rawFeedback: feedbackForm.rawFeedback,
-        }),
-      });
-      setFeedbackForm({ satisfactionScore: 3, rawFeedback: "" });
-    }, "피드백을 저장했습니다.");
   };
 
   const updateConfirmedScheduleItem = async (
@@ -256,11 +237,7 @@ export default function Home() {
               )}
             />
           )}
-          <FeedbackPanel
-            feedbackForm={feedbackForm}
-            setFeedbackForm={setFeedbackForm}
-            onSubmitFeedback={submitFeedback}
-          />
+          <FeedbackPanel key={selectedDate} date={selectedDate} />
         </div>
       </div>
     </main>

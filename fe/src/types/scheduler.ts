@@ -122,6 +122,16 @@ export type FeedbackForm = {
   rawFeedback: string;
 };
 
+export type ScheduleFeedback = FeedbackForm & {
+  feedbackId: number;
+  date: string;
+  aiSummary: string | null;
+  sessionMinutesAdjustment: number;
+  breakMinutesAdjustment: number;
+  afternoonFocusPenalty: number;
+  avoidHeavyTasksAfter: string | null;
+};
+
 export type SchedulingProfileForm = {
   preferredStartTime: string;
   preferredEndTime: string;

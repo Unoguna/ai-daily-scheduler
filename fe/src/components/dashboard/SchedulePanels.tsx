@@ -1,17 +1,12 @@
-import type { Dispatch, FormEvent, SetStateAction } from "react";
 import { useState } from "react";
 import Link from "next/link";
 import {
   ListEmpty,
-  NumberField,
   Panel,
-  SubmitButton,
-  TextArea,
 } from "@/components/dashboard/FormControls";
 import { CircularTimetable } from "@/components/dashboard/Timeline";
 import type {
   ConfirmedSchedule,
-  FeedbackForm,
   FixedSchedule,
   Goal,
   ScheduleItem,
@@ -190,42 +185,6 @@ export function ConfirmedSchedulePanel({
           </div>
         </div>
       )}
-    </Panel>
-  );
-}
-
-export function FeedbackPanel({
-  feedbackForm,
-  setFeedbackForm,
-  onSubmitFeedback,
-}: {
-  feedbackForm: FeedbackForm;
-  setFeedbackForm: Dispatch<SetStateAction<FeedbackForm>>;
-  onSubmitFeedback: (event: FormEvent) => void;
-}) {
-  return (
-    <Panel title="하루 피드백">
-      <form onSubmit={onSubmitFeedback} className="flex flex-col gap-3">
-        <NumberField
-          label="만족도"
-          value={feedbackForm.satisfactionScore}
-          onChange={(value) =>
-            setFeedbackForm((form) => ({
-              ...form,
-              satisfactionScore: value,
-            }))
-          }
-        />
-        <TextArea
-          label="피드백"
-          value={feedbackForm.rawFeedback}
-          onChange={(value) =>
-            setFeedbackForm((form) => ({ ...form, rawFeedback: value }))
-          }
-          required
-        />
-        <SubmitButton label="피드백 저장" />
-      </form>
     </Panel>
   );
 }

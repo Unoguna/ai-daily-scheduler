@@ -8,7 +8,6 @@ import com.be.goal.domain.Goal;
 import com.be.goal.domain.GoalPriority;
 import com.be.goal.domain.GoalStatus;
 import com.be.goal.repository.GoalRepository;
-import com.be.schedule.domain.DailyScheduleFeedback;
 import com.be.schedule.domain.DailyTimeWindow;
 import com.be.schedule.domain.FixedSchedule;
 import com.be.schedule.domain.ScheduleItemType;
@@ -52,10 +51,8 @@ public class ScheduleGenerationService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.DAILY_CONDITION_NOT_FOUND));
         SchedulingProfile profile = schedulingProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.SCHEDULING_PROFILE_NOT_FOUND));
-        FeedbackAdjustment feedbackAdjustment = dailyScheduleFeedbackRepository
-                .findTopByUserIdAndDateLessThanEqualOrderByDateDesc(userId, scheduleDate.minusDays(1))
-                .map(FeedbackAdjustment::from)
-                .orElse(FeedbackAdjustment.none());
+        FeedbackAdjustment feedbackAdjustment = FeedbackAdjustment.from(dailyScheduleFeedbackRepository
+                .findByUserIdAndDateGreaterThanEqualAndDateLessThanOrderByDateDesc(userId, scheduleDate.minusDays(7), scheduleDate));
 
         var windows = DailyTimeWindow.intersect(profile.getWakeUpTime(), profile.getSleepTime(),
                 profile.getPreferredStartTime(), profile.getPreferredEndTime());
@@ -96,6 +93,12 @@ public class ScheduleGenerationService {
                 .toList();
 
         List<String> notices = new ArrayList<>();
+        if (feedbackAdjustment.sampleCount() > 0) {
+            notices.add(String.format("생성일 전 7일의 피드백 %d건 평균을 반영했습니다. 집중 시간 %+d분, 휴식 시간 %+d분 조정(컨디션 및 최소·최대 시간 제한 적용).",
+                    feedbackAdjustment.sampleCount(), feedbackAdjustment.sessionMinutesAdjustment(), feedbackAdjustment.breakMinutesAdjustment()));
+            if (feedbackAdjustment.lighterTasksAfter() != null)
+                notices.add("최근 피드백에 따라 " + feedbackAdjustment.lighterTasksAfter() + " 이후에는 가벼운 목표를 우선합니다. 대체 목표가 없으면 기존 목표를 배치합니다.");
+        }
         if (profile.getSleepTime().isBefore(profile.getWakeUpTime())
                 || profile.getPreferredEndTime().isBefore(profile.getPreferredStartTime())) {
             notices.add("자정을 넘는 생활 패턴은 선택한 날짜의 00:00~23:59 범위로 나누어 생성합니다. 새벽 일정도 선택한 날짜에 속합니다.");
@@ -192,15 +195,17 @@ public class ScheduleGenerationService {
             LocalTime cursor,
             FeedbackAdjustment feedbackAdjustment
     ) {
-        if (feedbackAdjustment.avoidHeavyTasksAfter() == null
-                || cursor.isBefore(feedbackAdjustment.avoidHeavyTasksAfter())) {
+        boolean preferLighter = feedbackAdjustment.lighterTasksAfter() != null
+                && !cursor.isBefore(feedbackAdjustment.lighterTasksAfter());
+        if (!preferLighter) {
             return goalCandidates.get(goalIndex % goalCandidates.size());
         }
 
-        return goalCandidates.stream()
+        var lighter = goalCandidates.stream()
                 .filter(candidate -> candidate.goal().getPriority() != GoalPriority.HIGH)
-                .findFirst()
-                .orElse(goalCandidates.get(goalIndex % goalCandidates.size()));
+                .toList();
+        var candidates = lighter.isEmpty() ? goalCandidates : lighter;
+        return candidates.get(goalIndex % candidates.size());
     }
 
     private List<TimeBlock> calculateAvailableBlocks(
@@ -313,23 +318,4 @@ public class ScheduleGenerationService {
     private record GoalCandidate(Goal goal, int score) {
     }
 
-    private record FeedbackAdjustment(
-            int sessionMinutesAdjustment,
-            int breakMinutesAdjustment,
-            int afternoonFocusPenalty,
-            LocalTime avoidHeavyTasksAfter
-    ) {
-        static FeedbackAdjustment from(DailyScheduleFeedback feedback) {
-            return new FeedbackAdjustment(
-                    feedback.getSessionMinutesAdjustment(),
-                    feedback.getBreakMinutesAdjustment(),
-                    feedback.getAfternoonFocusPenalty(),
-                    feedback.getAvoidHeavyTasksAfter()
-            );
-        }
-
-        static FeedbackAdjustment none() {
-            return new FeedbackAdjustment(0, 0, 0, null);
-        }
-    }
 }

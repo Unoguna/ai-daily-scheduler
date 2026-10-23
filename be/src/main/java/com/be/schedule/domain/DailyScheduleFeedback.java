@@ -82,6 +82,18 @@ public class DailyScheduleFeedback {
         this.avoidHeavyTasksAfter = avoidHeavyTasksAfter;
     }
 
+    public void update(Integer satisfactionScore, String rawFeedback, String aiSummary,
+                       Integer sessionMinutesAdjustment, Integer breakMinutesAdjustment,
+                       Integer afternoonFocusPenalty, LocalTime avoidHeavyTasksAfter) {
+        this.satisfactionScore = satisfactionScore;
+        this.rawFeedback = rawFeedback;
+        this.aiSummary = aiSummary;
+        this.sessionMinutesAdjustment = sessionMinutesAdjustment;
+        this.breakMinutesAdjustment = breakMinutesAdjustment;
+        this.afternoonFocusPenalty = afternoonFocusPenalty;
+        this.avoidHeavyTasksAfter = avoidHeavyTasksAfter;
+    }
+
     public static DailyScheduleFeedback create(
             User user,
             LocalDate date,

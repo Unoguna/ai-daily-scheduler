@@ -36,7 +36,7 @@ class ScheduleGenerationBoundaryTest {
     void setup() {
         when(users.findById(1L)).thenReturn(Optional.of(user));
         when(conditions.findByUserIdAndDate(1L, date)).thenReturn(Optional.of(DailyCondition.create(user, date, 3, 3, EmotionState.NEUTRAL, null)));
-        when(feedback.findTopByUserIdAndDateLessThanEqualOrderByDateDesc(1L, date.minusDays(1))).thenReturn(Optional.empty());
+        when(feedback.findByUserIdAndDateGreaterThanEqualAndDateLessThanOrderByDateDesc(1L, date.minusDays(7), date)).thenReturn(List.of());
         when(fixed.findByUserIdAndDayOfWeek(1L, date.getDayOfWeek())).thenReturn(List.of());
         profile("07:30", "23:30", "09:00", "22:00", 50);
         when(goals.findByUserId(1L)).thenReturn(List.of(goal(1L)));
