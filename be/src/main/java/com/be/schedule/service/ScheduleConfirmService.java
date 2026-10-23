@@ -102,7 +102,7 @@ public class ScheduleConfirmService {
     }
 
     private ConfirmedSchedule getConfirmedSchedule(Long userId, Long scheduleId) {
-        return confirmedScheduleRepository.findByIdAndUserId(scheduleId, userId)
+        return confirmedScheduleRepository.findForUpdate(scheduleId, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
     }
 

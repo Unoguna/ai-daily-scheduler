@@ -14,6 +14,7 @@ import {
 } from "@/components/dashboard/SchedulePanels";
 import { request, today } from "@/lib/schedulerApi";
 import { getLoginDestination } from "@/lib/loginDestination";
+import { ScheduleChatPanel } from "@/components/dashboard/ScheduleChatPanel";
 import type {
   AuthUser,
   ConfirmedSchedule,
@@ -245,6 +246,16 @@ export default function Home() {
             onChangeCompletion={changeCompletion}
             completionPending={completionPending}
           />
+          {confirmed && confirmed.date === selectedDate && (
+            <ScheduleChatPanel
+              key={`${confirmed.confirmedScheduleId}-${confirmed.date}`}
+              confirmed={confirmed}
+              disabled={completionPending}
+              onApplied={(updated) => setConfirmed((current) =>
+                current?.confirmedScheduleId === updated.confirmedScheduleId ? updated : current,
+              )}
+            />
+          )}
           <FeedbackPanel
             feedbackForm={feedbackForm}
             setFeedbackForm={setFeedbackForm}

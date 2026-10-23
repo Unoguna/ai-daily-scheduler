@@ -88,6 +88,17 @@ export type ConditionForm = {
   memo: string;
 };
 
+export type ScheduleChangePreview = {
+  proposalId: string;
+  summary: string;
+  before: ConfirmedSchedule;
+  after: {
+    confirmedScheduleId: number;
+    date: string;
+    items: Array<ScheduleItem & { scheduleItemId: number | null; sequence: number; completed: boolean }>;
+  };
+};
+
 export type GoalForm = {
   title: string;
   description: string;

@@ -28,7 +28,12 @@ public enum ErrorCode {
     //Schedule
     INVALID_TIME_RANGE(HttpStatus.BAD_REQUEST, "S001", "시작 시간은 종료 시간보다 빨라야 합니다."),
     SCHEDULING_PROFILE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "S002", "스케줄링 프로필이 이미 존재합니다."),
-    SCHEDULING_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "S003", "프로필에서 스케줄링 프로필(기상·취침 시간, 집중·휴식 시간)을 먼저 저장해 주세요.");
+    SCHEDULING_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "S003", "프로필에서 스케줄링 프로필(기상·취침 시간, 집중·휴식 시간)을 먼저 저장해 주세요."),
+    INVALID_SCHEDULE_CHANGE(HttpStatus.BAD_REQUEST, "S004", "변경안을 만들 수 없습니다. 대상 일정과 시간을 구체적으로 입력해 주세요."),
+    SCHEDULE_CHANGE_CONFLICT(HttpStatus.CONFLICT, "S005", "변경 후 시간이 겹치거나 고정 일정과 충돌합니다. 다른 시간을 요청해 주세요."),
+    SCHEDULE_CHANGE_PROTECTED(HttpStatus.BAD_REQUEST, "S006", "고정 일정과 완료한 일정은 대화로 변경할 수 없습니다."),
+    STALE_SCHEDULE_CHANGE(HttpStatus.CONFLICT, "S007", "일정이 변경되었거나 변경안이 만료되었습니다. 새 변경안을 만들어 주세요."),
+    SCHEDULE_AI_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "S008", "AI 변경안 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.");
 
 
     private final HttpStatus status;

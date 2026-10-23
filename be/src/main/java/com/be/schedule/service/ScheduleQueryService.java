@@ -20,6 +20,12 @@ public class ScheduleQueryService {
     private final UserRepository userRepository;
     private final ConfirmedScheduleRepository confirmedScheduleRepository;
 
+    public ConfirmedScheduleResponse getSchedule(Long userId, Long scheduleId) {
+        return confirmedScheduleRepository.findByIdAndUserId(scheduleId, userId)
+                .map(ConfirmedScheduleResponse::from)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+    }
+
     public ConfirmedScheduleResponse getDailySchedule(Long userId, LocalDate date) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
