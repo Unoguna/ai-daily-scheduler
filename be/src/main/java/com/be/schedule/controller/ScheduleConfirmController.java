@@ -6,6 +6,7 @@ import com.be.global.security.UserPrincipal;
 import com.be.schedule.dto.ConfirmedScheduleResponse;
 import com.be.schedule.dto.ScheduleConfirmItemRequest;
 import com.be.schedule.dto.ScheduleConfirmRequest;
+import com.be.schedule.dto.ScheduleCompletionRequest;
 import com.be.schedule.service.ScheduleConfirmService;
 import com.be.schedule.service.ScheduleQueryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,6 +50,18 @@ public class ScheduleConfirmController {
                 date
         );
         return CommonResponse.success(response);
+    }
+
+    @Operation(summary = "일정 완료 상태 변경", description = "일정 완료 체크 또는 취소를 저장합니다.")
+    @PatchMapping("/{scheduleId}/items/{itemId}/completion")
+    public CommonResponse<ConfirmedScheduleResponse> updateCompletion(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long scheduleId,
+            @PathVariable Long itemId,
+            @Valid @RequestBody ScheduleCompletionRequest request
+    ) {
+        return CommonResponse.success(scheduleConfirmService.updateCompletion(
+                userPrincipal.getUserId(), scheduleId, itemId, request.completed()));
     }
 
     @Operation(summary = "일정 확정", description = "당일 일정을 확정짓는다.")

@@ -82,6 +82,12 @@ public class ScheduleConfirmService {
         return ConfirmedScheduleResponse.from(confirmedSchedule);
     }
 
+    public ConfirmedScheduleResponse updateCompletion(Long userId, Long scheduleId, Long itemId, boolean completed) {
+        ConfirmedSchedule confirmedSchedule = getConfirmedSchedule(userId, scheduleId);
+        getConfirmedScheduleItem(confirmedSchedule, itemId).setCompleted(completed);
+        return ConfirmedScheduleResponse.from(confirmedSchedule);
+    }
+
     public ConfirmedScheduleResponse deleteConfirmedScheduleItem(Long userId, Long scheduleId, Long itemId) {
         ConfirmedSchedule confirmedSchedule = getConfirmedSchedule(userId, scheduleId);
         ConfirmedScheduleItem item = getConfirmedScheduleItem(confirmedSchedule, itemId);

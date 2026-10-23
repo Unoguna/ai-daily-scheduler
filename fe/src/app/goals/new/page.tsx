@@ -27,6 +27,12 @@ const initialForm: GoalForm = {
 };
 
 const statusOrder: GoalStatus[] = ["ACTIVE", "COMPLETED", "INACTIVE"];
+const statusLabels: Record<GoalStatus, string> = {
+  ACTIVE: "활성", COMPLETED: "완료", INACTIVE: "비활성",
+};
+const statusActions: Record<GoalStatus, string> = {
+  ACTIVE: "다시 활성화", COMPLETED: "완료 처리", INACTIVE: "비활성화",
+};
 
 export default function GoalManagePage() {
   const router = useRouter();
@@ -36,6 +42,7 @@ export default function GoalManagePage() {
   } | null>(null);
   const [form, setForm] = useState<GoalForm>(initialForm);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [changingStatus, setChangingStatus] = useState(false);
   const [editingGoalId, setEditingGoalId] = useState<number | null>(null);
 
   const groupedGoals = useMemo(
@@ -145,6 +152,22 @@ export default function GoalManagePage() {
     }, editingGoalId ? "목표를 수정했습니다." : "목표를 추가했습니다.");
   };
 
+  const changeGoalStatus = async (goalId: number, status: GoalStatus) => {
+    if (changingStatus) return;
+    setChangingStatus(true);
+    try {
+      await run(async () => {
+        const updated = await request<Goal>(`/api/v1/goals/${goalId}/status`, {
+          method: "PATCH",
+          body: JSON.stringify({ status }),
+        });
+        setGoals((current) => current.map((goal) => goal.goalId === goalId ? updated : goal));
+      }, `목표를 ${statusLabels[status]} 상태로 변경했습니다.`);
+    } finally {
+      setChangingStatus(false);
+    }
+  };
+
   const deleteGoal = (goalId: number) => {
     void run(async () => {
       await request<void>(`/api/v1/goals/${goalId}`, { method: "DELETE" });
@@ -246,7 +269,7 @@ export default function GoalManagePage() {
                   className="rounded-2xl border border-slate-200 bg-white p-3"
                 >
                   <div className="mb-3 flex items-center justify-between">
-                    <h3 className="font-bold text-slate-950">{status}</h3>
+                    <h3 className="font-bold text-slate-950">{statusLabels[status]}</h3>
                     <span className="text-xs font-semibold text-slate-500">
                       {statusGoals.length}개
                     </span>
@@ -290,6 +313,20 @@ export default function GoalManagePage() {
                                 삭제
                               </button>
                             </div>
+                          </div>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {statusOrder.filter((next) => next !== goal.status).map((next) => (
+                              <button
+                                key={next}
+                                type="button"
+                                disabled={changingStatus}
+                                aria-label={`${goal.title} ${statusActions[next]}`}
+                                onClick={() => void changeGoalStatus(goal.goalId, next)}
+                                className="rounded-xl border border-blue-200 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:opacity-50"
+                              >
+                                {statusActions[next]}
+                              </button>
+                            ))}
                           </div>
                         </div>
                       ))}

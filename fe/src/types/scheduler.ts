@@ -78,7 +78,7 @@ export type GeneratedSchedule = {
 export type ConfirmedSchedule = {
   confirmedScheduleId: number;
   date: string;
-  items: Array<ScheduleItem & { scheduleItemId: number; sequence: number }>;
+  items: Array<ScheduleItem & { scheduleItemId: number; sequence: number; completed: boolean }>;
 };
 
 export type ConditionForm = {

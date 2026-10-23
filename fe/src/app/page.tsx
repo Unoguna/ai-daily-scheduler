@@ -34,6 +34,7 @@ export default function Home() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [fixedSchedules, setFixedSchedules] = useState<FixedSchedule[]>([]);
   const [confirmed, setConfirmed] = useState<ConfirmedSchedule | null>(null);
+  const [completionPending, setCompletionPending] = useState(false);
   const [feedbackForm, setFeedbackForm] = useState({
     satisfactionScore: 3,
     rawFeedback: "",
@@ -198,6 +199,23 @@ export default function Home() {
     }, "일정을 삭제했습니다.");
   };
 
+  const changeCompletion = async (itemId: number, completed: boolean) => {
+    if (!confirmed || completionPending) return;
+    const scheduleId = confirmed.confirmedScheduleId;
+    setCompletionPending(true);
+    try {
+      await run(async () => {
+        const updated = await request<ConfirmedSchedule>(
+          `/api/v1/schedules/${scheduleId}/items/${itemId}/completion`,
+          { method: "PATCH", body: JSON.stringify({ completed }) },
+        );
+        setConfirmed((current) => current?.confirmedScheduleId === scheduleId ? updated : current);
+      }, completed ? "일정을 완료했습니다." : "일정 완료를 취소했습니다.");
+    } finally {
+      setCompletionPending(false);
+    }
+  };
+
   if (!token) {
     return null;
   }
@@ -219,10 +237,13 @@ export default function Home() {
             fixedSchedules={fixedSchedules}
           />
           <ConfirmedSchedulePanel
+            key={selectedDate}
             confirmed={confirmed}
             onCreateSchedule={openScheduleGenerationPage}
             onUpdateScheduleItem={updateConfirmedScheduleItem}
             onDeleteScheduleItem={deleteConfirmedScheduleItem}
+            onChangeCompletion={changeCompletion}
+            completionPending={completionPending}
           />
           <FeedbackPanel
             feedbackForm={feedbackForm}

@@ -5,6 +5,7 @@ import com.be.global.response.IdResponse;
 import com.be.global.security.UserPrincipal;
 import com.be.goal.dto.GoalResponse;
 import com.be.goal.dto.GoalUpdateRequest;
+import com.be.goal.dto.GoalStatusUpdateRequest;
 import com.be.goal.service.GoalService;
 import com.be.goal.dto.GoalCreateRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -65,6 +66,16 @@ public class GoalController {
     ) {
         GoalResponse response = goalService.updateGoal(userPrincipal.getUserId(), goalId, request);
         return CommonResponse.success(response);
+    }
+
+    @Operation(summary = "목표 상태 변경", description = "목표를 활성화, 완료 또는 비활성화합니다.")
+    @PatchMapping("/{goalId}/status")
+    public CommonResponse<GoalResponse> updateGoalStatus(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long goalId,
+            @Valid @RequestBody GoalStatusUpdateRequest request
+    ) {
+        return CommonResponse.success(goalService.updateGoalStatus(userPrincipal.getUserId(), goalId, request));
     }
 
     @Operation(summary = "목표 삭제", description = "로그인 사용자의 목표를 삭제합니다.")

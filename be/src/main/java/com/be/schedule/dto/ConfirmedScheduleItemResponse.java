@@ -14,7 +14,8 @@ public record ConfirmedScheduleItemResponse(
         LocalTime endTime,
         Long goalId,
         Long fixedScheduleId,
-        String description
+        String description,
+        boolean completed
 ) {
     public static ConfirmedScheduleItemResponse from(ConfirmedScheduleItem item) {
         return new ConfirmedScheduleItemResponse(
@@ -26,7 +27,8 @@ public record ConfirmedScheduleItemResponse(
                 item.getEndTime(),
                 item.getGoalId(),
                 item.getFixedScheduleId(),
-                item.getDescription()
+                item.getDescription(),
+                item.isCompleted()
         );
     }
 }

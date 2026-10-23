@@ -6,6 +6,7 @@ import com.be.goal.domain.Goal;
 import com.be.goal.dto.GoalCreateRequest;
 import com.be.goal.dto.GoalResponse;
 import com.be.goal.dto.GoalUpdateRequest;
+import com.be.goal.dto.GoalStatusUpdateRequest;
 import com.be.goal.repository.GoalRepository;
 import com.be.user.domain.User;
 import com.be.user.repository.UserRepository;
@@ -68,6 +69,18 @@ public class GoalService {
                 request.targetDate()
         );
 
+        return GoalResponse.from(goal);
+    }
+
+    public GoalResponse updateGoalStatus(Long userId, Long goalId, GoalStatusUpdateRequest request) {
+        getUser(userId);
+        Goal goal = goalRepository.findByIdAndUserId(goalId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ENTITY_NOT_FOUND));
+        switch (request.status()) {
+            case ACTIVE -> goal.activate();
+            case COMPLETED -> goal.complete();
+            case INACTIVE -> goal.deactivate();
+        }
         return GoalResponse.from(goal);
     }
 

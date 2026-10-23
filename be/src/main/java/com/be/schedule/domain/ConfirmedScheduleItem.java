@@ -56,6 +56,9 @@ public class ConfirmedScheduleItem {
     @Column(length = 500)
     private String description;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean completed;
+
     private ConfirmedScheduleItem(
             Integer sequence,
             ScheduleItemType type,
@@ -91,7 +94,13 @@ public class ConfirmedScheduleItem {
     }
 
     ConfirmedScheduleItem copyWithTime(Integer sequence, LocalTime startTime, LocalTime endTime) {
-        return create(sequence, type, title, startTime, endTime, goalId, fixedScheduleId, description);
+        ConfirmedScheduleItem copy = create(sequence, type, title, startTime, endTime, goalId, fixedScheduleId, description);
+        copy.setCompleted(completed);
+        return copy;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 
     void assignConfirmedSchedule(ConfirmedSchedule confirmedSchedule) {

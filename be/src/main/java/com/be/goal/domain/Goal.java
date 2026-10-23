@@ -72,4 +72,8 @@ public class Goal {
     public void deactivate() {
         this.status = GoalStatus.INACTIVE;
     }
+
+    public void activate() {
+        this.status = GoalStatus.ACTIVE;
+    }
 }
