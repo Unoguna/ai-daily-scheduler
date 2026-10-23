@@ -132,6 +132,19 @@ export type ScheduleFeedback = FeedbackForm & {
   avoidHeavyTasksAfter: string | null;
 };
 
+export type CompletionCounts = {
+  totalCount: number;
+  completedCount: number;
+  incompleteCount: number;
+  completionRate: number | null;
+};
+
+export type WeeklyCompletion = CompletionCounts & {
+  weekStart: string;
+  weekEnd: string;
+  days: Array<CompletionCounts & { date: string }>;
+};
+
 export type SchedulingProfileForm = {
   preferredStartTime: string;
   preferredEndTime: string;

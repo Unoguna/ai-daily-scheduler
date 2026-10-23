@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DashboardHeader,
@@ -15,6 +15,7 @@ import { request, today } from "@/lib/schedulerApi";
 import { getLoginDestination } from "@/lib/loginDestination";
 import { FeedbackPanel } from "@/components/dashboard/FeedbackPanel";
 import { ScheduleChatPanel } from "@/components/dashboard/ScheduleChatPanel";
+import { WeeklyCompletionPanel } from "@/components/dashboard/WeeklyCompletionPanel";
 import type {
   AuthUser,
   ConfirmedSchedule,
@@ -27,6 +28,12 @@ export default function Home() {
   const router = useRouter();
   const [token, setToken] = useState("");
   const [selectedDate, setSelectedDate] = useState(today());
+  const selectedDateRef = useRef(selectedDate);
+  const selectDate = (date: string) => {
+    if (!date) return;
+    selectedDateRef.current = date;
+    setSelectedDate(date);
+  };
   const [toast, setToast] = useState<{
     message: string;
     type: "loading" | "success" | "error";
@@ -36,6 +43,7 @@ export default function Home() {
   const [fixedSchedules, setFixedSchedules] = useState<FixedSchedule[]>([]);
   const [confirmed, setConfirmed] = useState<ConfirmedSchedule | null>(null);
   const [completionPending, setCompletionPending] = useState(false);
+  const [statisticsRevision, setStatisticsRevision] = useState(0);
 
   const activeGoals = useMemo(
     () => goals.filter((goal) => goal.status === "ACTIVE"),
@@ -113,9 +121,9 @@ export default function Home() {
         const dailySchedule = await request<ConfirmedSchedule | null>(
           `/api/v1/schedules?date=${selectedDate}`,
         );
-        setConfirmed(dailySchedule);
+        if (selectedDateRef.current === selectedDate) setConfirmed(dailySchedule);
       } catch {
-        setConfirmed(null);
+        if (selectedDateRef.current === selectedDate) setConfirmed(null);
       }
     }, "데이터를 불러왔습니다.");
   };
@@ -141,7 +149,7 @@ export default function Home() {
     index: number,
     item: ScheduleItem,
   ) => {
-    if (!confirmed) return;
+    if (!confirmed || confirmed.date !== selectedDate) return;
 
     const selectedItem = confirmed.items[index];
     if (!selectedItem) return;
@@ -162,12 +170,15 @@ export default function Home() {
           }),
         },
       );
-      setConfirmed(updated);
+      setConfirmed((current) => current?.confirmedScheduleId === updated.confirmedScheduleId
+        && updated.date === selectedDateRef.current ? updated : current);
+      setStatisticsRevision((value) => value + 1);
     }, "일정을 수정했습니다.");
   };
 
   const deleteConfirmedScheduleItem = async (index: number) => {
-    if (!confirmed) return;
+    if (!confirmed || confirmed.date !== selectedDate) return;
+    const scheduleId = confirmed.confirmedScheduleId;
 
     const selectedItem = confirmed.items[index];
     if (!selectedItem) return;
@@ -177,12 +188,14 @@ export default function Home() {
         `/api/v1/schedules/${confirmed.confirmedScheduleId}/items/${selectedItem.scheduleItemId}`,
         { method: "DELETE" },
       );
-      setConfirmed(updated);
+      setConfirmed((current) => current?.confirmedScheduleId === scheduleId
+        && current.date === selectedDateRef.current ? updated : current);
+      setStatisticsRevision((value) => value + 1);
     }, "일정을 삭제했습니다.");
   };
 
   const changeCompletion = async (itemId: number, completed: boolean) => {
-    if (!confirmed || completionPending) return;
+    if (!confirmed || confirmed.date !== selectedDate || completionPending) return;
     const scheduleId = confirmed.confirmedScheduleId;
     setCompletionPending(true);
     try {
@@ -191,7 +204,9 @@ export default function Home() {
           `/api/v1/schedules/${scheduleId}/items/${itemId}/completion`,
           { method: "PATCH", body: JSON.stringify({ completed }) },
         );
-        setConfirmed((current) => current?.confirmedScheduleId === scheduleId ? updated : current);
+        setConfirmed((current) => current?.confirmedScheduleId === scheduleId
+          && updated.date === selectedDateRef.current ? updated : current);
+        setStatisticsRevision((value) => value + 1);
       }, completed ? "일정을 완료했습니다." : "일정 완료를 취소했습니다.");
     } finally {
       setCompletionPending(false);
@@ -208,7 +223,7 @@ export default function Home() {
         <DashboardHeader user={user} onLogout={logout} />
         <DateToolbar
           selectedDate={selectedDate}
-          onDateChange={(value) => { if (value) setSelectedDate(value); }}
+          onDateChange={selectDate}
           isAuthenticated={Boolean(user)}
         />
         <StatusMessage toast={toast} />
@@ -218,9 +233,14 @@ export default function Home() {
             activeGoals={activeGoals}
             fixedSchedules={fixedSchedules}
           />
+          <WeeklyCompletionPanel
+            date={selectedDate}
+            revision={statisticsRevision}
+            onDateChange={selectDate}
+          />
           <ConfirmedSchedulePanel
             key={selectedDate}
-            confirmed={confirmed}
+            confirmed={confirmed?.date === selectedDate ? confirmed : null}
             onCreateSchedule={openScheduleGenerationPage}
             onUpdateScheduleItem={updateConfirmedScheduleItem}
             onDeleteScheduleItem={deleteConfirmedScheduleItem}
@@ -232,9 +252,11 @@ export default function Home() {
               key={`${confirmed.confirmedScheduleId}-${confirmed.date}`}
               confirmed={confirmed}
               disabled={completionPending}
-              onApplied={(updated) => setConfirmed((current) =>
-                current?.confirmedScheduleId === updated.confirmedScheduleId ? updated : current,
-              )}
+              onApplied={(updated) => {
+                setConfirmed((current) => current?.confirmedScheduleId === updated.confirmedScheduleId
+                  && updated.date === selectedDateRef.current ? updated : current);
+                setStatisticsRevision((value) => value + 1);
+              }}
             />
           )}
           <FeedbackPanel key={selectedDate} date={selectedDate} />
