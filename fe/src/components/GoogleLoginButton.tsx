@@ -1,5 +1,7 @@
 "use client";
 
+import { socialAuthorizationUrl } from "@/lib/oauthState";
+
 export default function GoogleLoginButton() {
   const handleLogin = () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -10,14 +12,11 @@ export default function GoogleLoginButton() {
       return;
     }
 
-    const googleAuthUrl =
-      `https://accounts.google.com/o/oauth2/v2/auth` +
-      `?response_type=code` +
-      `&client_id=${clientId}` +
-      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-      `&scope=${encodeURIComponent("openid email profile")}`;
-
-    window.location.href = googleAuthUrl;
+    try {
+      window.location.href = socialAuthorizationUrl("google", clientId, redirectUri);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "로그인을 시작할 수 없습니다.");
+    }
   };
 
   return (

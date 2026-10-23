@@ -1,5 +1,7 @@
 "use client";
 
+import { socialAuthorizationUrl } from "@/lib/oauthState";
+
 export default function KakaoLoginButton() {
   const handleLogin = () => {
     const clientId = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
@@ -10,13 +12,11 @@ export default function KakaoLoginButton() {
       return;
     }
 
-    const kakaoAuthUrl =
-      `https://kauth.kakao.com/oauth/authorize` +
-      `?response_type=code` +
-      `&client_id=${clientId}` +
-      `&redirect_uri=${encodeURIComponent(redirectUri)}`;
-
-    window.location.href = kakaoAuthUrl;
+    try {
+      window.location.href = socialAuthorizationUrl("kakao", clientId, redirectUri);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "로그인을 시작할 수 없습니다.");
+    }
   };
 
   return (
