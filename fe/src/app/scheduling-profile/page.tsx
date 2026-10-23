@@ -82,6 +82,7 @@ export default function SchedulingProfilePage() {
           <p className="text-sm font-semibold text-blue-600">Haru Planner</p>
           <h1 className="mt-2 text-2xl font-semibold">나에게 맞는 하루 설정</h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">일정을 만들기 전에 생활 패턴을 알려주세요. 저장한 설정은 이후에도 수정할 수 있습니다.</p>
+          <p className="mt-2 text-xs leading-5 text-slate-500">취침·선호 종료 시간이 시작 시간보다 이르면 자정을 넘는 구간으로 처리합니다. 일정은 선택한 날짜의 00:00~23:59 기준이며, 새벽 일정도 해당 날짜에 표시합니다.</p>
           {hasSchedulingProfile && <Link href="/" className="mt-4 inline-block text-sm text-blue-600 underline">대시보드로</Link>}
         </header>
         {!loaded ? (

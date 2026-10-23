@@ -33,7 +33,9 @@ public enum ErrorCode {
     SCHEDULE_CHANGE_CONFLICT(HttpStatus.CONFLICT, "S005", "변경 후 시간이 겹치거나 고정 일정과 충돌합니다. 다른 시간을 요청해 주세요."),
     SCHEDULE_CHANGE_PROTECTED(HttpStatus.BAD_REQUEST, "S006", "고정 일정과 완료한 일정은 대화로 변경할 수 없습니다."),
     STALE_SCHEDULE_CHANGE(HttpStatus.CONFLICT, "S007", "일정이 변경되었거나 변경안이 만료되었습니다. 새 변경안을 만들어 주세요."),
-    SCHEDULE_AI_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "S008", "AI 변경안 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    SCHEDULE_AI_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "S008", "AI 변경안 생성에 실패했습니다. 잠시 후 다시 시도해 주세요."),
+    FIXED_SCHEDULE_OVERLAP(HttpStatus.CONFLICT, "S009", "고정 일정끼리 시간이 겹칩니다. 고정 일정 관리에서 시간을 조정해 주세요."),
+    INVALID_SCHEDULING_WINDOW(HttpStatus.BAD_REQUEST, "S010", "기상·취침 시간과 선호 활동 시간에 겹치는 구간이 없습니다. 시작·종료 시간을 다르게 설정하고 활동 시간을 확인해 주세요.");
 
 
     private final HttpStatus status;

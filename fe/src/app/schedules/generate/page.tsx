@@ -12,7 +12,7 @@ import {
   TextArea,
 } from "@/components/dashboard/FormControls";
 import { CircularTimetableEditor } from "@/components/dashboard/Timeline";
-import { request, today } from "@/lib/schedulerApi";
+import { request, today, isScheduleDate } from "@/lib/schedulerApi";
 import type {
   ConditionForm,
   EmotionState,
@@ -25,7 +25,8 @@ function getInitialDate() {
   if (typeof window === "undefined") return today();
 
   const params = new URLSearchParams(window.location.search);
-  return params.get("date") ?? today();
+  const requested = params.get("date");
+  return isScheduleDate(requested) ? requested : today();
 }
 
 export default function ScheduleGeneratePage() {
@@ -38,6 +39,8 @@ export default function ScheduleGeneratePage() {
     memo: "",
   });
   const [generated, setGenerated] = useState<GeneratedSchedule | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [generationError, setGenerationError] = useState("");
   const [toast, setToast] = useState<{
     message: string;
     type: "loading" | "success" | "error";
@@ -61,16 +64,22 @@ export default function ScheduleGeneratePage() {
   }, [toast]);
 
   const run = async (action: () => Promise<void>, successMessage: string) => {
+    if (busy) return;
+    setBusy(true);
+    setGenerationError("");
     setToast({ message: "처리 중...", type: "loading" });
     try {
       await action();
       setToast({ message: successMessage, type: "success" });
     } catch (error) {
+      setGenerationError(error instanceof Error ? error.message : "요청에 실패했습니다.");
       setToast({
         message:
           error instanceof Error ? error.message : "요청에 실패했습니다.",
         type: "error",
       });
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -78,6 +87,7 @@ export default function ScheduleGeneratePage() {
     event.preventDefault();
 
     void run(async () => {
+      setGenerated(null);
       const profile = await request<SchedulingProfile | null>(
         "/api/v1/schedules/scheduling-profile",
       );
@@ -104,13 +114,13 @@ export default function ScheduleGeneratePage() {
   };
 
   const confirmSchedule = () => {
-    if (!generated) return;
+    if (!generated || generated.date !== date || generated.items.length === 0 || busy) return;
 
     void run(async () => {
       await request<{ id: number }>("/api/v1/schedules/confirm", {
         method: "POST",
         body: JSON.stringify({
-          date,
+          date: generated.date,
           items: generated.items,
         }),
       });
@@ -242,11 +252,12 @@ export default function ScheduleGeneratePage() {
               </Link>
             </p>
             <form onSubmit={generateSchedule} className="flex flex-col gap-4">
+              <fieldset disabled={busy} className="flex flex-col gap-4 disabled:opacity-60">
               <Input
                 label="날짜"
                 type="date"
                 value={date}
-                onChange={setDate}
+                onChange={(value) => { setDate(value); setGenerated(null); setGenerationError(""); }}
                 required
               />
 
@@ -296,22 +307,44 @@ export default function ScheduleGeneratePage() {
               <SubmitButton
                 label={generated ? "컨디션 저장 후 다시 생성" : "일정 생성"}
               />
+              </fieldset>
             </form>
           </Panel>
 
           <Panel title="일정 초안">
+            {generationError && <div role="alert" className="mb-4 rounded-2xl bg-red-50 p-4 text-sm text-red-700">
+              <p>{generationError}</p>
+              <div className="mt-2 flex flex-wrap gap-3">
+                <Link href="/fixed-schedules/new" className="underline">고정 일정 관리</Link>
+                <Link href="/scheduling-profile" className="underline">활동·집중 시간 설정</Link>
+              </div>
+            </div>}
             {generated ? (
               <div className="flex flex-col gap-4">
-                <CircularTimetableEditor
+                <p className="text-sm font-semibold">{generated.date} · 집중 {generated.sessionMinutes}분 / 휴식 {generated.breakMinutes}분</p>
+                {generated.notices.length > 0 && <div role="status" className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">
+                  <ul className="list-inside list-disc space-y-2">{generated.notices.map((notice) => <li key={notice}>{notice}</li>)}</ul>
+                </div>}
+                {generated.unscheduledGoals.length > 0 && <section className="rounded-2xl border border-amber-200 p-4">
+                  <h2 className="mb-2 text-sm font-bold">배치하지 못한 목표</h2>
+                  <ul className="space-y-2">{generated.unscheduledGoals.map((goal) => <li key={goal.goalId} className="text-sm"><strong>{goal.title}</strong><p className="mt-1 text-slate-600">{goal.reason}</p></li>)}</ul>
+                </section>}
+                <div className="flex flex-wrap gap-3 text-sm text-blue-700">
+                  <Link href="/goals/new" className="underline">목표 관리</Link>
+                  <Link href="/scheduling-profile" className="underline">활동·집중 시간 설정</Link>
+                </div>
+                {generated.items.length === 0 && <p className="text-sm text-slate-600">생성된 일정이 없습니다. 목표와 활동 시간을 조정한 뒤 다시 생성해 주세요.</p>}
+                {generated.items.length > 0 && <CircularTimetableEditor
                   items={generated.items}
                   onChange={updateGeneratedItem}
                   onDelete={deleteGeneratedItem}
-                />
+                />}
                 <div className="mt-4 flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={confirmSchedule}
-                    className="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-600/20 transition hover:bg-blue-700"
+                    disabled={busy || generated.date !== date || generated.items.length === 0}
+                    className="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-600/20 transition hover:bg-blue-700 disabled:opacity-50"
                   >
                     생성된 일정 확정
                   </button>

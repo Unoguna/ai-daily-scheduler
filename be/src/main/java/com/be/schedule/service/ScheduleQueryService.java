@@ -30,7 +30,7 @@ public class ScheduleQueryService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        LocalDate scheduleDate = date == null ? LocalDate.now() : date;
+        LocalDate scheduleDate = date == null ? com.be.global.time.KoreanDate.today() : date;
         return confirmedScheduleRepository.findByUserIdAndDate(userId, scheduleDate)
                 .map(ConfirmedScheduleResponse::from)
                 .orElse(null);

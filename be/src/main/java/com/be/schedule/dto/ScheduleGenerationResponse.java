@@ -7,6 +7,8 @@ public record ScheduleGenerationResponse(
         LocalDate date,
         Integer sessionMinutes,
         Integer breakMinutes,
-        List<GeneratedScheduleItemResponse> items
+        List<GeneratedScheduleItemResponse> items,
+        List<String> notices,
+        List<UnscheduledGoalResponse> unscheduledGoals
 ) {
 }

@@ -54,6 +54,7 @@ public class SchedulingProfile {
             Integer preferredSessionMinutes,
             Integer breakMinutes
     ) {
+        DailyTimeWindow.intersect(wakeUpTime, sleepTime, preferredStartTime, preferredEndTime);
         this.user = user;
         this.preferredStartTime = preferredStartTime;
         this.preferredEndTime = preferredEndTime;
@@ -95,6 +96,7 @@ public class SchedulingProfile {
             Integer preferredSessionMinutes,
             Integer breakMinutes
     ) {
+        DailyTimeWindow.intersect(wakeUpTime, sleepTime, preferredStartTime, preferredEndTime);
         this.preferredStartTime = preferredStartTime;
         this.preferredEndTime = preferredEndTime;
         this.wakeUpTime = wakeUpTime;

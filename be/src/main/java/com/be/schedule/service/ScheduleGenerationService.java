@@ -9,11 +9,13 @@ import com.be.goal.domain.GoalPriority;
 import com.be.goal.domain.GoalStatus;
 import com.be.goal.repository.GoalRepository;
 import com.be.schedule.domain.DailyScheduleFeedback;
+import com.be.schedule.domain.DailyTimeWindow;
 import com.be.schedule.domain.FixedSchedule;
 import com.be.schedule.domain.ScheduleItemType;
 import com.be.schedule.domain.SchedulingProfile;
 import com.be.schedule.dto.GeneratedScheduleItemResponse;
 import com.be.schedule.dto.ScheduleGenerationResponse;
+import com.be.schedule.dto.UnscheduledGoalResponse;
 import com.be.schedule.repository.DailyScheduleFeedbackRepository;
 import com.be.schedule.repository.FixedScheduleRepository;
 import com.be.schedule.repository.SchedulingProfileRepository;
@@ -45,7 +47,7 @@ public class ScheduleGenerationService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        LocalDate scheduleDate = date == null ? LocalDate.now() : date;
+        LocalDate scheduleDate = date == null ? com.be.global.time.KoreanDate.today() : date;
         DailyCondition condition = dailyConditionRepository.findByUserIdAndDate(userId, scheduleDate)
                 .orElseThrow(() -> new BusinessException(ErrorCode.DAILY_CONDITION_NOT_FOUND));
         SchedulingProfile profile = schedulingProfileRepository.findByUserId(userId)
@@ -55,16 +57,18 @@ public class ScheduleGenerationService {
                 .map(FeedbackAdjustment::from)
                 .orElse(FeedbackAdjustment.none());
 
-        LocalTime scheduleStart = max(profile.getWakeUpTime(), profile.getPreferredStartTime());
-        LocalTime scheduleEnd = min(profile.getSleepTime(), profile.getPreferredEndTime());
-        if (!scheduleStart.isBefore(scheduleEnd)) {
-            throw new BusinessException(ErrorCode.INVALID_TIME_RANGE);
-        }
+        var windows = DailyTimeWindow.intersect(profile.getWakeUpTime(), profile.getSleepTime(),
+                profile.getPreferredStartTime(), profile.getPreferredEndTime());
 
         List<FixedSchedule> fixedSchedules = fixedScheduleRepository
                 .findByUserIdAndDayOfWeek(userId, scheduleDate.getDayOfWeek()).stream()
                 .sorted(Comparator.comparing(FixedSchedule::getStartTime))
                 .toList();
+
+        for (int index = 1; index < fixedSchedules.size(); index++) {
+            if (fixedSchedules.get(index - 1).getEndTime().isAfter(fixedSchedules.get(index).getStartTime()))
+                throw new BusinessException(ErrorCode.FIXED_SCHEDULE_OVERLAP);
+        }
 
         List<GoalCandidate> goalCandidates = goalRepository.findByUserId(userId).stream()
                 .filter(goal -> goal.getStatus() == GoalStatus.ACTIVE)
@@ -79,7 +83,7 @@ public class ScheduleGenerationService {
         addFixedScheduleItems(items, fixedSchedules);
         addGoalWorkItems(
                 items,
-                calculateAvailableBlocks(scheduleStart, scheduleEnd, fixedSchedules),
+                windows.stream().flatMap(window -> calculateAvailableBlocks(window.start(), window.end(), fixedSchedules).stream()).toList(),
                 goalCandidates,
                 sessionMinutes,
                 breakMinutes,
@@ -91,11 +95,29 @@ public class ScheduleGenerationService {
                         .thenComparing(GeneratedScheduleItemResponse::endTime))
                 .toList();
 
+        List<String> notices = new ArrayList<>();
+        if (profile.getSleepTime().isBefore(profile.getWakeUpTime())
+                || profile.getPreferredEndTime().isBefore(profile.getPreferredStartTime())) {
+            notices.add("자정을 넘는 생활 패턴은 선택한 날짜의 00:00~23:59 범위로 나누어 생성합니다. 새벽 일정도 선택한 날짜에 속합니다.");
+        }
+        if (goalCandidates.isEmpty()) notices.add("활성 목표가 없어 고정 일정만 표시합니다. 목표를 추가하거나 다시 활성화해 주세요.");
+        var scheduledGoalIds = sortedItems.stream().filter(item -> item.type() == ScheduleItemType.GOAL_WORK)
+                .map(GeneratedScheduleItemResponse::goalId).collect(java.util.stream.Collectors.toSet());
+        String reason = scheduledGoalIds.isEmpty()
+                ? "연속 " + sessionMinutes + "분의 집중 시간을 확보할 수 없습니다. 고정 일정이나 활동·집중 시간을 조정해 주세요."
+                : "활동 시간과 우선순위·피드백을 반영한 배치 결과, 이 목표의 집중 시간을 확보하지 못했습니다.";
+        var unscheduled = goalCandidates.stream().map(GoalCandidate::goal)
+                .filter(goal -> !scheduledGoalIds.contains(goal.getId()))
+                .map(goal -> new UnscheduledGoalResponse(goal.getId(), goal.getTitle(), reason)).toList();
+        if (!unscheduled.isEmpty()) notices.add("배치하지 못한 목표가 " + unscheduled.size() + "개 있습니다.");
+
         return new ScheduleGenerationResponse(
                 scheduleDate,
                 sessionMinutes,
                 breakMinutes,
-                sortedItems
+                sortedItems,
+                List.copyOf(notices),
+                unscheduled
         );
     }
 
@@ -128,7 +150,7 @@ public class ScheduleGenerationService {
         int goalIndex = 0;
         for (TimeBlock block : availableBlocks) {
             LocalTime cursor = block.start();
-            while (!cursor.plusMinutes(sessionMinutes).isAfter(block.end())) {
+            while (ChronoUnit.MINUTES.between(cursor, block.end()) >= sessionMinutes) {
                 Goal goal = selectGoal(goalCandidates, goalIndex, cursor, feedbackAdjustment).goal();
                 LocalTime workEnd = cursor.plusMinutes(sessionMinutes);
 
@@ -145,7 +167,7 @@ public class ScheduleGenerationService {
                 goalIndex++;
                 cursor = workEnd;
 
-                if (!cursor.plusMinutes(breakMinutes + sessionMinutes).isAfter(block.end())) {
+                if (ChronoUnit.MINUTES.between(cursor, block.end()) >= breakMinutes + sessionMinutes) {
                     LocalTime breakEnd = cursor.plusMinutes(breakMinutes);
                     items.add(new GeneratedScheduleItemResponse(
                             ScheduleItemType.BREAK,

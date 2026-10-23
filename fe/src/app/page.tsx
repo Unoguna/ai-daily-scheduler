@@ -227,7 +227,7 @@ export default function Home() {
         <DashboardHeader user={user} onLogout={logout} />
         <DateToolbar
           selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
+          onDateChange={(value) => { if (value) setSelectedDate(value); }}
           isAuthenticated={Boolean(user)}
         />
         <StatusMessage toast={toast} />

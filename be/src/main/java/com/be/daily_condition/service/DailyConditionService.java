@@ -40,7 +40,7 @@ public class DailyConditionService {
 
     @Transactional(readOnly = true)
     public DailyConditionResponse getDailyCondition(Long userId, LocalDate date) {
-        LocalDate conditionDate = date == null ? LocalDate.now() : date;
+        LocalDate conditionDate = date == null ? com.be.global.time.KoreanDate.today() : date;
 
         DailyCondition dailyCondition = dailyConditionRepository
                 .findByUserIdAndDate(userId, conditionDate)

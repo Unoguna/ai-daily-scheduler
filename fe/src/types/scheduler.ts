@@ -73,6 +73,8 @@ export type GeneratedSchedule = {
   sessionMinutes: number;
   breakMinutes: number;
   items: ScheduleItem[];
+  notices: string[];
+  unscheduledGoals: Array<{ goalId: number; title: string; reason: string }>;
 };
 
 export type ConfirmedSchedule = {
